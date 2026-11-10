@@ -1,0 +1,14 @@
+# specs/_current/_intent/intent.yaml：システム全体の目的、前提の事実、使う人、範囲。000 で作る。仕様担当が書く
+goals:
+  - id: GOAL-001                  # 番号。消した番号は使い回さない
+    statement: <システムが実現すること>
+    success: <実現できたと言える目安。人が決められなければ unsure>
+facts:                            # 前提の事実。人に「教えてください」の形で聞いて書く。機能のチケットも足せる
+  - id: FACT-<name>              # 英語の名前（機能のチケットが並べて足しても重ならないように）
+    statement: <事実>
+users:
+  - name: <使う人>
+    description: <どんな人か>
+scope:
+  includes: [<使う人ごとの主な操作>]
+  excludes: [<作らないもの>]

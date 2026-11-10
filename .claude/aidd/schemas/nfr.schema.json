@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/nfr",
+  "type": "object",
+  "properties": {
+    "nfr": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^NFR-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "check": {
+            "enum": [
+              "test",
+              "tool",
+              "measurement",
+              "human"
+            ]
+          },
+          "after_release": {
+            "type": "boolean"
+          },
+          "uses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "statement",
+          "check"
+        ]
+      }
+    }
+  },
+  "required": [
+    "nfr"
+  ]
+}

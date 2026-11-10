@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/harness",
+  "type": "object",
+  "properties": {
+    "limits": {
+      "type": "object",
+      "properties": {
+        "same_failure": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "debug_rounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "review_rounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stop_blocks": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

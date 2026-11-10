@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/review",
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cycle": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mode": {
+      "enum": [
+        "step-back"
+      ]
+    },
+    "from_previous_fix": {
+      "type": "boolean"
+    },
+    "judgement": {
+      "enum": [
+        "test",
+        "impl",
+        "spec",
+        "upstream",
+        null
+      ]
+    },
+    "opened": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\.png$"
+      }
+    },
+    "unlisted_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "\\.png$"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "reason",
+          "files"
+        ]
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(SR|PR|TR|CR|FR|SC)-\\d{3}$"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "large",
+              "medium",
+              "small"
+            ]
+          },
+          "target": {
+            "enum": [
+              "spec",
+              "plan",
+              "test",
+              "impl",
+              "mock"
+            ]
+          },
+          "where": {
+            "type": "string",
+            "minLength": 1
+          },
+          "what": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fix": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fix_scope": {
+            "enum": [
+              "example",
+              "screen",
+              "part",
+              "all"
+            ]
+          },
+          "scene": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cases": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "name",
+              "cases"
+            ]
+          },
+          "single_answer": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "what"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "id": {
+                  "pattern": "^(PR|TR|CR|SC)-"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            },
+            "then": {
+              "required": [
+                "severity",
+                "target"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "id": {
+                  "pattern": "^SC-"
+                },
+                "target": {
+                  "const": "mock"
+                }
+              },
+              "required": [
+                "id",
+                "target"
+              ]
+            },
+            "then": {
+              "required": [
+                "fix_scope"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "id": {
+                  "pattern": "^(CR|PR|TR|FR)-"
+                },
+                "target": {
+                  "const": "spec"
+                }
+              },
+              "required": [
+                "id",
+                "target"
+              ]
+            },
+            "then": {
+              "required": [
+                "single_answer"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "findings"
+  ]
+}

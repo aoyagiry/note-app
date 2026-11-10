@@ -1,0 +1,7 @@
+# specs/_current/_tech/acceptance.yaml：基盤の受入条件。001 で仕様担当が書く。業務の具体例ではないので観点ごとに置く
+acceptance:
+  - id: AC-<aspect>-1
+    aspect: <観点。foundation-hearing の 3 の表のとおり。例：test-levels、visual-regression、design-tokens、design-base、test-report、errors、structure、dev-env、write-scopes、ci、deploy>
+    when: <すること>
+    then: <結果>
+    checked_by: test              # test（テストで確認する）、ci（試験用の PR でプロダクトリードが確認する）、human（Gate 2 で人が確認する）

@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/status",
+  "type": "object",
+  "properties": {
+    "ticket_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\d{3}-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "state": {
+      "enum": [
+        "ヒアリング中",
+        "承認待ち",
+        "計画中",
+        "テスト作成中",
+        "実装中",
+        "検証中",
+        "コードレビュー中",
+        "受入済",
+        "保留"
+      ]
+    },
+    "pr": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "affects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "before_after": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "enum": [
+              "spec-diff",
+              "lead"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "name",
+          "reason",
+          "source"
+        ]
+      }
+    },
+    "draft_shown": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "commit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "commit",
+            "at"
+          ]
+        }
+      ]
+    },
+    "consult_started": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "at": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "at"
+          ]
+        }
+      ]
+    },
+    "approval": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "by": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "comment_url": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "by",
+            "at",
+            "commit"
+          ]
+        }
+      ]
+    },
+    "main_checked_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hold": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "from",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stage": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "at",
+          "stage",
+          "note"
+        ]
+      }
+    }
+  },
+  "required": [
+    "ticket_id",
+    "state",
+    "log"
+  ]
+}

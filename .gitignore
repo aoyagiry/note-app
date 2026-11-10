@@ -1,0 +1,3 @@
+node_modules/
+.claude/settings.local.json
+specs/*/results/spec-book.html

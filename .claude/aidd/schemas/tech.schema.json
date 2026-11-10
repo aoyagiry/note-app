@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/tech",
+  "type": "object",
+  "properties": {
+    "tech": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^TECH-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "background": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "option": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "effect": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "option",
+                "effect"
+              ]
+            },
+            "minItems": 1
+          },
+          "if_changed": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "summary",
+          "decision"
+        ],
+        "dependentRequired": {
+          "alternatives": [
+            "if_changed",
+            "background"
+          ],
+          "if_changed": [
+            "alternatives"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "tech"
+  ]
+}

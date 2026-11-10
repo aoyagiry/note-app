@@ -1,0 +1,14 @@
+# specs/<チケット>/plan/details.yaml：計画の決め事（誰も当てにしない細部）。Planner が書く。作る役も test: false の決め事を足せる
+details:
+  - id: PD-001
+    decision: <決め事。例：備考の前後の空白を除く>
+    plain: <何を決めたかを 1 行（CLAUDE.md の「守ること」の 10 のとおり）。Gate 2 で畳んで載せる>
+    reason: <理由。仕様の結果の写し方（architecture.md）やライブラリの既定から外れるなら、その理由。計画レビューが確認する>
+    test: true                    # true ならテストを書く（テストの名前に <番号>/PD-001）。false なら no_test_reason
+    no_test_reason: <test が false のとき>
+    same_as: <前のチケットの同じ決め事（例：012/PD-003）。あれば>
+    replaces: [<この決め事で変えた前のチケットの決め事（例：005/PD-005）。あれば。仕様の全体のページで、変えられた古い決め事を畳む>]
+    by: planner                   # planner か implementer
+screen_paths:                     # 画面のあるチケットだけ：このチケットで足すか変える画面ごとの道（Gate 2 で、人が開く URL になる）。Planner が書く
+  - { area: <領域>, id: SCR-<name>, path: <道。例：/rooms/new> }
+try_at: <日付か時刻で中身が変わる画面を足すか変えるチケットだけ：画面を試す日時（ISO 8601。例：2027-05-12T16:00）。toolchain.yaml の start.clock の {at} に入る。Planner が書く>

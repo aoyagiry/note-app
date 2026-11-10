@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/details",
+  "type": "object",
+  "properties": {
+    "details": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^PD-\\d{3}$"
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "test": {
+            "type": "boolean"
+          },
+          "no_test_reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "same_as": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\d{3}/PD-\\d{3}$"
+          },
+          "by": {
+            "enum": [
+              "planner",
+              "implementer"
+            ]
+          },
+          "replaces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^\\d{3}/PD-\\d{3}$"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "id",
+          "plain",
+          "test"
+        ]
+      }
+    },
+    "screen_paths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string",
+            "pattern": "^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^SCR-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/"
+          }
+        },
+        "required": [
+          "area",
+          "id",
+          "path"
+        ]
+      }
+    },
+    "try_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2})?(?:Z|[+-]\\d{2}:\\d{2})?$"
+    }
+  },
+  "required": [
+    "details"
+  ]
+}

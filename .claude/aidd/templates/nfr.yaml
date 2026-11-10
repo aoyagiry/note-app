@@ -1,0 +1,6 @@
+# specs/_current/_shared/nfr.yaml：システム全体の非機能要件。文だけを持ち、具体例は持たない
+nfr:
+  - id: NFR-<name>
+    statement: <基準の文。例：一覧は会議室が 100 件あっても 2 秒以内に出る>
+    check: test                   # test（頼る機能の要件の具体例とテスト）、tool（検査のコマンド。001 で toolchain.yaml の nfr_commands に結ぶ）、measurement（計測のコマンド）、human（人が見る。確認の手順を文に添える）
+    # after_release: true         # 公開の後でないと確認できないものだけ（例：店のネットワークの中からだけ開ける）。Gate 2 では、公開のチケットまで「公開の後に確認すること」に畳んで並べる

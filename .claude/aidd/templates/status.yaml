@@ -1,0 +1,11 @@
+# specs/<チケット>/status.yaml：チケットの状態。プロダクトリードだけが書く
+ticket_id: <NNN>-<name>
+state: ヒアリング中                # ヒアリング中、承認待ち、計画中、テスト作成中、実装中、検証中、コードレビュー中、受入済（Gate 2 の提出の印。受入はマージで決まる）、保留
+pr: null
+affects: []                       # 今あるものへの影響の一覧。行は { kind, name, reason, before_after, source }（before_after は何が変わるかの前と後の 1 文）。spec-diff --out が source: spec-diff の行を入れ替え、プロダクトリードは source: lead の行を足す
+draft_shown: null                 # 最後に Gate 1 の承認のページを見せたときの { commit, at }。これより後の承認コメントだけが有効
+consult_started: null             # 段 2（画面の相談）を始めたときの { at }。これより後に送られたキャンバスのコメントを読む
+approval: null                    # 承認を確認したときの { by, at, commit, comment_url }
+main_checked_at: null             # 最後に取り込んだ origin/main のコミット
+hold: null                        # { from: 保留前の状態, reason }
+log: []

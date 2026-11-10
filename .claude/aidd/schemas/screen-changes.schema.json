@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/screen-changes",
+  "type": "object",
+  "properties": {
+    "screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string",
+            "pattern": "^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^SCR-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "change": {
+            "enum": [
+              "added",
+              "modified",
+              "unchanged"
+            ]
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ac": {
+                  "type": "string",
+                  "pattern": "^AC-[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\\d+$"
+                },
+                "change": {
+                  "enum": [
+                    "added",
+                    "modified"
+                  ]
+                },
+                "also": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^AC-[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\\d+$"
+                  }
+                },
+                "variant": {
+                  "enum": [
+                    "loading",
+                    "long"
+                  ]
+                }
+              },
+              "required": [
+                "change"
+              ],
+              "oneOf": [
+                {
+                  "required": [
+                    "ac"
+                  ],
+                  "not": {
+                    "required": [
+                      "variant"
+                    ]
+                  }
+                },
+                {
+                  "required": [
+                    "variant"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "ac"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "also"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "area",
+          "id",
+          "change"
+        ]
+      }
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string",
+            "pattern": "^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "change": {
+            "enum": [
+              "added",
+              "modified"
+            ]
+          }
+        },
+        "required": [
+          "area",
+          "name",
+          "change"
+        ]
+      }
+    },
+    "unexampled": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string",
+            "pattern": "^(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$"
+          },
+          "screen": {
+            "type": "string",
+            "pattern": "^SCR-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scene": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "area",
+          "screen",
+          "action",
+          "scene"
+        ]
+      }
+    }
+  },
+  "required": [
+    "screens"
+  ]
+}

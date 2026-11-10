@@ -1,0 +1,21 @@
+# specs/_current/_tech/toolchain.yaml：開発環境と検証のコマンド。001 で仕様担当が書く。検証のスクリプト（verify.mjs）が読む
+setup:                            # 開発環境を作る。プロダクトリードだけが実行する
+  files: [<定義ファイル。変わったら作り直す>]
+  command: <準備のコマンド>
+commands:                         # 検証で流すコマンド。テストのレベルごと、型、書き方、ビルド、起動の確認、脆弱性の検査、カバレッジ
+  test-<レベル>: <テストのコマンド>   # テストのコマンドの名前は test で始める（Red ではこれだけを流す）
+  <名前>: <コマンド>
+measurement:                      # 計測の基準（check: measurement の NFR）ごとの計測のコマンド
+  <_shared/NFR-name>: <コマンド>
+nfr_commands:                     # 道具で確認する非機能要件（check: tool の NFR）ごとに、確認する検証のコマンドの名前（commands の名前）
+  <_shared/NFR-name>: [<commands の名前。例：a11y>]
+dependencies: [<依存の定義のファイル。setup.files のうち、版の範囲の中の更新は今あるものへの影響の一覧に出ないもの。例：package.json、package-lock.json>]
+# setup.files から dependencies を除いたもの（mise.toml、compose.yaml など）は開発環境の定義で、変えたら今あるものへの影響の一覧に出る
+start:                            # 画面のあるシステムだけ：作った画面を人が開く手順（受入の画面に出る）
+  command: <ビルドと起動のコマンド。例：npm run build && npm start>
+  url: <開く URL。例：http://127.0.0.1:3000>
+  seed: <画面を開いて試せる架空のデータを入れるコマンド。データベースを起こす所から含める。例：npm run db:up && npm run seed。機能のチケットの作る役が、そのチケットの画面のデータを足す>
+  clock: <日時を決めて起こすコマンド。seed と command をつなぎ、日時の所を {at} と書く（e2e のためにある、サーバーの時計を決める仕組みを使う）。例：npm run db:up && npm run seed && npm run build && APP_CLOCK={at} npm start。開く日によって画面を試せないときの道として受入の画面に出る>
+  login: <ログインがあるときだけ。試すための架空の利用者を作るコマンドか、その名前とパスワード。実データは使わない。ログインを入れたチケットの仕様担当が書く>
+test_reports: [<テストの結果の JUnit XML の置き場所。glob 可>]
+visual_threshold: 0.001           # 画面のあるシステムだけ：見た目の回帰テストで、違いとみなす画素の割合

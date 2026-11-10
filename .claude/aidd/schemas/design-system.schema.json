@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/design-system",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https://claude\\.ai/"
+    },
+    "mood": {
+      "type": "string",
+      "minLength": 1
+    },
+    "color": {
+      "type": "object"
+    },
+    "type": {
+      "type": "object"
+    },
+    "spacing": {
+      "type": "object"
+    },
+    "radius": {
+      "type": "object"
+    },
+    "motion": {
+      "type": "object"
+    },
+    "breakpoint": {
+      "type": "object"
+    },
+    "size": {
+      "type": "object"
+    },
+    "border": {
+      "type": "object"
+    },
+    "shadow": {
+      "type": "object"
+    },
+    "effect": {
+      "type": "object"
+    },
+    "text_rules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "name",
+    "url",
+    "color",
+    "type",
+    "spacing",
+    "radius"
+  ]
+}

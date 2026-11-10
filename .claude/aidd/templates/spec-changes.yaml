@@ -1,0 +1,5 @@
+# specs/<チケット>/spec-changes.yaml：機械で出せない仕様の変更だけを書く（足した、変えた、消したは spec-diff が git から出す）。仕様担当が書く。無ければ作らない
+renames:                          # 名前の付け替え。古い ID と新しい ID の対
+  - { from: rooms/REQ-old, to: rooms/REQ-new }
+impacts:                          # ID でつながらない影響
+  - { item: <影響を受ける項目の ID（あれば）>, note: <何がどう変わるか。前と後が分かる 1 文> }

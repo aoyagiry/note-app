@@ -1,0 +1,16 @@
+# specs/<チケット>/hearing/questions.yaml：人への問いと答えの記録。問いは仕様担当が書き、答えはプロダクトリードが書き足す
+# 問い 1 つが記録 1 件。後で「なぜそうなっているか」をたどる元になる
+questions:
+  - id: Q-001
+    question: <問い。主語を人の行いにする>
+    about: [<この問いで決まる項目の ID。領域を付ける。例：rooms/REQ-register-limits、_intent/GOAL-001、_tech/TECH-db、TICKET/002-availability>]   # Gate 1 のページで、答えで決まった項目に問いの番号が添えられる
+    # widens: true                # 範囲を広げる AI の提案（人が話していない操作、画面、データを足す提案）の問いだけ。答えるまで仕様に書かず、about は答えの後に書いた項目の ID にする
+    background: <判断に要る事情。技術にかかわる問いでは、なぜ問うかを必ず書く>
+    options:                      # 提案を先頭にし、別の案も並べる。前提の事実を聞く問いは省いてよい
+      - { label: <案>, effect: <良い点と引き換えになる点> }
+      - { label: <案>, effect: <…> }
+    proposal: <提案の label>
+    reason: <提案の理由>
+    if_unsure: <決められないとき。例：提案のまま進めて大丈夫です。後で変えると…>
+    answer: <人の答え。選んだ label か、人の言葉のまま>
+    answered_at: <日時>

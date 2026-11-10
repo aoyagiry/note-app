@@ -1,0 +1,5 @@
+# specs/_current/_shared/terms.yaml：共通の用語。最初に使う機能のチケットが足す（000 では作らない）
+terms:
+  - id: TERM-<name>               # 英語の名前
+    name: <言葉>
+    definition: <意味>

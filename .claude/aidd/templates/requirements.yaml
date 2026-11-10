@@ -1,0 +1,16 @@
+# specs/_current/<領域>/requirements.yaml（流れの領域は journeys/<流れ>/requirements.yaml）
+# 仕様に書く具体例は、会社や人によって答えが変わりうるものだけ。答えが 1 つに決まる当たり前の具体例は書かず、テストか計画の決め事に任せる
+purpose: <この領域が何のためにあるか。1 文>
+requirements:
+  - id: REQ-<name>                # 英語の名前。領域の中で重ねない
+    statement: <業務の言葉の要件の文>
+    uses: []                      # 領域の外（ほかの領域、_shared、_intent）で、この要件と下の具体例が頼るもの。領域の中は書かない
+    examples:                     # 1 つ以上。結果は仕様の結果の写し方（architecture.md）の語（受け付ける、断られる、見つからない、ほかと重なる など）で書く
+      - id: AC-<name>-1           # AC-<親の要件の名前>-<番号>。テストの名前に <領域>/AC-<name>-1 の形で入れる
+        given: <前提。無ければ省く>
+        when: <すること>
+        then: <業務の結果>
+# screens:                        # 画面のあるシステムだけ：この領域の画面
+#   - { id: SCR-<name>, title: <業務の言葉の画面の名前> }
+nfr:                              # この領域だけの非機能要件（あれば）。形は _shared/nfr.yaml と同じ。uses で指さず、この領域を変えるチケットにはすべて当たる
+  []

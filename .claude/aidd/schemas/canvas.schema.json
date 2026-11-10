@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/canvas",
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "pattern": "^https://claude\\.ai/"
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^SCR-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "widths": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "widths"
+        ]
+      }
+    }
+  },
+  "required": [
+    "url"
+  ]
+}

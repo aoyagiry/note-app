@@ -1,0 +1,6 @@
+# 回数の上限の既定値。案件で変える場合は、変えたい項目だけを specs/_current/_tech/harness.yaml に書く
+limits:
+  same_failure: 3                     # 同じ失敗が続いたら Debugger を起動する回数
+  debug_rounds: 1                     # 人に返す前に Debugger を起動する回数
+  review_rounds: 5                    # 同じ指摘の連なりでレビューを動かす回数と、同じ計画への異議の上限。上限の 1 つ前の回は一歩引いた見直し
+  stop_blocks: 3                      # コミットの検査の違反を直すために、同じサブエージェントを再開する回数の上限

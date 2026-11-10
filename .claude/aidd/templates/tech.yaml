@@ -1,0 +1,13 @@
+# specs/_current/_tech/tech.yaml：技術の選択。001 で仕様担当が決めて書く
+# 承認で開いて見せるのは、後から変えると作り直しが大きいか使う側に影響し、その影響を業務の言葉で説明できるものだけ。
+# 見せるものだけが background、alternatives、if_changed を持つ（Gate 1 の承認のページのスクリプトは、この欄があるかで分ける）
+tech:
+  - id: TECH-<name>
+    summary: <何を決めたかを 1〜2 行。決まった呼び名のある技術の言葉はそのまま使う（CLAUDE.md の「守ること」の 10）。Gate 1 の影響の一覧は、summary が同じなら「書き方を直す」と出す>
+    decision: <技術の言葉での中身>
+    reason: <選んだ理由>
+    background: <見せるものだけ：なぜ決める必要があるか>
+    alternatives:                 # 見せるものだけ：選ばなかった案
+      - { option: <案>, effect: <選ばなかった理由の一言（30 字ほど）> }
+    if_changed: <見せるものだけ：後から変えるとき何が要るか>
+    sources: []                   # 外の事実に頼るときの出典（任意）

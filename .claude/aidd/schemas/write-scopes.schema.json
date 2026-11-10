@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidd.local/schemas/write-scopes",
+  "type": "object",
+  "propertyNames": {
+    "enum": [
+      "test-writer",
+      "implementer",
+      "designer"
+    ]
+  },
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "allow": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!specs/|\\.claude/|CLAUDE\\.md$)"
+        }
+      },
+      "deny": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "required": [
+      "allow"
+    ],
+    "additionalProperties": false
+  }
+}

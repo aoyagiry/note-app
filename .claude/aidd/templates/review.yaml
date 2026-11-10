@@ -1,0 +1,24 @@
+# specs/<チケット>/reviews/<spec|plan|test|code|screen|failure>/<番号 2 桁>-c<cycle>.yaml（例：07-c1.yaml）：レビュー役が回ごとに新しく書く
+verdict: <まとめ。1〜2 文>
+cycle: 1                          # 同じ指摘の連なりの何回目か（プロダクトリードが伝える）
+# judgement: impl                 # 失敗の判断だけ：impl、test、spec、upstream のどれか
+# mode: step-back                 # 一歩引いた見直しの回だけ書く。ほかの回は書かない
+# from_previous_fix: true         # 仕様のレビューだけ：前の回の直しから生じた指摘を、その回のうちに一歩引いた書き方で書いた回に付ける
+# opened:                         # 画面のレビューだけ：開いた PNG の名前をすべて（プロダクトリードが見る PNG の一覧と突き合わせる）
+#   - reservations--SCR-book--desktop.png
+# unlisted_changes:               # コードレビューだけ：verify.json の変えるつもりの無かった画面の変化のうち、指摘しなかったものを理由ごとにまとめる（Gate 2 に出る）
+#   - reason: <なぜ変わったか。人に見せる 1 文。例：スタッフの画面の上の帯に「取り置き」を足したため>
+#     files: [<verify.json の file。例：staff--SCR-schedule.png>]
+findings:
+  - id: CR-001                    # SR（仕様）、PR（計画）、TR（テスト）、CR（コード）、SC（画面）、FR（失敗の判断）。回をまたいで通し番号
+    severity: large               # critical、large、medium、small（仕様のレビューでは付けない）
+    target: impl                  # 直す先：spec、plan、test、impl、mock（画面のモック。Designer が直す）
+    where: <ファイルと行、または項目の ID。計画、テスト、コードのレビューと失敗の判断で直す先が spec の指摘は、かかわる要件の ID（領域を付ける）を先頭に>
+    what: <何が問題か>
+    scene: <仕様の漏れの指摘だけ（仕様のレビュー、コードレビューで見つけた仕様の穴）：業務のどんな場面で起きるか。書けなければ指摘しない>
+    # kind:                         # 仕様のレビューと一歩引いた見直し：指摘が、ある種類の場合の 1 つに当たるとき。種類の名前と、同じ回に挙げたその種類の場合（業務で実際に起きるものだけ）
+    #   name: <種類の名前。例：頼んだ時点で前提が変わっていたとき>
+    #   cases: [<場合。例：頼んだ後に日が切り替わった>, <場合>]
+    # single_answer: false          # 計画、テスト、コードのレビューと失敗の判断の target: spec の指摘だけ：今の要件から答えが 1 つに決まるか（true か false）
+    fix: <直し方の案>
+    # fix_scope: screen             # 画面のレビューの target: mock の指摘だけ：直す範囲。example（この画面例だけ）、screen（この画面のすべての画面例）、part（この共通部品を読むすべての画面）、all（すべての画面）
