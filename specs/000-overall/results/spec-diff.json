@@ -82,6 +82,407 @@
         "id": "FACT-single-user-first",
         "statement": "最初に使うのは自分一人。ほかの人との共有は後で足す"
       }
+    },
+    {
+      "key": "_intent/FACT-no-design-reference",
+      "kind": "FACT",
+      "area": "_intent",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "FACT-no-design-reference",
+        "statement": "見た目や使い心地の手本にするアプリや資料は無い。画面の方向は、AI がありがちでない方向の案をいくつか描き、見比べて選ぶ"
+      }
+    },
+    {
+      "key": "_shared/RULE-works-offline",
+      "kind": "RULE",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "RULE-works-offline",
+        "statement": "ページを作る、開く、書く、消す、探すといったページの操作は、ネットにつながっていなくても、つながっているときと同じようにできる。つながっていない間にしたことは、つながったら自動でサーバーと同期され、ログインしているもう一方のパソコンにも届く"
+      }
+    },
+    {
+      "key": "_shared/RULE-merge-edits",
+      "kind": "RULE",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "RULE-merge-edits",
+        "statement": "2 台のパソコンで同じページを書き換えたとき（ネットにつながっていない間の書き換えを含む）は、両方の書き換えが行や文字の単位で自動で合わさる。どちらかの書き換えが消えることはなく、どちらを残すかを人が選ぶ必要もない"
+      }
+    },
+    {
+      "key": "_shared/RULE-own-pages-only",
+      "kind": "RULE",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "RULE-own-pages-only",
+        "statement": "ログインしている人に見えて、書けるのは、その人のアカウントのページだけである。別の人が自分のアカウントでログインしても、こちらのページは一覧にも検索の結果にも出ず、開くこともできない"
+      }
+    },
+    {
+      "key": "_shared/NFR-response-time",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-response-time",
+        "statement": "ページが 1 万件あっても、Mac と Windows のどちらでも、キーを打ってから文字が画面に出るまで 16 ミリ秒（画面の 1 コマ）以内、ページを開く、検索の結果を出す、ボタンを押した結果を出すまで 100 ミリ秒以内、アプリを起動してページの並びが出るまで 1 秒以内である",
+        "check": "measurement"
+      }
+    },
+    {
+      "key": "_shared/NFR-sync-delay",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-sync-delay",
+        "statement": "2 台のパソコンが両方ネットにつながってアプリを開いているとき、片方で書いたことが、もう一方の画面に 3 秒以内に出る",
+        "check": "measurement"
+      }
+    },
+    {
+      "key": "_shared/NFR-platforms",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-platforms",
+        "statement": "アプリは Windows と Mac の両方で動く。すべてのテストを、Windows と Mac の両方の機械で流して通す",
+        "check": "tool"
+      }
+    },
+    {
+      "key": "_shared/NFR-encrypted-connection",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-encrypted-connection",
+        "statement": "パソコンとサーバーの間の通信は、すべて暗号化する（TLS）。暗号化しない接続は受け付けない。TLS の設定を調べる道具で、動いているサーバーが暗号化しない接続と古い版の TLS を受け付けないことを調べる",
+        "check": "tool",
+        "after_release": true
+      }
+    },
+    {
+      "key": "_shared/NFR-password-storage",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-password-storage",
+        "statement": "パスワードは、そのままの形でサーバーにもパソコンにも保存しない。サーバーには、パスワードのハッシュ化の専用の方式で変換したものだけを保存する",
+        "check": "test"
+      }
+    },
+    {
+      "key": "_shared/NFR-error-details",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-error-details",
+        "statement": "失敗したときに、サーバーの内部の情報（エラーの詳細、使っている道具の名前と版、ファイルの場所など）をアプリにも画面にも返さない",
+        "check": "test"
+      }
+    },
+    {
+      "key": "_shared/NFR-vulnerabilities",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-vulnerabilities",
+        "statement": "使っているライブラリに、深刻度が高い（High）か重大（Critical）の既知の脆弱性を残さない。依存のライブラリの既知の脆弱性を調べる道具（Rust では cargo audit など）で、アプリとサーバーの両方を調べる",
+        "check": "tool"
+      }
+    },
+    {
+      "key": "_shared/NFR-polished-look",
+      "kind": "NFR",
+      "area": "_shared",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "NFR-polished-look",
+        "statement": "画面は洗練されていて、AI がよく作るありがちな画面（紫から青へのグラデーション、どこにでもある絵文字のアイコン、同じ形のカードを並べただけの配置、中身の無い飾りの言葉など）に見えない。操作するとすぐ反応し、済んだことがさりげなく分かる。確認の手順：画面のあるチケットごとに、Mac と Windows でアプリを開き、ページを作る、書く、開く、探すなど、そのチケットで作った操作をひととおり行い、ありがちな画面に見える所が無いか、待たされたと感じる所が無いか、済んだことが分からない所が無いかを見る",
+        "check": "human"
+      }
+    },
+    {
+      "key": "TICKET/002-page-tree",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "002-page-tree",
+        "title": "ページを作って左の並びから開く",
+        "purpose": "自分が、ページを作って名前を付け、ページの中にページを入れて整理し、画面の左に木の形で並んだページから目当てのページを開ける",
+        "scope": {
+          "includes": [
+            "自分が、ページを作り、名前を付ける",
+            "自分が、ページの中にページを入れ、画面の左に木の形で並んだページから開く（並べ替えや、別のページの中へ移す操作をどこまで作るかは、このチケットのヒアリングで決める）",
+            "自分が、ページを消す（中にページが入っているページを消したときにどうなるか、消したページを戻せるかは、このチケットのヒアリングで決める）"
+          ],
+          "excludes": [
+            "ページの本文を書くこと（003-page-editor で作る）",
+            "ほかのパソコンとの同期（006-page-sync で作る）"
+          ]
+        },
+        "depends_on": []
+      }
+    },
+    {
+      "key": "TICKET/003-page-editor",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "003-page-editor",
+        "title": "ページの本文を書く",
+        "purpose": "自分が、Notion のように、文字に加えて見出し、箇条書き、チェックボックス、リンクを行ごとに組んで、ページの本文を書ける",
+        "scope": {
+          "includes": [
+            "自分が、ページを開いて本文を書く。文字に加えて、見出し、箇条書き、チェックボックス、リンクを行ごとに組める（行の種類の切り替え方、リンクの先にほかのページを選べるか、書いたことが保存されたと分かる見せ方は、このチケットのヒアリングで決める）"
+          ],
+          "excludes": [
+            "画像や表を置くこと",
+            "ページに日付や状態などの項目を付けること（後で足す）"
+          ]
+        },
+        "depends_on": [
+          "002-page-tree"
+        ]
+      }
+    },
+    {
+      "key": "TICKET/004-page-search",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "004-page-search",
+        "title": "言葉でページを探す",
+        "purpose": "ページが増えても、自分が言葉で検索して目当てのページを開ける",
+        "scope": {
+          "includes": [
+            "自分が、言葉でページを検索し、結果から開く（名前だけを探すか本文も探すか、結果の並べ方は、このチケットのヒアリングで決める）"
+          ],
+          "excludes": []
+        },
+        "depends_on": [
+          "003-page-editor"
+        ]
+      }
+    },
+    {
+      "key": "TICKET/005-account-login",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "005-account-login",
+        "title": "同じアカウントで Mac と Windows にログインする",
+        "purpose": "自分が、データを預かるサーバーのアカウントで、Mac と Windows のアプリにログインできる",
+        "scope": {
+          "includes": [
+            "自分が、同じアカウントで Mac と Windows のアプリにログインする（ユーザー登録の画面は作らないので、自分のアカウントをどう用意するか、ログアウトを作るかは、このチケットのヒアリングで決める）"
+          ],
+          "excludes": [
+            "ユーザー登録の画面と、パスワードを忘れたときの手続き（後で足す）"
+          ]
+        },
+        "depends_on": []
+      }
+    },
+    {
+      "key": "TICKET/006-page-sync",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "006-page-sync",
+        "title": "2 台のパソコンでページを同期する",
+        "purpose": "同じアカウントでログインした Mac と Windows で、同じページを手間なく見て書ける。ネットにつながっていない間に書いたことも、つながったら自動で同期される",
+        "scope": {
+          "includes": [
+            "自分が、ページをサーバーに預け、同じアカウントでログインしたもう一方のパソコンで、同じページ（入れ子の並びも含む）を見て書く（ログインする前に書いていたページの扱い、同期の様子をどう見せるかは、このチケットのヒアリングで決める）",
+            "自分が、ネットにつながっていない間もページを読み書きし、つながったら自動で同期される",
+            "ネットにつながっていない間に 2 台で同じページを書き換えたときは、両方の書き換えが行や文字の単位で自動で合わさる",
+            "別の人が自分のアカウントでログインしても、こちらのページは見えない"
+          ],
+          "excludes": [
+            "ほかの人とのページの共有（後で足す）"
+          ]
+        },
+        "depends_on": [
+          "004-page-search",
+          "005-account-login"
+        ]
+      }
+    },
+    {
+      "key": "TICKET/007-two-devices-journey",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "007-two-devices-journey",
+        "title": "Mac と Windows で同じページを使う流れを確かめる",
+        "purpose": "Mac でログインしてメモを書き、Windows でログインして同じメモを見て書き足す、という一続きの使い方が、ページ、アカウント、同期をまたいで通ることを確かめる",
+        "scope": {
+          "includes": [
+            "自分が、Mac でログインしてページを書き、後で Windows でログインすると、同じページが見えて書き足せる",
+            "自分が、ネットにつながっていない Windows でページを書き、つながると Mac でも見える"
+          ],
+          "excludes": []
+        },
+        "depends_on": [
+          "006-page-sync"
+        ]
+      }
+    },
+    {
+      "key": "TICKET/008-start-using",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "008-start-using",
+        "title": "自分の Mac と Windows で使い始める",
+        "purpose": "作ったアプリを自分の Mac と Windows に入れ、データを預かるサーバーを動かして、日々のメモをこのアプリだけで書き始められる",
+        "scope": {
+          "includes": [
+            "自分が、Mac と Windows にアプリを入れて起動し、ログインして使い始める",
+            "データを預かるサーバーを、2 台のパソコンからネットを通して使える所で動かす"
+          ],
+          "excludes": [
+            "一般の人への配布（配り方を決めてから足す）"
+          ]
+        },
+        "depends_on": [
+          "007-two-devices-journey"
+        ],
+        "release": true
+      }
+    },
+    {
+      "key": "LATER/page-properties",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "page-properties",
+        "title": "ページに日付や状態などの項目を付ける",
+        "reason": "最初はメモから作ると決めたため。カレンダー、チケットのボード、ToDo の一覧の見え方の土台になるので、見え方を足すときに最初に切り出す"
+      }
+    },
+    {
+      "key": "LATER/calendar-view",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "calendar-view",
+        "title": "ページをカレンダーで並べて見る",
+        "reason": "メモの後に順に足すと決めたため。日付の項目（page-properties）の後に作る"
+      }
+    },
+    {
+      "key": "LATER/board-view",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "board-view",
+        "title": "ページをチケットのボードで並べて見る",
+        "reason": "メモの後に順に足すと決めたため。状態の項目（page-properties）の後に作る"
+      }
+    },
+    {
+      "key": "LATER/todo-view",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "todo-view",
+        "title": "ページを ToDo の一覧で並べて見る",
+        "reason": "メモの後に順に足すと決めたため。項目（page-properties）の後に作る"
+      }
+    },
+    {
+      "key": "LATER/phone-view",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "phone-view",
+        "title": "スマートフォンからページを見る",
+        "reason": "今はパソコンだけで作り、スマートフォンは後で足すと決めたため"
+      }
+    },
+    {
+      "key": "LATER/sign-up-and-password-reset",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "sign-up-and-password-reset",
+        "title": "ユーザー登録の画面と、パスワードを忘れたときの手続き",
+        "reason": "最初は自分一人で使うので、一般に配るときに足すため"
+      }
+    },
+    {
+      "key": "LATER/page-sharing",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "page-sharing",
+        "title": "ほかの人とページを共有する",
+        "reason": "最初は自分一人で使い、共有は後で足すと決めたため"
+      }
+    },
+    {
+      "key": "LATER/pricing",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "pricing",
+        "title": "料金の仕組み",
+        "reason": "配り方（無料、買い切り、月額）と広告を入れるかを、一般に配る前に決めてから足すため"
+      }
     }
   ],
   "examples_changed": [],
