@@ -483,6 +483,30 @@
         "title": "料金の仕組み",
         "reason": "配り方（無料、買い切り、月額）と広告を入れるかを、一般に配る前に決めてから足すため"
       }
+    },
+    {
+      "key": "LATER/public-distribution",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "public-distribution",
+        "title": "一般の人にアプリを配る",
+        "reason": "いずれ一般に配るが、最初は自分一人で使うため。入れ方や新しい版の届け方は、配り方（無料、買い切り、月額）を決めてから足す"
+      }
+    },
+    {
+      "key": "LATER/page-images-and-tables",
+      "kind": "LATER",
+      "area": null,
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "page-images-and-tables",
+        "title": "ページに画像や表を置く",
+        "reason": "最初の本文は、文字、見出し、箇条書き、チェックボックス、リンクにすると決めたため。画像や表は後のチケットで足す"
+      }
     }
   ],
   "examples_changed": [],
