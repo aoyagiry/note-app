@@ -1,10 +1,10 @@
 ticket_id: 000-overall
-state: 承認待ち
+state: 受入済
 pr: 1
 affects: []
 draft_shown: { commit: b8af9d12d7dd252bbccfae1df94d79202ee84cc0, at: 2026-11-10T09:32:01Z }
 consult_started: null
-approval: null
+approval: { by: aoyagiry, at: 2026-11-10T09:34:19Z, commit: 18c05577e7a5e1d91ff4c8716ba9dc4d561f452a, comment_url: "https://github.com/aoyagiry/yakyu/pull/1#issuecomment-6763927167" }
 main_checked_at: 7b922ff92703a7445c74665e6818e1d02f752729
 hold: null
 log:
