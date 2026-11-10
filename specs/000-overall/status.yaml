@@ -15,3 +15,5 @@ log:
   - { at: 2026-11-10T09:17:00Z, stage: ヒアリング, note: 前半を確認した }
   - { at: 2026-11-10T09:17:36Z, stage: ヒアリング, note: specification を overall-hearing（後半）で起動した }
   - { at: 2026-11-10T09:21:26Z, stage: ヒアリング, note: 状態：完了。ticket-plan.yaml（7 チケット、later 8 件）、共通の要件 3、非機能の基準 8、問い 6 問（Q-009〜Q-014）を書いた }
+  - { at: 2026-11-10T09:21:36Z, stage: 仕様のレビュー, note: reviewer を spec-review（cycle 1）で起動した }
+  - { at: 2026-11-10T09:23:11Z, stage: 仕様のレビュー, note: "状態：完了。指摘 2 件（外した操作の置き場所が無い、Q-009 のチケットの数が一覧と合わない）。どちらも target: spec" }
