@@ -1,0 +1,20 @@
+verdict: 目的、主な操作、壁打ちで決めた細部は、どれかのチケットか later に入っていて、チケットどうしの範囲の重なりも流れのチケットの分だけで問題ない。直すのは、チケットの外に出したのに後で足すとも作らないとも置かれていない操作が 2 つあることと、Q-009 のチケットの数が一覧と合わないこと。
+cycle: 1
+findings:
+  - id: SR-001
+    target: spec
+    where: specs/ticket-plan.yaml 008-start-using の excludes「一般の人への配布」、003-page-editor の excludes「画像や表を置くこと」、later の一覧
+    what: 2 つの操作がチケットの excludes で外されているが、later にも intent の excludes（作らないもの）にも入っておらず、後で足すのか作らないのかがどこにも決まっていない。一般の人への配布は、壁打ちで人が「いずれは一般に配りたい」と話し、GOAL-004 の前提にもなっている。それなのに later には料金（pricing）とユーザー登録しか無く、配布そのもの（インストールの形、更新の届け方など）を担う行が無い。画像や表は、Q-003 で「後のチケットで足せます」と伝えたまま、どこにも置かれていない
+    scene: 自分の Mac と Windows で使い始めた後、一般に配ろうとして /aidd-status で後で切り出す範囲を見ても、配布のチケットの候補が料金とユーザー登録しか出ず、配る準備の範囲を一から決め直すことになる。メモに画像を貼りたくなったときも、後で足す予定だったのか作らないと決めたのかが分からない
+    kind:
+      name: チケットの excludes で外したのに、later にも作らないものにも置いていない操作
+      cases:
+        - 一般の人への配布（008-start-using の excludes）
+        - ページに画像や表を置くこと（003-page-editor の excludes）
+    fix: チケットの excludes で外した操作は、必ず later か intent の scope.excludes のどちらかに置く、という決まりで一覧をそろえる。一般の人への配布は、配り方を決めてから足す理由を付けて later に置く。画像や表は、Q-003 で伝えたとおり later に置く
+  - id: SR-002
+    target: spec
+    where: specs/000-overall/hearing/questions.yaml Q-009 の background と options の 1 つ目の effect、specs/ticket-plan.yaml 007-two-devices-journey
+    what: Q-009 は、使い始めるまでの流れを「並び、本文、検索、ログイン、同期、使い始める」と説明し、「使い始めるまでに 6 つのチケットを作ります」と書いているが、ticket-plan.yaml には 007-two-devices-journey を含めて 7 つのチケットがある。Q-011 の提案（置く）のとおりになると、人は 6 つと聞いて 7 つを作ることになる
+    scene: 人が Q-009 で 6 つと読んで答え、Q-011 でも提案どおり「置く」を選ぶと、Gate 1 で一覧を見たときに 7 つ並んでいて、説明と違うと受け取る
+    fix: Q-009 の数と流れの説明を、ticket-plan.yaml の行に合わせる（007 は Q-011 の答えで増減することを添える）

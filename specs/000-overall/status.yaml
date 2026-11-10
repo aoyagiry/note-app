@@ -1,0 +1,23 @@
+ticket_id: 000-overall
+state: 受入済
+pr: 1
+affects: []
+draft_shown: { commit: b8af9d12d7dd252bbccfae1df94d79202ee84cc0, at: 2026-11-10T09:32:01Z }
+consult_started: null
+approval: { by: aoyagiry, at: 2026-11-10T09:34:19Z, commit: 18c05577e7a5e1d91ff4c8716ba9dc4d561f452a, comment_url: "https://github.com/aoyagiry/yakyu/pull/1#issuecomment-6763927167" }
+main_checked_at: 7b922ff92703a7445c74665e6818e1d02f752729
+hold: null
+log:
+  - { at: 2026-11-10T09:07:55Z, stage: ヒアリング, note: specification を overall-hearing（前半）で起動した }
+  - { at: 2026-11-10T09:10:19Z, stage: ヒアリング, note: 状態：完了。intent.yaml（目的 4、前提の事実 3、使う人 1、範囲）と問い 8 問を書いた }
+  - { at: 2026-11-10T09:14:02Z, stage: ヒアリング, note: specification を再開した（前半の 8 問の答えを intent.yaml に入れる） }
+  - { at: 2026-11-10T09:14:49Z, stage: ヒアリング, note: 状態：完了。答えに合わせて intent.yaml の範囲を直した（入れ子と検索、自動の合わせ方、スマートフォンは後で足す、料金は配る前に決める）。新しい問いは無し }
+  - { at: 2026-11-10T09:17:00Z, stage: ヒアリング, note: 前半を確認した }
+  - { at: 2026-11-10T09:17:36Z, stage: ヒアリング, note: specification を overall-hearing（後半）で起動した }
+  - { at: 2026-11-10T09:21:26Z, stage: ヒアリング, note: 状態：完了。ticket-plan.yaml（7 チケット、later 8 件）、共通の要件 3、非機能の基準 8、問い 6 問（Q-009〜Q-014）を書いた }
+  - { at: 2026-11-10T09:21:36Z, stage: 仕様のレビュー, note: reviewer を spec-review（cycle 1）で起動した }
+  - { at: 2026-11-10T09:23:11Z, stage: 仕様のレビュー, note: "状態：完了。指摘 2 件（外した操作の置き場所が無い、Q-009 のチケットの数が一覧と合わない）。どちらも target: spec" }
+  - { at: 2026-11-10T09:23:14Z, stage: ヒアリング, note: specification を再開した（仕様のレビュー cycle 1 の指摘 2 件を直す） }
+  - { at: 2026-11-10T09:23:57Z, stage: ヒアリング, note: 状態：完了。later に一般の人への配布と画像や表を足し、Q-009 のチケットの数を一覧に合わせた。新しい問いは無し }
+  - { at: 2026-11-10T09:24:10Z, stage: 仕様のレビュー, note: reviewer を spec-review（cycle 2）で起動した }
+  - { at: 2026-11-10T09:25:28Z, stage: 仕様のレビュー, note: 状態：完了。指摘 0 件（前の回の 2 件は直っていた） }
