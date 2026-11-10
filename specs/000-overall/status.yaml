@@ -7,4 +7,6 @@ consult_started: null
 approval: null
 main_checked_at: 7b922ff92703a7445c74665e6818e1d02f752729
 hold: null
-log: []
+log:
+  - { at: 2026-11-10T09:07:55Z, stage: ヒアリング, note: specification を overall-hearing（前半）で起動した }
+  - { at: 2026-11-10T09:10:19Z, stage: ヒアリング, note: 状態：完了。intent.yaml（目的 4、前提の事実 3、使う人 1、範囲）と問い 8 問を書いた }
