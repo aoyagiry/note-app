@@ -10,3 +10,5 @@ hold: null
 log:
   - { at: 2026-11-10T09:50:41Z, stage: design-candidates, note: 起動 2026-11-10T09:50:41Z designer design-system 候補の回 head-before 12fd81ed2b205f17b570de17dc5350eec1614284 }
   - { at: 2026-11-10T09:58:22Z, stage: design-candidates, note: "完了 2026-11-10T09:58:11Z 状態：完了 3 案（quiet-paper, precise-tool, soft-play）を明暗の両方で描いた。ds-candidates/ の下に各 6 ファイル" }
+  - { at: 2026-11-10T09:58:35Z, stage: hearing-premise, note: 起動 2026-11-10T09:58:35Z specification foundation-hearing 前提の問いの回 head-before 8601be38680297cc16b63bf12d24e45e24106496 }
+  - { at: 2026-11-10T10:00:22Z, stage: hearing-premise, note: 完了 2026-11-10T10:00:12Z 状態：完了 前提の問い 2 つ（見た目の案、新しい版の入れ方）を questions.yaml に書いた }
