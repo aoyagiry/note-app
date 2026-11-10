@@ -1,0 +1,26 @@
+nfr:
+  - id: NFR-response-time
+    statement: ページが 1 万件あっても、Mac と Windows のどちらでも、キーを打ってから文字が画面に出るまで 16 ミリ秒（画面の 1 コマ）以内、ページを開く、検索の結果を出す、ボタンを押した結果を出すまで 100 ミリ秒以内、アプリを起動してページの並びが出るまで 1 秒以内である
+    check: measurement
+  - id: NFR-sync-delay
+    statement: 2 台のパソコンが両方ネットにつながってアプリを開いているとき、片方で書いたことが、もう一方の画面に 3 秒以内に出る
+    check: measurement
+  - id: NFR-platforms
+    statement: アプリは Windows と Mac の両方で動く。すべてのテストを、Windows と Mac の両方の機械で流して通す
+    check: tool
+  - id: NFR-encrypted-connection
+    statement: パソコンとサーバーの間の通信は、すべて暗号化する（TLS）。暗号化しない接続は受け付けない。TLS の設定を調べる道具で、動いているサーバーが暗号化しない接続と古い版の TLS を受け付けないことを調べる
+    check: tool
+    after_release: true
+  - id: NFR-password-storage
+    statement: パスワードは、そのままの形でサーバーにもパソコンにも保存しない。サーバーには、パスワードのハッシュ化の専用の方式で変換したものだけを保存する
+    check: test
+  - id: NFR-error-details
+    statement: 失敗したときに、サーバーの内部の情報（エラーの詳細、使っている道具の名前と版、ファイルの場所など）をアプリにも画面にも返さない
+    check: test
+  - id: NFR-vulnerabilities
+    statement: 使っているライブラリに、深刻度が高い（High）か重大（Critical）の既知の脆弱性を残さない。依存のライブラリの既知の脆弱性を調べる道具（Rust では cargo audit など）で、アプリとサーバーの両方を調べる
+    check: tool
+  - id: NFR-polished-look
+    statement: 画面は洗練されていて、AI がよく作るありがちな画面（紫から青へのグラデーション、どこにでもある絵文字のアイコン、同じ形のカードを並べただけの配置、中身の無い飾りの言葉など）に見えない。操作するとすぐ反応し、済んだことがさりげなく分かる。確認の手順：画面のあるチケットごとに、Mac と Windows でアプリを開き、ページを作る、書く、開く、探すなど、そのチケットで作った操作をひととおり行い、ありがちな画面に見える所が無いか、待たされたと感じる所が無いか、済んだことが分からない所が無いかを見る
+    check: human

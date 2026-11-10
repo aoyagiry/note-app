@@ -18,6 +18,8 @@ facts:
     statement: アプリは Rust で作る（人の指定。速さを大事にするため）
   - id: FACT-single-user-first
     statement: 最初に使うのは自分一人。ほかの人との共有は後で足す
+  - id: FACT-no-design-reference
+    statement: 見た目や使い心地の手本にするアプリや資料は無い。画面の方向は、AI がありがちでない方向の案をいくつか描き、見比べて選ぶ
 users:
   - name: 自分
     description: このアプリを作って使う本人。Mac と Windows の両方のパソコンで、同じアカウントでログインしてメモを書き、見る。いずれは一般の人にも配る

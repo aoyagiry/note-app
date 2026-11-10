@@ -13,3 +13,5 @@ log:
   - { at: 2026-11-10T09:14:02Z, stage: ヒアリング, note: specification を再開した（前半の 8 問の答えを intent.yaml に入れる） }
   - { at: 2026-11-10T09:14:49Z, stage: ヒアリング, note: 状態：完了。答えに合わせて intent.yaml の範囲を直した（入れ子と検索、自動の合わせ方、スマートフォンは後で足す、料金は配る前に決める）。新しい問いは無し }
   - { at: 2026-11-10T09:17:00Z, stage: ヒアリング, note: 前半を確認した }
+  - { at: 2026-11-10T09:17:36Z, stage: ヒアリング, note: specification を overall-hearing（後半）で起動した }
+  - { at: 2026-11-10T09:21:26Z, stage: ヒアリング, note: 状態：完了。ticket-plan.yaml（7 チケット、later 8 件）、共通の要件 3、非機能の基準 8、問い 6 問（Q-009〜Q-014）を書いた }
