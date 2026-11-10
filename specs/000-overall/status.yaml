@@ -2,7 +2,7 @@ ticket_id: 000-overall
 state: ヒアリング中
 pr: 1
 affects: []
-draft_shown: null
+draft_shown: { commit: b8af9d12d7dd252bbccfae1df94d79202ee84cc0, at: 2026-11-10T09:32:01Z }
 consult_started: null
 approval: null
 main_checked_at: 7b922ff92703a7445c74665e6818e1d02f752729
