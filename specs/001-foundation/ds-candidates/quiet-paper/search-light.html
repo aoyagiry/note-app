@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>静かな紙：探す（明るい）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--type-family-text);
+    font-size: var(--type-size-md);
+    line-height: var(--type-leading-body);
+    line-break: strict; word-break: keep-all; overflow-wrap: anywhere;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color var(--motion-duration-base) var(--motion-easing-standard), color var(--motion-duration-base) var(--motion-easing-standard);
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+  .app { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100%; }
+
+  /* 左の並び：紙の下敷きのような一段沈んだ面。線で囲わない */
+  .side { background: var(--color-surface-sunken); padding: var(--spacing-6) var(--spacing-4) var(--spacing-4); display: flex; flex-direction: column; gap: var(--spacing-5); min-height: 100vh; }
+  .side .name { font-family: var(--type-family-display); font-size: var(--type-size-lg); font-weight: var(--type-weight-bold); letter-spacing: var(--type-tracking-wide); padding: 0 var(--spacing-2); }
+  .search-entry { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-2) var(--spacing-3); color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border-strong); font-size: var(--type-size-sm); text-align: left; transition: color var(--motion-duration-fast) var(--motion-easing-standard), border-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .search-entry:hover { color: var(--color-text-primary); border-color: var(--color-text-secondary); }
+  .search-entry kbd { font-family: var(--type-family-mono); font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .tree-label { font-size: var(--type-size-xs); color: var(--color-text-muted); letter-spacing: var(--type-tracking-wide); padding: 0 var(--spacing-2); }
+  .tree { list-style: none; margin: 0; padding: 0; font-size: var(--type-size-sm); line-height: var(--type-leading-tight); }
+  .tree ul { list-style: none; margin: 0; padding: 0 0 0 var(--spacing-4); overflow: hidden; }
+  .row { display: flex; align-items: center; gap: var(--spacing-1); width: 100%; padding: var(--spacing-1) var(--spacing-2); border-radius: var(--radius-sm); text-align: left; color: var(--color-text-secondary); transition: background-color var(--motion-duration-instant) linear, color var(--motion-duration-instant) linear; }
+  .row:hover { background: var(--color-surface-base); color: var(--color-text-primary); }
+  .row:active { background: var(--color-border-subtle); }
+  .row[aria-current="page"] { color: var(--color-text-primary); background: var(--color-surface-raised); box-shadow: inset 2px 0 0 var(--color-accent-default); }
+  .twist { width: 14px; flex: none; color: var(--color-text-muted); transition: transform var(--motion-duration-fast) var(--motion-easing-standard); display: inline-block; text-align: center; font-size: 10px; }
+  [aria-expanded="false"] > .twist { transform: rotate(-90deg); }
+  .sub { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--motion-duration-fast) var(--motion-easing-standard); }
+  .sub.closed { grid-template-rows: 0fr; }
+  .sub > ul { min-height: 0; }
+  .new-page { margin-top: var(--spacing-2); color: var(--color-text-muted); font-size: var(--type-size-sm); padding: var(--spacing-1) var(--spacing-2); text-align: left; }
+  .new-page:hover { color: var(--color-accent-default); }
+  .theme { margin-top: auto; display: flex; gap: 0; border-top: 1px solid var(--color-border-subtle); padding-top: var(--spacing-3); font-size: var(--type-size-xs); }
+  .theme button { flex: 1 1 auto; white-space: nowrap; padding: var(--spacing-1) var(--spacing-1); color: var(--color-text-muted); border-bottom: 1px solid transparent; transition: color var(--motion-duration-fast) var(--motion-easing-standard), border-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .theme button[aria-pressed="true"] { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+
+  /* 本文：紙面のように、読む幅を狭く保つ */
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-4); padding: var(--spacing-4) var(--spacing-8); font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .crumbs { display: flex; gap: var(--spacing-2); flex-wrap: wrap; min-width: 0; }
+  .crumbs span + span::before { content: "/"; margin-right: var(--spacing-2); color: var(--color-border-strong); }
+  .saved { display: inline-flex; align-items: center; gap: var(--spacing-2); white-space: nowrap; }
+  .saved::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--color-success); }
+  .menu-open { display: none; }
+
+  article { width: 100%; max-width: 40em; margin: 0 auto; padding: var(--spacing-8) var(--spacing-8) var(--spacing-10); animation: enter var(--motion-duration-base) var(--motion-easing-standard) both; }
+  @keyframes enter { from { opacity: 0; transform: translateY(var(--motion-distance-enter)); } to { opacity: 1; transform: none; } }
+  .meta { font-family: var(--type-family-mono); font-size: var(--type-size-xs); color: var(--color-text-muted); margin: 0 0 var(--spacing-3); }
+  h1 { font-family: var(--type-family-display); font-size: var(--type-size-2xl); font-weight: var(--type-weight-bold); line-height: var(--type-leading-tight); margin: 0 0 var(--spacing-7); letter-spacing: 0.02em; }
+  h2 { font-family: var(--type-family-display); font-size: var(--type-size-xl); font-weight: var(--type-weight-medium); line-height: var(--type-leading-tight); margin: var(--spacing-8) 0 var(--spacing-3); }
+  p { margin: 0 0 var(--spacing-4); }
+  ul.bullets { margin: 0 0 var(--spacing-4); padding-left: 1.2em; }
+  ul.bullets li::marker { color: var(--color-text-muted); }
+  .checks { list-style: none; margin: 0 0 var(--spacing-4); padding: 0; }
+  .checks li { display: flex; gap: var(--spacing-3); align-items: baseline; }
+  .checks input { appearance: none; width: 14px; height: 14px; margin: 0; flex: none; transform: translateY(2px); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface-raised); display: grid; place-content: center; transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), border-color var(--motion-duration-fast) var(--motion-easing-standard); cursor: pointer; }
+  .checks input::after { content: ""; width: 7px; height: 4px; border-left: 1.5px solid var(--color-accent-on); border-bottom: 1.5px solid var(--color-accent-on); transform: rotate(-45deg) scale(0); transition: transform var(--motion-duration-fast) var(--motion-easing-standard); margin-top: -2px; }
+  .checks input:checked { background: var(--color-accent-default); border-color: var(--color-accent-default); }
+  .checks input:checked::after { transform: rotate(-45deg) scale(1); }
+  .checks input:checked + span { color: var(--color-text-muted); text-decoration: line-through; text-decoration-color: var(--color-border-strong); }
+  a { color: var(--color-accent-default); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.25em; text-decoration-color: var(--color-border-strong); transition: text-decoration-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  a:hover { text-decoration-color: var(--color-accent-default); }
+
+  @media (max-width: 720px) {
+    .app { grid-template-columns: minmax(0, 1fr); }
+    .side { display: none; }
+    .bar { padding: var(--spacing-3) var(--spacing-4); }
+    .menu-open { display: inline-block; font-size: var(--type-size-sm); color: var(--color-text-secondary); padding: var(--spacing-1) 0; border-bottom: 1px solid var(--color-border-strong); }
+    .crumbs { display: none; }
+    article { padding: var(--spacing-5) var(--spacing-4) var(--spacing-9); }
+    h1 { font-size: var(--type-size-xl); margin-bottom: var(--spacing-5); }
+    h2 { font-size: var(--type-size-lg); margin-top: var(--spacing-7); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: var(--motion-duration-instant) !important; transition-duration: var(--motion-duration-instant) !important; }
+    @keyframes enter { from { opacity: 0; } to { opacity: 1; } }
+  }
+.search-entry { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+  .find { width: 100%; max-width: 40em; margin: 0 auto; padding: var(--spacing-8) var(--spacing-8) var(--spacing-10); animation: enter var(--motion-duration-base) var(--motion-easing-standard) both; }
+  .find label { display: block; font-size: var(--type-size-xs); color: var(--color-text-muted); letter-spacing: var(--type-tracking-wide); margin-bottom: var(--spacing-2); }
+  .find input[type="search"] { width: 100%; font-family: var(--type-family-display); font-size: var(--type-size-xl); color: var(--color-text-primary); background: transparent; border: 0; border-bottom: 1px solid var(--color-text-primary); padding: var(--spacing-2) 0; border-radius: 0; outline: none; transition: border-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .find input[type="search"]:focus-visible { border-bottom-color: var(--color-accent-default); box-shadow: 0 1px 0 var(--color-accent-default); }
+  .count { display: flex; justify-content: space-between; gap: var(--spacing-3); flex-wrap: wrap; font-size: var(--type-size-xs); color: var(--color-text-muted); margin: var(--spacing-4) 0 var(--spacing-5); }
+  .results { list-style: none; margin: 0; padding: 0; }
+  .results li { border-top: 1px solid var(--color-border-subtle); }
+  .results li:last-child { border-bottom: 1px solid var(--color-border-subtle); }
+  .hit { display: block; color: inherit; text-decoration: none; padding: var(--spacing-4) var(--spacing-3); margin: 0 calc(-1 * var(--spacing-3)); border-radius: var(--radius-sm); transition: background-color var(--motion-duration-instant) linear; }
+  .hit:hover, .hit[aria-selected="true"] { background: var(--color-surface-raised); }
+  .hit-title { font-family: var(--type-family-display); font-size: var(--type-size-lg); font-weight: var(--type-weight-bold); line-height: var(--type-leading-tight); }
+  .hit-path { font-size: var(--type-size-xs); color: var(--color-text-muted); margin-top: var(--spacing-1); }
+  .hit-text { font-size: var(--type-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-2); line-height: 1.75; }
+  mark { background: var(--color-highlight); color: inherit; padding: 0 1px; border-radius: 1px; }
+  @media (max-width: 720px) { .find { padding: var(--spacing-5) var(--spacing-4) var(--spacing-9); } .find input[type="search"] { font-size: var(--type-size-lg); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side" aria-label="ページの並び">
+    <div class="name">自分のページ</div>
+    <a class="search-entry" href="search-light.html" style="text-decoration:none"><span>ページを探す</span><kbd>Ctrl K</kbd></a>
+    <div>
+      <div class="tree-label">ページ</div>
+      <ul class="tree">
+        <li>
+          <button class="row" aria-expanded="true"><span class="twist">▼</span>日々のメモ</button>
+          <div class="sub"><ul>
+            <li>
+              <button class="row" aria-expanded="true"><span class="twist">▼</span>2026年11月</button>
+              <div class="sub"><ul>
+                <li><button class="row"><span class="twist"></span>11月9日（月）</button></li>
+                <li><button class="row" aria-current="page"><span class="twist"></span>11月10日（火）</button></li>
+              </ul></div>
+            </li>
+            <li><button class="row" aria-expanded="false"><span class="twist">▼</span>2026年10月</button><div class="sub closed"><ul><li><button class="row"><span class="twist"></span>10月31日（土）</button></li></ul></div></li>
+          </ul></div>
+        </li>
+        <li>
+          <button class="row" aria-expanded="false"><span class="twist">▼</span>仕事</button>
+          <div class="sub closed"><ul>
+            <li><button class="row"><span class="twist"></span>週次の振り返り</button></li>
+            <li><button class="row"><span class="twist"></span>来期の目標</button></li>
+          </ul></div>
+        </li>
+        <li><button class="row"><span class="twist"></span>読書メモ</button></li>
+        <li><button class="row"><span class="twist"></span>12月の旅行の計画</button></li>
+      </ul>
+      <button class="new-page">＋ 新しいページ</button>
+    </div>
+    <div class="theme" role="group" aria-label="画面の明るさ">
+      <button data-set="system">端末に合わせる</button>
+      <button data-set="light">明るい</button>
+      <button data-set="dark">暗い</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="bar">
+      <button class="menu-open">ページの並び</button>
+      <div class="crumbs"><span>ページを探す</span></div>
+      <span></span>
+    </div>
+    <section class="find">
+      <label for="q">ページの名前と本文から探す</label>
+      <input id="q" type="search" value="振り返り" autocomplete="off">
+      <div class="count"><span>4 件のページ</span><span>↑↓ で選び、Enter で開く</span></div>
+      <ul class="results">
+        <li><a class="hit" href="page-light.html" aria-selected="true">
+          <div class="hit-title">週次の<mark>振り返り</mark></div>
+          <div class="hit-path">仕事</div>
+          <div class="hit-text">今週は資料づくりに時間を取られた。来週は午前を書く時間にして、打ち合わせは午後にまとめる。</div>
+        </a></li>
+        <li><a class="hit" href="page-light.html">
+          <div class="hit-title">11月10日（火）</div>
+          <div class="hit-path">日々のメモ / 2026年11月</div>
+          <div class="hit-text">前回の議事は週次の<mark>振り返り</mark>に書いてある</div>
+        </a></li>
+        <li><a class="hit" href="page-light.html">
+          <div class="hit-title">来期の目標</div>
+          <div class="hit-path">仕事</div>
+          <div class="hit-text">毎月の終わりに、目標ごとに<mark>振り返り</mark>の時間を 30 分取る。</div>
+        </a></li>
+        <li><a class="hit" href="page-light.html">
+          <div class="hit-title">10月31日（土）</div>
+          <div class="hit-path">日々のメモ / 2026年10月</div>
+          <div class="hit-text">10 月の<mark>振り返り</mark>。読んだ本は 3 冊、走ったのは 42 km。</div>
+        </a></li>
+      </ul>
+    </section>
+  </main>
+</div>
+<script>
+  const root = document.documentElement;
+  const mark = (v) => document.querySelectorAll(".theme button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.set === v)));
+  mark(root.dataset.theme);
+  document.querySelectorAll(".theme button").forEach((b) => b.addEventListener("click", () => {
+    const v = b.dataset.set;
+    root.dataset.theme = v === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : v;
+    mark(v);
+  }));
+  document.querySelectorAll(".row[aria-expanded]").forEach((b) => b.addEventListener("click", () => {
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    b.nextElementSibling.classList.toggle("closed", open);
+  }));
+</script>
+</body>
+</html>

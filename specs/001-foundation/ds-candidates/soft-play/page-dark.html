@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>やわらかな遊び：ページ（暗い）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--type-family-text);
+    font-size: var(--type-size-md);
+    line-height: var(--type-leading-body);
+    line-break: strict; word-break: keep-all; overflow-wrap: anywhere;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color var(--motion-duration-base) var(--motion-easing-standard), color var(--motion-duration-base) var(--motion-easing-standard);
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+  /* 背景：地の色に近い 2 つのにじみが、ゆっくり漂う（本文の後ろだけ。読む邪魔をしない薄さ） */
+  .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .ambient::before, .ambient::after { content: ""; position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; filter: blur(80px); opacity: 0.9; animation: drift var(--motion-duration-ambient) ease-in-out infinite alternate; }
+  .ambient::before { background: var(--color-surface-glow-1); top: -20vmax; right: -10vmax; }
+  .ambient::after { background: var(--color-surface-glow-2); bottom: -25vmax; left: 10vmax; animation-delay: calc(var(--motion-duration-ambient) / -2); }
+  @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(-6vmax, 4vmax) scale(1.08); } }
+
+  .app { position: relative; z-index: 1; display: grid; grid-template-columns: 252px minmax(0, 1fr); gap: var(--spacing-4); padding: var(--spacing-4); min-height: 100vh; }
+
+  /* 左の並び：浮いた丸い面 */
+  .side { background: color-mix(in srgb, var(--color-surface-raised) 72%, transparent); backdrop-filter: blur(16px); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised); padding: var(--spacing-5) var(--spacing-3) var(--spacing-3); display: flex; flex-direction: column; gap: var(--spacing-4); align-self: start; position: sticky; top: var(--spacing-4); min-height: calc(100vh - 2 * var(--spacing-4)); }
+  .name { font-family: var(--type-family-display); font-weight: var(--type-weight-bold); font-size: var(--type-size-lg); padding: 0 var(--spacing-3); }
+  .search-entry { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-2) var(--spacing-4); border-radius: var(--radius-full); background: var(--color-surface-sunken); color: var(--color-text-secondary); font-size: var(--type-size-sm); text-decoration: none; transition: transform var(--motion-duration-fast) var(--motion-easing-spring), background-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .search-entry:hover { background: var(--color-border-strong); color: var(--color-text-primary); }
+  .search-entry:active { transform: scale(var(--motion-scale-press)); }
+  .search-entry kbd { font-family: var(--type-family-numeric); font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+  .tree ul { padding-left: var(--spacing-4); }
+  .row { display: flex; align-items: center; gap: var(--spacing-2); width: 100%; padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); text-align: left; font-size: var(--type-size-sm); color: var(--color-text-secondary); transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), color var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-spring); }
+  .row:hover { background: var(--color-surface-sunken); color: var(--color-text-primary); }
+  .row:active { transform: scale(var(--motion-scale-press)); }
+  .row[aria-current="page"] { background: var(--color-accent-subtle); color: var(--color-accent-hover); font-weight: var(--type-weight-bold); }
+  .twist { width: 16px; height: 16px; flex: none; display: grid; place-content: center; font-size: 9px; color: var(--color-text-muted); transition: transform var(--motion-duration-base) var(--motion-easing-spring); }
+  [aria-expanded="false"] > .twist { transform: rotate(-90deg); }
+  .sub { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--motion-duration-base) var(--motion-easing-standard), opacity var(--motion-duration-base) var(--motion-easing-standard); }
+  .sub.closed { grid-template-rows: 0fr; opacity: 0; }
+  .sub > ul { min-height: 0; overflow: hidden; }
+  .new-page { display: inline-flex; align-items: center; gap: var(--spacing-2); margin: var(--spacing-2) 0 0 var(--spacing-1); padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); color: var(--color-accent-default); font-size: var(--type-size-sm); font-weight: var(--type-weight-bold); transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-spring); }
+  .new-page:hover { background: var(--color-accent-subtle); }
+  .new-page:active { transform: scale(var(--motion-scale-press)); }
+
+  /* 明るさの切り替え：つまみが滑る */
+  .theme { margin-top: auto; position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; border-radius: var(--radius-full); background: var(--color-surface-sunken); font-size: var(--type-size-xs); }
+  .theme .thumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: var(--radius-full); background: var(--color-surface-raised); box-shadow: var(--shadow-raised); transition: transform var(--motion-duration-base) var(--motion-easing-spring); }
+  .theme button { position: relative; padding: var(--spacing-1) 0; color: var(--color-text-muted); border-radius: var(--radius-full); transition: color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .theme button[aria-pressed="true"] { color: var(--color-text-primary); font-weight: var(--type-weight-bold); }
+
+  /* 本文：大きな丸い紙 */
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .sheet { flex: 1; background: var(--color-surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised); animation: enter var(--motion-duration-base) var(--motion-easing-standard) both; }
+  @keyframes enter { from { opacity: 0; transform: translateY(var(--motion-distance-enter)) scale(0.995); } to { opacity: 1; transform: none; } }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-3); padding: var(--spacing-4) var(--spacing-6); font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .crumbs { display: flex; gap: var(--spacing-2); flex-wrap: wrap; min-width: 0; }
+  .crumbs span + span::before { content: "›"; margin-right: var(--spacing-2); }
+  .saved { display: inline-flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); background: var(--color-surface-sunken); color: var(--color-success); white-space: nowrap; animation: saved var(--motion-duration-base) var(--motion-easing-spring) both; animation-delay: 400ms; }
+  @keyframes saved { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: none; } }
+  .menu-open { display: none; }
+  article { max-width: 42em; margin: 0 auto; padding: var(--spacing-7) var(--spacing-8) var(--spacing-10); }
+  .meta { font-family: var(--type-family-numeric); font-size: var(--type-size-xs); color: var(--color-text-muted); margin: 0 0 var(--spacing-2); }
+  h1 { font-family: var(--type-family-display); font-size: var(--type-size-2xl); font-weight: var(--type-weight-bold); line-height: var(--type-leading-tight); margin: 0 0 var(--spacing-6); }
+  h2 { font-family: var(--type-family-display); font-size: var(--type-size-xl); font-weight: var(--type-weight-bold); line-height: var(--type-leading-tight); margin: var(--spacing-8) 0 var(--spacing-3); }
+  p { margin: 0 0 var(--spacing-4); }
+  ul.bullets { margin: 0 0 var(--spacing-4); padding-left: 1.2em; }
+  ul.bullets li::marker { color: var(--color-accent-default); }
+  .checks { list-style: none; margin: 0 0 var(--spacing-4); padding: 0; }
+  .checks li { display: flex; gap: var(--spacing-3); align-items: baseline; padding: var(--spacing-1) 0; }
+  .checks input { appearance: none; width: 18px; height: 18px; margin: 0; flex: none; transform: translateY(3px); border: 2px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface-raised); display: grid; place-content: center; cursor: pointer; transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), border-color var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-spring); }
+  .checks input:active { transform: translateY(3px) scale(0.85); }
+  .checks input::after { content: ""; width: 8px; height: 4px; border-left: 2px solid var(--color-accent-on); border-bottom: 2px solid var(--color-accent-on); border-radius: 1px; transform: rotate(-45deg) scale(0); margin-top: -2px; transition: transform var(--motion-duration-base) var(--motion-easing-spring); }
+  .checks input:checked { background: var(--color-accent-default); border-color: var(--color-accent-default); }
+  .checks input:checked::after { transform: rotate(-45deg) scale(1); }
+  .checks span { transition: color var(--motion-duration-base) var(--motion-easing-standard); }
+  .checks input:checked + span { color: var(--color-text-muted); text-decoration: line-through; text-decoration-color: var(--color-accent-default); }
+  a { color: var(--color-accent-default); text-decoration: none; background: var(--color-accent-subtle); padding: 0 var(--spacing-1); border-radius: var(--radius-sm); font-weight: var(--type-weight-medium); transition: background-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  a:hover { background: var(--color-border-strong); }
+
+  @media (max-width: 720px) {
+    .app { grid-template-columns: minmax(0, 1fr); padding: var(--spacing-2); }
+    .side { display: none; }
+    .menu-open { display: inline-flex; padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); background: var(--color-surface-sunken); color: var(--color-text-secondary); }
+    .crumbs { display: none; }
+    .bar { padding: var(--spacing-3) var(--spacing-4); }
+    article { padding: var(--spacing-3) var(--spacing-5) var(--spacing-9); }
+    h1 { font-size: var(--type-size-xl); }
+    h2 { font-size: var(--type-size-lg); margin-top: var(--spacing-7); }
+  }
+  /* 動きを減らす設定：止めずに、短く穏やかにする。背景は漂いをごく遅くする */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: var(--motion-duration-instant) !important; transition-duration: var(--motion-duration-instant) !important; transition-timing-function: var(--motion-easing-standard) !important; }
+    .ambient::before, .ambient::after { animation-duration: calc(var(--motion-duration-ambient) * 4) !important; }
+    @keyframes enter { from { opacity: 0; } to { opacity: 1; } }
+  }
+</style>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<div class="app">
+  <nav class="side" aria-label="ページの並び">
+    <div class="name">自分のページ</div>
+    <a class="search-entry" href="search-dark.html"><span>ページを探す</span><kbd>Ctrl K</kbd></a>
+    <div>
+      <ul class="tree">
+        <li>
+          <button class="row" aria-expanded="true"><span class="twist">▼</span>日々のメモ</button>
+          <div class="sub"><ul>
+            <li>
+              <button class="row" aria-expanded="true"><span class="twist">▼</span>2026年11月</button>
+              <div class="sub"><ul>
+                <li><button class="row"><span class="twist"></span>11月9日（月）</button></li>
+                <li><button class="row" aria-current="page"><span class="twist"></span>11月10日（火）</button></li>
+              </ul></div>
+            </li>
+            <li><button class="row" aria-expanded="false"><span class="twist">▼</span>2026年10月</button><div class="sub closed"><ul><li><button class="row"><span class="twist"></span>10月31日（土）</button></li></ul></div></li>
+          </ul></div>
+        </li>
+        <li>
+          <button class="row" aria-expanded="false"><span class="twist">▼</span>仕事</button>
+          <div class="sub closed"><ul>
+            <li><button class="row"><span class="twist"></span>週次の振り返り</button></li>
+            <li><button class="row"><span class="twist"></span>来期の目標</button></li>
+          </ul></div>
+        </li>
+        <li><button class="row"><span class="twist"></span>読書メモ</button></li>
+        <li><button class="row"><span class="twist"></span>12月の旅行の計画</button></li>
+      </ul>
+      <button class="new-page">＋ 新しいページ</button>
+    </div>
+    <div class="theme" role="group" aria-label="画面の明るさ">
+      <span class="thumb"></span>
+      <button data-set="system">端末</button>
+      <button data-set="light">明るい</button>
+      <button data-set="dark">暗い</button>
+    </div>
+  </nav>
+
+  <!--MAIN-->
+  <main class="main">
+    <div class="sheet">
+      <div class="bar">
+        <button class="menu-open">ページの並び</button>
+        <div class="crumbs"><span>日々のメモ</span><span>2026年11月</span></div>
+        <span class="saved" role="status">保存しました</span>
+      </div>
+      <article>
+        <p class="meta">2026.11.10 08:42</p>
+        <h1>11月10日（火）</h1>
+        <p>朝は少し寒い。駅までの道で、昨日の打ち合わせで決めきれなかったことを考えていた。見積もりは週末までに出せばよいので、今日は資料の骨組みだけ作る。</p>
+        <h2>今日やること</h2>
+        <ul class="checks">
+          <li><input type="checkbox" checked aria-label="済み"><span>見積もりの資料の骨組みを作る</span></li>
+          <li><input type="checkbox" aria-label="済み"><span>歯医者の予約を木曜から金曜に変える</span></li>
+          <li><input type="checkbox" aria-label="済み"><span><a href="#">12月の旅行の計画</a> の宿を 2 つに絞る</span></li>
+        </ul>
+        <h2>打ち合わせのメモ</h2>
+        <ul class="bullets">
+          <li>画面の案は 3 通り出して、来週の頭に見比べる</li>
+          <li>締め切りは月末のまま。遅れそうなら水曜までに言う</li>
+          <li>前回の議事は <a href="#">週次の振り返り</a> に書いてある</li>
+        </ul>
+        <p>帰りに本屋に寄る。読みかけの本の続きは <a href="#">読書メモ</a> に。</p>
+      </article>
+    </div>
+  </main>
+  <!--/MAIN-->
+</div>
+<script>
+  const root = document.documentElement;
+  const btns = [...document.querySelectorAll(".theme button")];
+  const thumb = document.querySelector(".theme .thumb");
+  const mark = (v) => btns.forEach((b, i) => { const on = b.dataset.set === v; b.setAttribute("aria-pressed", String(on)); if (on) thumb.style.transform = `translateX(${i * 100}%)`; });
+  mark(root.dataset.theme);
+  btns.forEach((b) => b.addEventListener("click", () => {
+    const v = b.dataset.set;
+    root.dataset.theme = v === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : v;
+    mark(v);
+  }));
+  document.querySelectorAll(".row[aria-expanded]").forEach((b) => b.addEventListener("click", () => {
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    b.nextElementSibling.classList.toggle("closed", open);
+  }));
+</script>
+</body>
+</html>

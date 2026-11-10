@@ -7,4 +7,6 @@ consult_started: null
 approval: null
 main_checked_at: f30ec8e7f3e95d575583f28eff11b6751f8e491f
 hold: null
-log: []
+log:
+  - { at: 2026-11-10T09:50:41Z, stage: design-candidates, note: 起動 2026-11-10T09:50:41Z designer design-system 候補の回 head-before 12fd81ed2b205f17b570de17dc5350eec1614284 }
+  - { at: 2026-11-10T09:58:22Z, stage: design-candidates, note: "完了 2026-11-10T09:58:11Z 状態：完了 3 案（quiet-paper, precise-tool, soft-play）を明暗の両方で描いた。ds-candidates/ の下に各 6 ファイル" }
