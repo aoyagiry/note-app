@@ -777,6 +777,9 @@
     "dependencies": [],
     "tech_docs": [
       "specs/_current/_tech/architecture.md",
+      "specs/_current/_tech/design.yaml",
+      "specs/_current/_tech/ds/sunlit-play/base.css",
+      "specs/_current/_tech/ds/sunlit-play/tokens.css",
       "specs/_current/_tech/toolchain.yaml",
       "specs/_current/_tech/write-scopes.json"
     ]
