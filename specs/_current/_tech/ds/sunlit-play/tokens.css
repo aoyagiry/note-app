@@ -3,14 +3,24 @@
 
 :root,
 [data-theme="light"] {
-  /* 色：明るい地（砂色の地に白い紙。素焼きの橙を一点。空のにじみは朝） */
+  /* 色：明るい地（砂色の地に白い紙。素焼きの橙を一点） */
   --color-surface-base: #f0ebe2;
   --color-surface-raised: #fffdf9;
   --color-surface-sunken: #e7e1d5;
   --color-surface-overlay: rgba(60, 50, 40, 0.16);
-  --color-sky-1: #f7d6c2;
-  --color-sky-2: #f3e6bd;
-  --color-sky-3: #d8e3e8;
+  /* 時刻の空（背景のにじみ）。画面は今の空 --color-sky-1〜3 を使う（base.css が data-sky で引く） */
+  --color-sky-morning-1: #f7d6c2;
+  --color-sky-morning-2: #f3e6bd;
+  --color-sky-morning-3: #d8e3e8;
+  --color-sky-day-1: #d6e6ef;
+  --color-sky-day-2: #f6ecca;
+  --color-sky-day-3: #e1ebdc;
+  --color-sky-evening-1: #f5cdb2;
+  --color-sky-evening-2: #f1d3d0;
+  --color-sky-evening-3: #e0d8e8;
+  --color-sky-night-1: #d7dbea;
+  --color-sky-night-2: #e5dce9;
+  --color-sky-night-3: #efe1cc;
   --color-sun: #f2b27c;
   --color-text-primary: #2a2724;
   --color-text-secondary: #5e574f;
@@ -44,14 +54,24 @@
 }
 
 [data-theme="dark"] {
-  /* 色：暗い地（焦げ茶の地に灯りの橙。空のにじみは同じ時刻を夜の色で） */
+  /* 色：暗い地（焦げ茶の地に灯りの橙） */
   --color-surface-base: #1b1917;
   --color-surface-raised: #26231f;
   --color-surface-sunken: #151412;
   --color-surface-overlay: rgba(0, 0, 0, 0.45);
-  --color-sky-1: #3b2a22;
-  --color-sky-2: #352f1f;
-  --color-sky-3: #1f2a31;
+  /* 時刻の空（同じ時刻の空を暗く沈めた色） */
+  --color-sky-morning-1: #3b2a22;
+  --color-sky-morning-2: #352f1f;
+  --color-sky-morning-3: #1f2a31;
+  --color-sky-day-1: #1e2c35;
+  --color-sky-day-2: #33301f;
+  --color-sky-day-3: #22302a;
+  --color-sky-evening-1: #41291f;
+  --color-sky-evening-2: #3a2428;
+  --color-sky-evening-3: #2a2637;
+  --color-sky-night-1: #1b2235;
+  --color-sky-night-2: #272238;
+  --color-sky-night-3: #33291c;
   --color-sun: #c98a57;
   --color-text-primary: #f0ebe3;
   --color-text-secondary: #b4ab9f;
@@ -136,19 +156,24 @@
   --motion-duration-base: 240ms;
   --motion-duration-draw: 320ms;
   --motion-duration-pulse: 1200ms;
+  --motion-duration-ambient: 32s;
   --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-easing-drift: cubic-bezier(0.45, 0, 0.55, 1);
   --motion-distance-press: 2px;
   --motion-distance-enter: 8px;
   --motion-distance-ring: 8px;
+  --motion-distance-drift: 7vmax;
   --motion-scale-press: 0.97;
   --motion-scale-pop: 0.8;
+  --motion-scale-drift: 1.1;
 
   /* 大きさ */
   --size-control: 36px;
   --size-check: 20px;
   --size-chevron: 6px;
+  --size-glow: 56vmax;
 
   /* 線 */
   --border-width-hairline: 1px;
@@ -158,4 +183,6 @@
   /* 効果 */
   --effect-opacity-disabled: 0.45;
   --effect-opacity-busy: 0.7;
+  --effect-opacity-ambient: 0.85;
+  --effect-blur-ambient: 90px;
 }

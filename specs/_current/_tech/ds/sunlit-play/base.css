@@ -373,8 +373,34 @@
   margin-top: calc((1lh - var(--size-check)) / 2);
 }
 
+/* ---------- 4. 時刻の空 ----------
+   背景のにじみに使う今の空 --color-sky-1〜3 を、<html> の data-sky（morning、day、evening、night）の組から引く。
+   data-sky はアプリが「今」と design.yaml の sky_times で付ける。無いときは朝。
+   data-theme を一部に付けたとき（見本など）は、その中の明るさの色で引き直す */
+:where(:root, [data-theme]) {
+  --color-sky-1: var(--color-sky-morning-1);
+  --color-sky-2: var(--color-sky-morning-2);
+  --color-sky-3: var(--color-sky-morning-3);
+}
+:where([data-sky="day"], [data-sky="day"] [data-theme]) {
+  --color-sky-1: var(--color-sky-day-1);
+  --color-sky-2: var(--color-sky-day-2);
+  --color-sky-3: var(--color-sky-day-3);
+}
+:where([data-sky="evening"], [data-sky="evening"] [data-theme]) {
+  --color-sky-1: var(--color-sky-evening-1);
+  --color-sky-2: var(--color-sky-evening-2);
+  --color-sky-3: var(--color-sky-evening-3);
+}
+:where([data-sky="night"], [data-sky="night"] [data-theme]) {
+  --color-sky-1: var(--color-sky-night-1);
+  --color-sky-2: var(--color-sky-night-2);
+  --color-sky-3: var(--color-sky-night-3);
+}
+
 /* ---------- 動きを減らす設定：止めずに、短く穏やかにする ----------
-   動く距離、縮み、弾みを 0 にし、長さを短くする。色と濃さの移り変わり（フェード）は残す */
+   動く距離、縮み、弾みを 0 にし、長さを短くする。色と濃さの移り変わり（フェード）は残す。
+   背景のにじみは漂わずにその場にとどまり、時刻の色の入れ替わりだけが残る */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-duration-fast: var(--motion-duration-instant);
@@ -386,5 +412,7 @@
     --motion-distance-ring: 0px;
     --motion-scale-press: 1;
     --motion-scale-pop: 1;
+    --motion-distance-drift: 0px;
+    --motion-scale-drift: 1;
   }
 }

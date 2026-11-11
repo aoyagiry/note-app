@@ -10,15 +10,31 @@ color:
     raised: { light: "#fffdf9", dark: "#26231f" } # 浮いた紙の面（本文、左の並び、窓、白いボタン）
     sunken: { light: "#e7e1d5", dark: "#151412" } # へこんだ面（つまみの溝、上に乗った行、表の見出し）
     overlay: { light: "rgba(60, 50, 40, 0.16)", dark: "rgba(0, 0, 0, 0.45)" } # 窓の後ろに敷く幕
+  # 背景のにじみ（時刻の空）の 3 つの色を、時刻の区切りごとに 1 組ずつ。いつ入れ替わるかは sky_times。
+  # 画面はこの値を直に使わず、今の空 --color-sky-1〜3 を使う（base.css が <html> の data-sky に合わせて、この組から引く）。
+  # 暗い地は、同じ時刻の空を暗く沈めた色。にじみの上（面の外）に直に置く文は text.primary、text.secondary、accent.text だけ
   sky:
-    "1": { light: "#f7d6c2", dark: "#3b2a22" } # 背景のにじみ 1（朝の空。暗い地は同じ時刻の夜の色）
-    "2": { light: "#f3e6bd", dark: "#352f1f" } # 背景のにじみ 2
-    "3": { light: "#d8e3e8", dark: "#1f2a31" } # 背景のにじみ 3
+    morning: # 朝：桃、たまご色、薄い青灰
+      "1": { light: "#f7d6c2", dark: "#3b2a22" }
+      "2": { light: "#f3e6bd", dark: "#352f1f" }
+      "3": { light: "#d8e3e8", dark: "#1f2a31" }
+    day: # 昼：澄んだ空色、日なたのクリーム、若葉の淡い緑
+      "1": { light: "#d6e6ef", dark: "#1e2c35" }
+      "2": { light: "#f6ecca", dark: "#33301f" }
+      "3": { light: "#e1ebdc", dark: "#22302a" }
+    evening: # 夕方：杏、夕焼けの薄紅、暮れの薄紫
+      "1": { light: "#f5cdb2", dark: "#41291f" }
+      "2": { light: "#f1d3d0", dark: "#3a2428" }
+      "3": { light: "#e0d8e8", dark: "#2a2637" }
+    night: # 夜：藍の淡い色、藤色、灯りの色
+      "1": { light: "#d7dbea", dark: "#1b2235" }
+      "2": { light: "#e5dce9", dark: "#272238" }
+      "3": { light: "#efe1cc", dark: "#33291c" }
   sun: { light: "#f2b27c", dark: "#c98a57" } # 日付の行の小さな日（今の時刻の印）
   text:
     primary: { light: "#2a2724", dark: "#f0ebe3" } # 本文と見出し
     secondary: { light: "#5e574f", dark: "#b4ab9f" } # 補う文（行の名前、説明）。sunken の上の小さな文もこれ
-    muted: { light: "#6f675c", dark: "#958d82" } # 控えめな文（日時、件数、入力の例）。base と raised の上だけ
+    muted: { light: "#6f675c", dark: "#958d82" } # 控えめな文（日時、件数、入力の例）。raised の上だけ（base の上は背景のにじみが重なって 4.5:1 を割るので secondary にする）
   border:
     subtle: { light: "#e8e2d7", dark: "#322e29" } # 面の中の区切りの線（表の行の間）
     strong: { light: "#d6cdbf", dark: "#4a443c" } # 面の外の縁（白いボタンの縁）
@@ -97,34 +113,49 @@ radius:
   full: 999px # ボタン、左の並びの行、つまみ（両端が丸い）
 
 # 動きを減らす設定（prefers-reduced-motion）では、base.css が distance と scale を 0 と 1 に、spring を standard に、
-# fast、base、draw を instant に差し替える（止めずに、色と濃さの移り変わりだけを短く残す）
+# fast、base、draw を instant に差し替える（止めずに、色と濃さの移り変わりだけを短く残す）。
+# 背景のにじみは、漂う動きが消えて同じ場所にとどまり、時刻の色の移り変わりだけが残る
 motion:
   duration:
     instant: 90ms # 押した瞬間の沈み
     fast: 160ms # 上に乗った、離した、フォーカスの輪、色の移り変わり、ページを開く
-    base: 240ms # 知らせの出入り、明るさの切り替え
+    base: 240ms # 知らせの出入り、明るさの切り替え、時刻の空の色の入れ替わり
     draw: 320ms # チェックの印を左から引く、まわりの波
     pulse: 1200ms # 送っている間のボタンの息づき（1 往復）
+    ambient: 32s # 背景のにじみが片道を漂う長さ（infinite alternate で行き来する。3 つは長さの 1/3 ずつずらす）
   easing:
     standard: cubic-bezier(0.2, 0, 0, 1) # ふつうの移り変わり
     spring: cubic-bezier(0.34, 1.56, 0.64, 1) # 離したときと、出てくるときの小さな弾み
     exit: cubic-bezier(0.4, 0, 1, 1) # 消えるとき
+    drift: cubic-bezier(0.45, 0, 0.55, 1) # 背景のにじみが漂う（端でゆっくり向きを変える）
   distance:
     press: 2px # 押すと沈む深さ（厚みの影と同じ）
     enter: 8px # 知らせが出てくるときに上がる距離
     ring: 8px # チェックとフォーカスの波が広がる距離
+    drift: 7vmax # 背景のにじみが漂う距離（左へこの分、下へこの 0.6 倍）
   scale:
     press: 0.97 # 厚みの無い押せる物（行、項目）を押したときの縮み
     pop: 0.8 # チェックを押したときの縮み
+    drift: 1.1 # 背景のにじみが漂いながらふくらむ大きさ
 
 breakpoint:
   desktop: { width: 1280, height: 800 } # 既定の幅。アプリの窓の最初の大きさ
   phone: { width: 390, height: 844, max_width: 720 } # 窓を細くしたときと、後で足すスマートフォン。窓の幅が max_width 以下で phone の形（左の並びを隠し、本文の面だけ）に切り替える：@media (max-width: 720px)
 
+# 時刻の空を入れ替える時刻（パソコンの時間帯の時刻。その時刻から、次の区切りの前まで）。CSS の変数にしない。
+# アプリは処理から受け取った「今」（コマンド now）で区切りを選び、<html> の data-sky に名前を付け、区切りの時刻を過ぎたら付け替える。
+# data-sky が無いときは morning（モックとデザインシステムの見本の既定）
+sky_times:
+  morning: "05:00" # 朝：5:00〜9:59
+  day: "10:00" # 昼：10:00〜15:59
+  evening: "16:00" # 夕方：16:00〜18:59
+  night: "19:00" # 夜：19:00〜翌 4:59
+
 size:
   control: 36px # ボタンと入力欄の高さ
   check: 20px # チェックの一辺
   chevron: 6px # プルダウンの下向きの印
+  glow: 56vmax # 背景のにじみ 1 と 3 の直径（にじみ 2 はこの 0.7 倍）。画面の端からはみ出して置く
 
 border:
   width:
@@ -142,6 +173,9 @@ effect:
   opacity:
     disabled: 0.45 # 押せない物
     busy: 0.7 # 送っている間のボタンが息づく、薄いほうの濃さ
+    ambient: 0.85 # 背景のにじみの濃さ（砂色の地に重ねる）
+  blur:
+    ambient: 90px # 背景のにじみのぼかし（filter: blur。輪郭が見えず、色だけが広がる）
 
 text_rules:
   - です・ます調で書く。ボタン、ラベル、見出しは短くし、文の終わりを付けない（「新しいページを作る」「ページの名前」「今日やること」）

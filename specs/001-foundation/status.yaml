@@ -47,3 +47,5 @@ log:
   - { at: 2026-11-11T06:47:43Z, stage: hearing, note: 完了 2026-11-11T06:47:31Z 状態：完了 画面の幅を 720px で切り替える決まりと、スクリーンショットで動きを止める決まりを design.yaml に合わせた }
   - { at: 2026-11-11T06:48:05Z, stage: spec-review, note: 起動 2026-11-11T06:48:05Z reviewer spec-review cycle 1（デザインシステムの後） head-before 90123cc969f0f1340483a76212836f549d8afec8 }
   - { at: 2026-11-11T06:50:22Z, stage: spec-review, note: 完了 2026-11-11T06:50:10Z 状態：完了 指摘 1 件（SR-015 時刻で変わる背景のにじみの値が design.yaml に無い）を reviews/spec/07-c1.yaml に書いた }
+  - { at: 2026-11-11T06:50:27Z, stage: design-system, note: 起動 2026-11-11T06:50:27Z designer design-system 直す回 SR-015 head-before 3ef27f6a3a8b552a4b0cb8b6fb0bd21194360b41 }
+  - { at: 2026-11-11T06:58:15Z, stage: design-system, note: 完了 2026-11-11T06:58:03Z 状態：完了 時刻の空の色（朝、昼、夕方、夜）と入れ替わる時刻、にじみの大きさ、ぼかし、濃さ、漂う動きを足し、公開のデザインシステムにも反映した }
