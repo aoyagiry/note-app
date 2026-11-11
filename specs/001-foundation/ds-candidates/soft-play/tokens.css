@@ -1,0 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Nunito:wght@500;700&display=swap");
+
+:root {
+  /* 色：明るい地（砂色の地に白い紙、素焼きの橙を一点） */
+  --color-surface-base: #efebe3;
+  --color-surface-raised: #fffdf9;
+  --color-surface-sunken: #e6e1d6;
+  --color-surface-overlay: rgba(60, 50, 40, 0.16);
+  --color-surface-glow-1: #f6dccb;
+  --color-surface-glow-2: #dfe7d8;
+  --color-text-primary: #2a2724;
+  --color-text-secondary: #6c655c;
+  --color-text-muted: #9c9488;
+  --color-border-subtle: #e8e2d7;
+  --color-border-strong: #d4ccbe;
+  --color-accent-default: #d0643e;
+  --color-accent-hover: #bb5532;
+  --color-accent-subtle: #fae5da;
+  --color-accent-on: #ffffff;
+  --color-highlight: #fbe1a4;
+  --color-danger: #c4483a;
+  --color-success: #6f9474;
+  --color-focus: #d0643e;
+
+  /* 文字 */
+  --type-family-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-text: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-numeric: "Nunito", "Zen Maru Gothic", sans-serif;
+  --type-size-xs: 0.75rem;
+  --type-size-sm: 0.8125rem;
+  --type-size-md: 0.9375rem;
+  --type-size-lg: 1.0625rem;
+  --type-size-xl: 1.3125rem;
+  --type-size-2xl: 1.75rem;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-bold: 700;
+  --type-leading-tight: 1.4;
+  --type-leading-snug: 1.7;
+  --type-leading-body: 1.85;
+  --type-tracking-wide: 0.03em;
+
+  /* 間隔（ゆったり。面と面の間に余白を取る） */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+  --spacing-9: 48px;
+  --spacing-10: 64px;
+
+  /* 角の丸み（大きく丸める） */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* 大きさ */
+  --size-sidebar: 252px;
+  --size-icon-sm: 16px;
+  --size-check: 18px;
+  --size-thumb-inset: 3px;
+  --size-measure: 42em;
+  --size-dialog: 600px;
+  --size-dialog-top: 12vh;
+  --size-glow: 60vmax;
+
+  /* 線 */
+  --border-width-focus: 2px;
+  --border-width-control: 2px;
+
+  /* 動き（押すと少し沈み、離すと小さく弾む。背景はゆっくり漂う） */
+  --motion-duration-instant: 90ms;
+  --motion-duration-fast: 180ms;
+  --motion-duration-base: 260ms;
+  --motion-duration-ambient: 28s;
+  --motion-delay-status: 400ms;
+  --motion-stagger: 30ms;
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-easing-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance-enter: 10px;
+  --motion-distance-drift: 6vmax;
+  --motion-scale-press: 0.97;
+  --motion-scale-pop: 0.85;
+  --motion-scale-enter: 0.995;
+
+  /* 影（浮いた面に、やわらかく） */
+  --shadow-raised: 0 1px 2px rgba(60, 50, 40, 0.06), 0 8px 24px -12px rgba(60, 50, 40, 0.18);
+  --shadow-overlay: 0 2px 6px rgba(60, 50, 40, 0.06), 0 24px 48px -16px rgba(60, 50, 40, 0.3);
+
+  /* 効果（ぼかし） */
+  --effect-blur-ambient: 80px;
+  --effect-blur-panel: 16px;
+  --effect-blur-scrim: 6px;
+  --effect-opacity-ambient: 0.9;
+  --effect-panel-mix: 72%;
+}
+
+[data-theme="dark"] {
+  /* 色：暗い地（焦げ茶の地に、灯りのような橙） */
+  --color-surface-base: #1b1917;
+  --color-surface-raised: #26231f;
+  --color-surface-sunken: #151412;
+  --color-surface-overlay: rgba(0, 0, 0, 0.45);
+  --color-surface-glow-1: #3a2a20;
+  --color-surface-glow-2: #22291f;
+  --color-text-primary: #f0ebe3;
+  --color-text-secondary: #b4ab9f;
+  --color-text-muted: #7f776c;
+  --color-border-subtle: #322e29;
+  --color-border-strong: #4a443c;
+  --color-accent-default: #ef8b63;
+  --color-accent-hover: #f6a383;
+  --color-accent-subtle: #3b261d;
+  --color-accent-on: #1b1917;
+  --color-highlight: #5a4520;
+  --color-danger: #ef8a7a;
+  --color-success: #9dbf9f;
+  --color-focus: #ef8b63;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.75);
+  color-scheme: dark;
+}

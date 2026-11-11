@@ -1,0 +1,61 @@
+verdict: テスト駆動を回す形と決める項目はおおむねそろっているが、CI の checks のジョブで基盤の検査が流せない、作る役が .gitignore を書けない、アプリの中だけを通る道（Tauri）が自動のテストで確かめられない、の 3 つは、このまま作ると最初の PR か使い始めるときに必ず当たる。ほかに、非機能要件の確かめ方（Mac での速さ、サーバー側の脆弱性の検査）と、人が挙げた判断の軸（Rust の速さ、同期の仕組みとの相性）が、選んだ理由に書かれていない。
+cycle: 1
+findings:
+  - id: SR-001
+    target: spec
+    where: _tech/architecture.md 280-281（CI のジョブ）、_tech/acceptance.yaml AC-test-levels-4、AC-test-levels-5、AC-visual-regression-1、AC-test-report-1、AC-dev-env-1
+    what: checks のジョブで test-foundation を流すが、このジョブの手順に Playwright のブラウザを入れる段が無い（ブラウザを入れるのは e2e のジョブだけ）。基盤の検査は、見本の e2e を流して撮る（AC-test-levels-4、5、AC-visual-regression-1、AC-test-report-1）ので、ブラウザが要る。AC-dev-env-1 は「npm run setup を流した後」に .browsers/ と cargo の道具を見るが、CI では setup を流さず taiki-e/install-action で道具を入れるので、CI でこの受入条件が何を見るのかも決まっていない
+    scene: 001 の最初の PR を出すと、Mac と Windows の checks のジョブで test-foundation が見本の e2e を起こそうとしてブラウザが見つからずに落ち、AC-ci-1（何も壊さない PR で緑になる）が満たせない
+    kind:
+      name: 基盤の検査が要る道具が、CI の checks のジョブにそろっていない
+      cases:
+        - 見本の e2e と見た目の比較に要る Chromium と WebKit が入っていない
+        - AC-dev-env-1 が前提にする npm run setup が CI では流れない
+    fix: test-foundation が要るもの（ブラウザ、cargo の道具、試す場のビルド）を 1 つの決まりとして書き、それを流すジョブの手順にそろえる。checks のジョブにブラウザを入れる段（.browsers/ のキャッシュ付き）を足すか、test-foundation を e2e のジョブの片方の shard だけで流すかのどちらかに決める。AC-dev-env-1 は、CI では同じ道具が入っていることを見る形にそろえる
+  - id: SR-002
+    target: spec
+    where: _tech/write-scopes.json 151-173（implementer の allow）、_tech/acceptance.yaml AC-structure-1、_tech/architecture.md 272
+    what: AC-structure-1 と architecture.md は .gitignore に reports/、coverage/、e2e-screenshots/ などを入れると決めているが、作る役の allow に .gitignore が無い。テストを書く役の allow にも無いので、どちらの役も .gitignore を書けない
+    scene: 001 の作る役が、AC-structure-1 を通すために .gitignore を作ろうとすると、書き込み範囲の外として止まるか、コミットの検査（scope-check）で止められる。書けないまま進むと、テストを流すたびに reports/ や e2e-screenshots/ が作業ツリーに残る
+    fix: 作る役の allow に .gitignore を足す
+  - id: SR-003
+    target: spec
+    where: _tech/architecture.md 41-42、122（失敗を internal に変える仕組みが Tauri は catch_unwind、試す場は CatchPanicLayer と別）、210（e2e は試す場だけを相手にする）、253（src-tauri をカバレッジから除く）、_tech/acceptance.yaml AC-errors-1、AC-errors-2
+    what: 自動のテストはすべて試す場（HTTP）を通り、アプリの中だけを通る道（bridge の invoke の分かれ、Tauri のコマンドの登録と引数の渡し方、Tauri 側の panic の変換）はどのテストも通らない。panic を internal に変える仕組みも Tauri と試す場で別のものを使うと書いているので、AC-errors-1 が通っても、アプリでの NFR-error-details は確かめられていない。アプリの道が確かめられるのは、008 の前の AC-deploy-1（人が入れて開く）だけになる
+    scene: 002 から機能を足すたびに e2e と API のテストは緑だが、アプリの窓で開くと、invoke の引数の名前の違い（画面の camelCase と Rust の snake_case）でページの操作が失敗する、またはコマンドが panic したときに Tauri の既定の形で中身が画面に渡る。どちらも 008 で使い始めるまで気づかない
+    kind:
+      name: アプリの中だけを通る道が、自動のテストで確かめられていない
+      cases:
+        - bridge が invoke でコマンドを呼ぶときの名前と引数の渡し方
+        - Tauri のコマンドが panic したときに internal に変えること
+    fix: Tauri 側の道を、試す場と同じ 1 つの入口に寄せて、アプリだけの部分を無くす決まりにする。例として、crates/commands に「コマンドの名前と JSON の引数を受け、JSON の結果か失敗の形を返し、panic もここで internal に変える」入口を 1 つ置き、Tauri は 1 つの汎用のコマンドからそれを呼ぶだけ、試す場の POST /api/invoke/<コマンド> も同じ入口を呼ぶだけにする。こうすれば AC-errors-1、2 と API のテストが、アプリと同じ処理を通る
+  - id: SR-004
+    target: spec
+    where: _intent/intent.yaml NFR-response-time、_tech/architecture.md 245-246（計測）、_tech/toolchain.yaml 120
+    what: NFR-response-time は「Mac と Windows のどちらでも」と決めているが、計測は Chromium のパソコンの幅だけで、試す場（HTTP）を相手に測る。Mac のアプリの画面は WebKit（WKWebView）で描かれ、コマンドは HTTP でなく invoke で呼ばれるので、Mac での速さは測られない。「アプリを起動してページの並びが出るまで 1 秒」も、測るのは試す場のページを開いてからで、アプリの窓と WebView を起こす時間は入らない。計測をどの OS の機械で流すかも書かれていない
+    scene: Windows（Chromium）では 1 万件のページで並びが 100 ミリ秒で出ていても、Mac の WebKit で長い並びを描くと遅く、Mac でアプリを開いて待たされる。計測のコマンドは通っているので、受け入れでは気づかない
+    fix: 計測の決まりに、どのブラウザの仕組みで、どの OS の機械で測るかを書く。perf/ の Playwright で WebKit も測る（Mac の画面に近い）こと、アプリの起動にかかる時間（窓と WebView を起こす分）は試す場では測れないので、どう確かめるか（アプリの記録に起動からの時刻を書いて測る、NFR-polished-look の人の確認で見る、など）を 1 つ決めて書く
+  - id: SR-005
+    target: spec
+    where: _tech/architecture.md 292（リリース）、_tech/tech.yaml TECH-release、_tech/acceptance.yaml AC-deploy-1
+    what: Mac のアプリは macos-latest（Apple Silicon の機械）で tauri-action によりビルドすると書いているが、どの CPU 向けに作るか（Apple Silicon だけか、Intel の Mac でも動く universal か）が決まっていない。tauri-action は指定しなければビルドした機械の CPU 向けだけを作る。人の Mac がどちらの CPU かは、壁打ちにも問いにも出ていない
+    scene: 人の Mac が Intel の CPU のものだと、v0.0.1 の印を付けてできた .dmg を入れても開けず、AC-deploy-1 が満たせない。008 で使い始めるときにも同じことが起きる
+    fix: Mac のビルドの対象を決めて書く。人の Mac の CPU を事実として前提の問いで確かめるか、どちらの Mac でも動く universal-apple-darwin でビルドすると決めて、tauri-action の引数に書く
+  - id: SR-006
+    target: spec
+    where: _tech/tech.yaml TECH-server（reason、alternatives）、specs/001-foundation/hearing/brainstorm.md 31
+    what: 壁打ちで人は「どのフルマネージドのサービスにするか（2 台の書き換えを文字の単位で合わせる仕組みとの相性も含めて）」を決めていないこととして挙げたが、TECH-server の reason は、手元で動かせること、費用、1 つにまとまっていることだけで、Yjs の差分をどこに預け、どう相手のパソコンへ届けるか（Realtime のどの仕組みで流すか）と、それで NFR-sync-delay（3 秒以内）と RULE-merge-edits を満たせる見込みが書かれていない。選ばなかった案の effect も、同期との相性の言葉で書かれていない（Cloudflare の Durable Objects は Yjs の差分を中継する用途でよく使われるが、effect はログインのことだけ）
+    scene: 006 で同期を作る段になって、Supabase の Realtime で Yjs の差分を流す形が決まっておらず、届く遅さや一度に送れる大きさの都合で 3 秒以内に出せないと分かると、サーバーを選び直すことになり、005 のログインまで作り直しになる
+    fix: TECH-server の reason に、Yjs の差分の預け方と届け方（Postgres に差分を積み、Realtime で相手に知らせる、など）と、それで NFR-sync-delay と RULE-merge-edits を満たす見込みを、出典を開いて確かめて書く。alternatives の effect を、同期との相性の言葉でも書き直す。見込みが立たなければ、Yjs の中継に向いた案に選び直す
+  - id: SR-007
+    target: spec
+    where: _tech/tech.yaml TECH-app-platform（reason、background、alternatives）、_intent/intent.yaml FACT-rust、specs/001-foundation/status.yaml affects 3 行目、results/spec-diff.json（intent が null）
+    what: 人は「アプリは Rust で作る（速さを大事にするため）」と指定したが、TECH-app-platform は画面を TypeScript と WebView で描く選択で、人の理由である速さをどう保つか（NFR-response-time の 16 ミリ秒と 100 ミリ秒を WebView で満たす見込み、Rust だけで描く案と比べて速さで何を失うか）が書かれていない。選ばなかった案の effect も作る量の言葉だけで、速さの言葉が無い。また、affects には FACT-rust の前と後を書いているが、intent.yaml の FACT-rust は変わっておらず（spec-diff の intent が null）、承認の後に事実の文がどうなるのかが合っていない
+    scene: 人が Gate 1 で「Rust で作る」と言った理由（速さ）に照らして選べず、承認した後で、文字を打ったときの遅さが WebView のせいだと分かっても、画面をすべて作り直すことになる
+    fix: TECH-app-platform の background か reason に、人の理由（速さ）に照らした説明を NFR-response-time の言葉で書く（文字を打つ処理は本文の編集の部品が WebView の中で行い、16 ミリ秒の内に収まる見込み、など）。alternatives の effect にも速さの側の違いを書く。FACT-rust は、affects の「後」のとおりに intent.yaml の文を直す案として spec-diff に出すか、事実の文は変えないなら affects の行をそれに合わせる
+  - id: SR-008
+    target: spec
+    where: _shared/nfr.yaml NFR-vulnerabilities、_tech/tech.yaml TECH-audit、TECH-server（Edge Functions）、_tech/toolchain.yaml 123、_tech/architecture.md 18、37、82、102
+    what: NFR-vulnerabilities は「アプリとサーバーの両方を調べる」と決めているが、脆弱性の検査は npm audit と cargo audit だけで、サーバーの処理（supabase/functions の Edge Functions。Deno で動き、依存は package.json と Cargo.lock の外に書く）の依存は調べられない。どのチケットでこの検査を足すかも書かれていない。そもそも Edge Functions を何に使うかは、どの先のチケットの範囲にも書かれていない
+    scene: 005 か 006 で Edge Functions を置いて外のライブラリを読み込むと、そのライブラリに High の既知の脆弱性があっても npm run audit は通り、受け入れの画面にも NFR-vulnerabilities は問題なしと出る
+    fix: Edge Functions を使う理由が先のチケットに無ければ、サーバーの構成から外す（そうすればサーバー側の依存は Postgres の定義だけになり、今の検査で足りる）。使うなら、TECH-audit に、Edge Functions の依存を調べるコマンドを、それを最初に置くチケットで足すと書き、nfr_commands に加える

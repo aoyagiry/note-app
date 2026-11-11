@@ -1,0 +1,21 @@
+verdict: 前の回の 3 件（SR-009〜SR-011）は直ったが、SR-011 の直しで「Supabase とやり取りするのは画面の側」と決めるのに要らない 005 と 006 の作りの細部（ログインの情報を keyring で OS の鍵の置き場所に置く、e2e は手元の Docker の Supabase を相手にする）まで先に書き込み、それが Windows の鍵の置き場所の大きさの上限、テストのデータの分け方、問い Q-003 とかみ合っていない。根の原因は、問いに答えるのに要る決め事を超えて、後のチケットの細部を土台に足したこと。
+cycle: 3
+from_previous_fix: true
+findings:
+  - id: SR-012
+    target: spec
+    where: _tech/architecture.md 18（技術スタックのサーバーの行）、58（同期の受け持ちの「ログインの情報（トークン）の保存」の行）、221（試す場のデータの分け方）、268（measure-sync）、_tech/tech.yaml TECH-server（decision の末尾「ログインの情報は、処理が keyring で OS の鍵の置き場所に置く」）
+    what: 前の回の直しで、ログインの情報を Rust の処理が keyring で OS の鍵の置き場所に置き、supabase-js の保存先をそれに差し替えると足した。この保存の仕方を求める非機能要件は無く（NFR-password-storage はパスワードのことで、ログインの後の情報のことではない）、SR-011 の直し（どちらの側が Supabase とやり取りするか）に要るものでもない。そのうえ、Windows の資格情報マネージャーは 1 つの資格情報の中身を 2560 バイト（CRED_MAX_CREDENTIAL_BLOB_SIZE、5*512）までしか持てない（https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw）。supabase-js が保存するのは、アクセストークン（JWT）と使う人の情報を 1 つにした JSON で、keyring は Windows では UTF-16 で書くので、この上限を超えやすい（keyring は超えると TooLong の失敗を返す）。また、OS の鍵の置き場所はパソコンに 1 つなので、試す場の profile ごとにデータを分ける決まり（221）の外になる
+    scene: 005 で Windows のアプリにログインすると、ログインの情報を保存するところで大きさの上限を超えて失敗し、アプリを開き直すたびにログインし直すことになる。e2e と measure-sync では、並べて流したテストや 2 つの試す場が同じ鍵の置き場所の 1 つの項目を書き換え合い、別のテストのアカウントに入れ替わったり、片方がトークンを更新したときにもう片方がログアウトされたりして、結果が流すたびに変わる。人が試す場をブラウザで開いたときも、開発に使うパソコンの本物の鍵の置き場所に書き込まれる
+    kind:
+      name: 前の回の直しで足した、ログインの情報を OS の鍵の置き場所に置く決め事が、土台のほかの決まりとかみ合っていない
+      cases:
+        - Windows の資格情報マネージャーの 2560 バイトの上限に、supabase-js の保存する情報が収まらない
+        - 試す場の profile ごとにデータを分ける決まりの外にあり、並べて流すテストと measure-sync の 2 つの試す場で混ざる
+    fix: keyring の決め事を消す（architecture.md の 18 の「ログインの情報は keyring で OS の鍵の置き場所に置く」、58 の行、TECH-server の decision の末尾の文）。ログインの情報の保存は supabase-js の既定（画面の localStorage。Tauri ではアプリのデータの置き場所、e2e では Playwright のテストごとのブラウザの文脈で分かれる）に任せ、どこに置くかを変える理由が出たら 005 の計画で決める
+  - id: SR-013
+    target: spec
+    where: _tech/architecture.md 62（「e2e では、試す場の画面でも同じ sync が動き、手元の Supabase（Docker）を相手にする」）、229（差し替えてよいのは 005 からの外のサービスだけ）、307（CI のデータベースの置き方は Q-003 の答えと 005 の計画で決める）、hearing/questions.yaml Q-003 の background（CI では Supabase の試し用のプロジェクトを相手にする）
+    what: 前の回の直しで、e2e は手元の Docker の Supabase を相手にすると言い切る文を足したが、同じ architecture.md の 307 と Q-003 は、GitHub の Mac と Windows の機械では Docker が動かないので CI での相手は Q-003 の答え（GitHub の機械なら Supabase の試し用のプロジェクト）と 005 の計画で決める、としている。229 は外のサービスを差し替えてよいとしているので、相手にするかどうかも決まっていない。SR-011 の直しには要らない文で、まだ答えの無い問いの先を決めている
+    scene: 人が Q-003 で提案のとおり「GitHub の機械で毎回流す」を選ぶと、005 の計画を書く役は、62 の「手元の Docker を相手にする」と 307 の「Q-003 の答えで決める」のどちらに従うかを決められず、CI の e2e の作りが割れる
+    fix: 62 の文を消す。e2e で sync が何を相手にするかは、307 のとおり Q-003 の答えと 005 の計画で決めることに 1 か所でまとめる

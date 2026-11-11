@@ -1,0 +1,150 @@
+details:
+  - id: PD-001
+    decision: dispatch は、知らない名前のコマンドを { kind not_found, reason unknown_command } で返す（試す場は 404）
+    plain: まだ作っていないコマンドを呼ぶと、「見つからない」と理由 unknown_command が返る
+    reason: 後のチケットの API のテストが、まだ作っていないコマンドを呼んだときに、業務の「見つからない」と区別できる理由で落ちるようにするため
+    test: true
+    by: planner
+  - id: PD-002
+    decision: 引数の JSON を読めないとき（試す場の本文が JSON でない、コマンドの引数の形に合わない）は internal（500）にし、詳細は記録にだけ書く
+    plain: 画面が決まった形で送らなかったときは、想定外の失敗として扱い、中身は記録にだけ残す
+    reason: 画面は bridge から決まった形でしか送らないので、読めないのは作りの誤りで、使う人の業務では起きない。axum の Json の既定の応答は serde の文を返すので使わず、本文を受けてから dispatch で読む
+    test: false
+    no_test_reason: 画面は常に決まった形で送るので、業務では起きない
+    by: planner
+  - id: PD-003
+    decision: e2e の feature の試す場は、データの分け方の ID ごとに別の時計と置き場所を持ち、ある ID の時計を決めてもほかの ID の now は変わらない
+    plain: テストごとに決めた「今」が、並べて流したほかのテストに混ざらない
+    reason: e2e と API のテストを並べて流すため（architecture.md の試す場をテストで使う）
+    test: true
+    by: planner
+  - id: PD-004
+    decision: 画面を /?profile=<ID> で開くと、試す場がクッキー aidd-test-profile=<ID> を付け、その後の /api/invoke/ の呼び出しは、見出し x-test-profile が無ければそのクッキーの ID の置き場所を使う
+    plain: e2e で ?profile= を付けて開いた画面からのコマンドは、そのテストのデータと時計を使う
+    reason: 画面の bridge にテストのための処理を入れずに、画面の URL の ?profile= を API の呼び出しまで届けるため
+    test: true
+    by: planner
+  - id: PD-005
+    decision: e2e の feature の試す場は、起動ごとに OS の一時の場所の下にフォルダを作り、その下に ID ごとのデータを置き、正しく終わるときにフォルダごと消す
+    plain: テストのデータは一時の場所に入り、試す場が終わると消える
+    reason: テストに後片付けの SQL を書かずに済ませるため（architecture.md の準備のデータ）
+    test: false
+    no_test_reason: 001 には保存するデータが無く、残っても OS の一時の場所で、業務の振る舞いに出ない
+    by: planner
+  - id: PD-006
+    decision: e2e の feature の試す場に POST /__test/shutdown を置き、受けたら受け付けをやめて main から正しく戻る。API のテストの後片付けはこれで止める
+    plain: テストが終わるときに試す場を殺さずに正しく終わらせ、Rust のカバレッジの記録が書かれるようにする
+    reason: LLVM のカバレッジの記録はプロセスが正しく終わるときに書かれ、Windows でプロセスを殺すと書かれないため
+    test: false
+    no_test_reason: カバレッジの報告に試す場の分が入ることで分かり、業務の振る舞いではない
+    by: planner
+  - id: PD-007
+    decision: 記録は tracing-appender の日ごとのファイル（<prefix>.YYYY-MM-DD）に、non_blocking を使わずに書く。試す場は --log-dir（既定 <data>/logs）に devhost.log、アプリはアプリのデータの置き場所の logs/ に app.log。試す場は標準エラーにも書く
+    plain: 想定外の失敗の詳細は、応答を返す前に記録のファイルに書き終わっている
+    reason: non_blocking は書き込みが後になり、応答の直後に記録を読む確かめ（AC-errors-2）で見えないことがあるため
+    test: false
+    no_test_reason: AC-errors-2 の検査が記録を読んで確かめる
+    by: planner
+  - id: PD-008
+    decision: panic の hook を差し替え、panic の文と場所を tracing の error に書く（既定の標準エラーへの表示はしない）
+    plain: panic の中身は記録にだけ残り、画面にも応答にも出ない
+    reason: アプリでは標準エラーが見えないので、記録に残すため
+    test: false
+    no_test_reason: AC-errors-1 と AC-errors-3 が、応答に panic の文が出ないことを確かめる
+    by: planner
+  - id: PD-009
+    decision: Text は、文の {名前} の所を values の値で埋めて <span data-value> で包み、値でない部分だけを BudouX で文節に分けて間に <wbr> を入れる。text() は値を埋めた文字列だけを返し、span も <wbr> も入れない
+    plain: 画面の文は文節の切れ目で折り返し、名前などの値は途中で割れない。属性に入れる文には印が入らない
+    reason: Mac の WKWebView では word-break auto-phrase が効かないため（architecture.md の日本語の文節の区切り）
+    test: true
+    by: planner
+  - id: PD-010
+    decision: loadTexts は specs/_current/*/texts.yaml をすべて読み、同じ ID が 2 つあれば、その ID を文に入れて失敗する（ビルドが落ちる）。texts.yaml が 1 つも無ければ空の表を返す。Text と text() は表に無い ID を受けたら失敗する
+    plain: 画面の文の ID が重なるか、無い ID を使うと、気づかずに出荷されずに作る途中で落ちる
+    reason: architecture.md の画面の文の取り込み方のとおり。無い ID で空の文を出すと気づけないため
+    test: true
+    by: planner
+  - id: PD-011
+    decision: bridge は呼ぶたびに window.__TAURI_INTERNALS__ の有無で道を選ぶ。HTTP の道は引数が無ければ {} を送り、2xx でなければ本文の JSON をそのまま reject する
+    plain: アプリでもブラウザでも、画面は同じ呼び方で処理を呼び、同じ形の失敗を受け取る
+    reason: 読み込んだ時ではなく呼ぶたびに見ると、テストで mockIPC を入れた後の呼び出しが Tauri の道を通る
+    test: false
+    no_test_reason: AC-structure-4 の確かめが同じことを見る
+    by: planner
+  - id: PD-012
+    decision: 画面は最初に描き終えたら、Tauri の中ではイベント app-rendered を emit し、ブラウザでは performance.mark("app-rendered") を付ける。アプリは --measure-startup のときだけ、main の始めからそのイベントまでのミリ秒を標準出力に startup_ms=<整数> で書いて終わる
+    plain: 起動の速さを、アプリでも試す場でも、土台の画面を描き終えた所まで測る
+    reason: Tauri のアプリが登録するコマンドを invoke_command だけにするため、知らせはコマンドでなくイベントで送る
+    test: false
+    no_test_reason: 計測（npm run measure-response）で使う印で、業務の振る舞いではない
+    by: planner
+  - id: PD-013
+    decision: invoke_command は async の Tauri のコマンドにする
+    plain: 処理を呼んでいる間も、窓が固まらない
+    reason: Tauri の同期のコマンドは窓の主のスレッドで動くため
+    test: false
+    no_test_reason: 001 のコマンドは一瞬で終わり、違いが振る舞いに出ない
+    by: planner
+  - id: PD-014
+    decision: アプリの名前（productName）は仮に Pages、識別子（identifier）は仮に local.pages.desktop にする
+    plain: アプリの名前はまだ決まっていないので、仮の名前で窓とインストーラーを作る
+    reason: 名前の要件が無いため。識別子はアプリのデータの置き場所の名前になり、使い始めた後に変えるとデータの場所が変わるので、008 で使い始める前に決め直す
+    test: false
+    no_test_reason: 窓の題と配る物の名前だけで、振る舞いに出ない
+    by: planner
+  - id: PD-015
+    decision: tauri.conf.json に version を書かず、アプリの版は Cargo の workspace.package.version から取る
+    plain: 版の番号を書く所を 1 か所にする
+    reason: 版の印を付ける前に揃える所を減らすため（architecture.md のリリース）
+    test: false
+    no_test_reason: 版の印のビルドを人が確かめる（AC-deploy-1）
+    by: planner
+  - id: PD-016
+    decision: ポートは、人の試す場 4310、e2e 4311、API 4312、計測 4313、基盤の検査が自分で起こす試す場 4314、tauri dev の画面 1420
+    plain: 人が開く試す場とテストが起こす試す場がぶつからない
+    reason: architecture.md の 4310、4311、4312 に、計測と基盤の検査の分を足した
+    test: false
+    no_test_reason: テストの道具の置き場所で、業務の振る舞いではない
+    by: planner
+  - id: PD-017
+    decision: アプリのアイコンは、design.yaml の color.accent.default の角の丸い四角の SVG から tauri icon で作った仮のものにする
+    plain: アイコンはまだ描いていないので、橙の四角の仮のアイコンにする
+    reason: Windows のビルドにはアイコンが要り、アイコンの絵の要件がまだ無いため
+    test: false
+    no_test_reason: 見た目の素材で、振る舞いに出ない
+    by: planner
+  - id: PD-018
+    decision: TypeScript の型は ts-rs の #[ts(export)] を使わず、crates/protocol の実行ファイル gen-types が書き出す
+    plain: 型の生成をテストの実行から切り離す
+    reason: "#[ts(export)] は src の中にテストを作り、src にテストを置かない決まりと、nextest の結果に混ざるため"
+    test: false
+    no_test_reason: typecheck が生成した型で通ることで分かる
+    by: planner
+  - id: PD-019
+    decision: 計測の結果は reports/perf/<場面>--<ブラウザ>.json に { scene, browser, median_ms, limit_ms } で書き、基準との比較は scripts/measure-response.mjs がまとめて行う
+    plain: 計測の値の置き場所と形を決め、基準を超えたかの判断を 1 か所にする
+    reason: 計測を書くのはテストを書く役、まとめるのは作る役で、受け渡しの形が要るため
+    test: false
+    no_test_reason: 計測の道具の受け渡しで、業務の振る舞いではない
+    by: planner
+  - id: PD-020
+    decision: 試す場は 127.0.0.1 だけで待ち、画面のファイルは tower-http を使わず手で配る。道の区切りのうち .. と . と \ を含むものは 404 にする。index.html への差し戻し（SPA の fallback）は、道のある画面を作るチケットで足す
+    plain: 試す場は自分のパソコンからだけ開け、画面のフォルダの外のファイルは返さない
+    reason: 技術の選択に無いライブラリを足さないため。001 の画面は / の 1 つだけ
+    test: false
+    no_test_reason: 試す場は自分のパソコンの中だけで使い、使う人の業務では起きない
+    by: planner
+  - id: PD-021
+    decision: now の at は秒まで（小数を切り捨て）、時差付きの RFC 3339（例 2027-05-12T16:00:00+09:00）にする
+    plain: 画面が受け取る「今」は、秒までの時刻と時差の形にそろえる
+    reason: 秒より細かい進みは画面が performance.now() で足すので要らず、どのブラウザの Date でも読める形にするため
+    test: false
+    no_test_reason: AC-dev-env-3 の検査が同じ形を確かめる
+    by: planner
+  - id: PD-022
+    decision: .node-version は 24 にする
+    plain: Node.js は手元に入っている v24（LTS の系統）にそろえる
+    reason: 手元の Node.js が v24.5.0 で、LTS の系統のため
+    test: false
+    no_test_reason: AC-dev-env-1 の検査が、入っている Node.js の版と比べる
+    by: planner

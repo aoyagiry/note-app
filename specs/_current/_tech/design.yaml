@@ -1,0 +1,189 @@
+name: ひだまりの遊び
+url: https://claude.ai/artifact/RAmdHWAwHTnZM4hr4Wpijz
+mood: 砂色の地に白い丸い紙が浮かぶ、ひだまりのようにやわらかな画面。押せる物には厚みがあり、押すとその分だけ沈み、離すと小さく弾む。チェックの印は線を引くように描かれる。強い色は素焼きの橙を一点だけにし、ぎらぎらさせない。楽しさは動きの長さや派手さではなく、反応の速さ、なめらかさ、手応えで出す
+
+# CSS の変数の名前は、欄の道筋を kebab にしてつなぐ（color.surface.base → --color-surface-base）。
+# light と dark は道筋に入れない：light を :root に、dark を [data-theme="dark"] に書く
+color:
+  surface:
+    base: { light: "#f0ebe2", dark: "#1b1917" } # 画面の地（砂色。暗い地は焦げ茶）
+    raised: { light: "#fffdf9", dark: "#26231f" } # 浮いた紙の面（本文、左の並び、窓、白いボタン）
+    sunken: { light: "#e7e1d5", dark: "#151412" } # へこんだ面（つまみの溝、上に乗った行、表の見出し）
+    overlay: { light: "rgba(60, 50, 40, 0.16)", dark: "rgba(0, 0, 0, 0.45)" } # 窓の後ろに敷く幕
+  # 背景のにじみ（時刻の空）の 3 つの色を、時刻の区切りごとに 1 組ずつ。いつ入れ替わるかは sky_times。
+  # 画面はこの値を直に使わず、今の空 --color-sky-1〜3 を使う（base.css が <html> の data-sky に合わせて、この組から引く）。
+  # 暗い地は、同じ時刻の空を暗く沈めた色。にじみの上（面の外）に直に置く文は text.primary、text.secondary、accent.text だけ
+  sky:
+    morning: # 朝：桃、たまご色、薄い青灰
+      "1": { light: "#f7d6c2", dark: "#3b2a22" }
+      "2": { light: "#f3e6bd", dark: "#352f1f" }
+      "3": { light: "#d8e3e8", dark: "#1f2a31" }
+    day: # 昼：澄んだ空色、日なたのクリーム、若葉の淡い緑
+      "1": { light: "#d6e6ef", dark: "#1e2c35" }
+      "2": { light: "#f6ecca", dark: "#33301f" }
+      "3": { light: "#e1ebdc", dark: "#22302a" }
+    evening: # 夕方：杏、夕焼けの薄紅、暮れの薄紫
+      "1": { light: "#f5cdb2", dark: "#41291f" }
+      "2": { light: "#f1d3d0", dark: "#3a2428" }
+      "3": { light: "#e0d8e8", dark: "#2a2637" }
+    night: # 夜：藍の淡い色、藤色、灯りの色
+      "1": { light: "#d7dbea", dark: "#1b2235" }
+      "2": { light: "#e5dce9", dark: "#272238" }
+      "3": { light: "#efe1cc", dark: "#33291c" }
+  sun: { light: "#f2b27c", dark: "#c98a57" } # 日付の行の小さな日（今の時刻の印）
+  text:
+    primary: { light: "#2a2724", dark: "#f0ebe3" } # 本文と見出し
+    secondary: { light: "#5e574f", dark: "#b4ab9f" } # 補う文（行の名前、説明）。sunken の上の小さな文もこれ
+    muted: { light: "#6f675c", dark: "#958d82" } # 控えめな文（日時、件数、入力の例）。raised の上だけ（base の上は背景のにじみが重なって 4.5:1 を割るので secondary にする）
+  border:
+    subtle: { light: "#e8e2d7", dark: "#322e29" } # 面の中の区切りの線（表の行の間）
+    strong: { light: "#d6cdbf", dark: "#4a443c" } # 面の外の縁（白いボタンの縁）
+    control: { light: "#8a8276", dark: "#7a7267" } # 入力欄とチェックの枠（地と 3:1 以上）
+  edge: { light: "#ddd4c5", dark: "#0f0e0c" } # 押せる白い物の下の厚み
+  accent:
+    default: { light: "#b5532f", dark: "#ef8b63" } # 素焼きの橙。主のボタン、チェックの面、選んだ印
+    hover: { light: "#9f4626", dark: "#f6a383" } # 主のボタンに乗ったとき
+    subtle: { light: "#fae3d6", dark: "#3b261d" } # 橙の淡い面（リンクの下地、チェックの波）
+    edge: { light: "#7f361c", dark: "#a8573a" } # 主のボタンとチェックの下の厚み
+    "on": { light: "#ffffff", dark: "#1b1917" } # 橙の面の上の文と印
+    text: { light: "#9a4425", dark: "#f6a383" } # 橙の文（リンク、開いているページの名前）
+  highlight: { light: "#fbdf9c", dark: "#5a4520" } # 見つけた言葉の蛍光ペンと、選んだ文字
+  danger:
+    default: { light: "#ad3b2f", dark: "#ef8a7a" } # 失敗の知らせの文、誤りのある入力欄の枠
+    subtle: { light: "#f8e0db", dark: "#3a1f1b" } # 失敗の知らせの面
+  success:
+    default: { light: "#436e4a", dark: "#9dbf9f" } # 済んだ知らせの文（保存しました）
+    subtle: { light: "#e6eee2", dark: "#1f2a20" } # 済んだ知らせの面
+  focus: { light: "#b5532f", dark: "#ef8b63" } # キーボードのフォーカスの輪
+  mark:
+    "1": { light: "#e7a585", dark: "#b8775c" } # ページの印 1（上の段のページに 1 つずつ。文の色には使わない）
+    "2": { light: "#a8c398", dark: "#7f9a70" } # ページの印 2
+    "3": { light: "#9dbccf", dark: "#6f8fa3" } # ページの印 3
+    "4": { light: "#c6add2", dark: "#977fa3" } # ページの印 4
+
+type:
+  family:
+    display: '"Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif' # 見出し
+    text: '"Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif' # 本文、ラベル、ボタン
+    numeric: '"Nunito", "Zen Maru Gothic", sans-serif' # 数（日時、件数）。tabular-nums と合わせる
+  size:
+    xs: 0.75rem # 日時、件数、表の見出し
+    sm: 0.8125rem # ラベル、ボタン、左の並びの行、知らせ
+    md: 0.9375rem # 本文と入力欄
+    lg: 1.0625rem # 小見出し、探す窓の入力
+    xl: 1.375rem # 節の見出し（細い幅ではページの名前）
+    2xl: 2rem # ページの名前
+  weight:
+    regular: 400 # 本文
+    medium: 500 # ラベル、リンク、知らせ
+    bold: 700 # ボタン、節の見出し、数
+    heavy: 900 # ページの名前（極太）
+  leading:
+    tight: 1.35 # 見出し
+    snug: 1.7 # ラベル、知らせ、短い行
+    body: 1.85 # 本文
+  tracking:
+    wide: 0.03em # 表の見出しと小さなラベル
+  # 文字の役：font の一括指定で使う（font: var(--type-role-body)）
+  role:
+    title: var(--type-weight-heavy) var(--type-size-2xl)/var(--type-leading-tight) var(--type-family-display) # ページの名前
+    heading: var(--type-weight-bold) var(--type-size-xl)/var(--type-leading-tight) var(--type-family-display) # 節の見出し
+    body: var(--type-weight-regular) var(--type-size-md)/var(--type-leading-body) var(--type-family-text) # 本文
+    label: var(--type-weight-medium) var(--type-size-sm)/var(--type-leading-snug) var(--type-family-text) # 入力欄のラベル、左の並びの行
+    button: var(--type-weight-bold) var(--type-size-sm)/var(--type-leading-snug) var(--type-family-text) # ボタン
+    numeric: var(--type-weight-bold) var(--type-size-xs)/var(--type-leading-snug) var(--type-family-numeric) # 日時と件数
+    error: var(--type-weight-medium) var(--type-size-sm)/var(--type-leading-snug) var(--type-family-text) # 失敗の知らせの文（color.danger.default と合わせる）
+
+spacing:
+  "1": 4px # 印と文字の間、行の上下
+  "2": 8px # 小さな部品の中、細い幅の外の余白
+  "3": 12px # 行の左右、部品どうしの間
+  "4": 16px # 面どうしの間
+  "5": 20px # ボタンの左右、面の内側
+  "6": 24px # 見出しの下
+  "7": 32px # 本文の面の上
+  "8": 40px # 本文の面の左右、節の間
+  "9": 48px # 細い幅の本文の下
+  "10": 64px # 本文の面の下
+
+radius:
+  sm: 8px # チェック、リンクの下地、蛍光ペン
+  md: 14px # 入力欄、探した結果の行、知らせ
+  lg: 22px # 浮いた紙（本文、左の並び、窓）
+  full: 999px # ボタン、左の並びの行、つまみ（両端が丸い）
+
+# 動きを減らす設定（prefers-reduced-motion）では、base.css が distance と scale を 0 と 1 に、spring を standard に、
+# fast、base、draw を instant に差し替える（止めずに、色と濃さの移り変わりだけを短く残す）。
+# 背景のにじみは、漂う動きが消えて同じ場所にとどまり、時刻の色の移り変わりだけが残る
+motion:
+  duration:
+    instant: 90ms # 押した瞬間の沈み
+    fast: 160ms # 上に乗った、離した、フォーカスの輪、色の移り変わり、ページを開く
+    base: 240ms # 知らせの出入り、明るさの切り替え、時刻の空の色の入れ替わり
+    draw: 320ms # チェックの印を左から引く、まわりの波
+    pulse: 1200ms # 送っている間のボタンの息づき（1 往復）
+    ambient: 32s # 背景のにじみが片道を漂う長さ（infinite alternate で行き来する。3 つは長さの 1/3 ずつずらす）
+  easing:
+    standard: cubic-bezier(0.2, 0, 0, 1) # ふつうの移り変わり
+    spring: cubic-bezier(0.34, 1.56, 0.64, 1) # 離したときと、出てくるときの小さな弾み
+    exit: cubic-bezier(0.4, 0, 1, 1) # 消えるとき
+    drift: cubic-bezier(0.45, 0, 0.55, 1) # 背景のにじみが漂う（端でゆっくり向きを変える）
+  distance:
+    press: 2px # 押すと沈む深さ（厚みの影と同じ）
+    enter: 8px # 知らせが出てくるときに上がる距離
+    ring: 8px # チェックとフォーカスの波が広がる距離
+    drift: 7vmax # 背景のにじみが漂う距離（左へこの分、下へこの 0.6 倍）
+  scale:
+    press: 0.97 # 厚みの無い押せる物（行、項目）を押したときの縮み
+    pop: 0.8 # チェックを押したときの縮み
+    drift: 1.1 # 背景のにじみが漂いながらふくらむ大きさ
+
+breakpoint:
+  desktop: { width: 1280, height: 800 } # 既定の幅。アプリの窓の最初の大きさ
+  phone: { width: 390, height: 844, max_width: 720 } # 窓を細くしたときと、後で足すスマートフォン。窓の幅が max_width 以下で phone の形（左の並びを隠し、本文の面だけ）に切り替える：@media (max-width: 720px)
+
+# 時刻の空を入れ替える時刻（パソコンの時間帯の時刻。その時刻から、次の区切りの前まで）。CSS の変数にしない。
+# アプリは処理から受け取った「今」（コマンド now）で区切りを選び、<html> の data-sky に名前を付け、区切りの時刻を過ぎたら付け替える。
+# data-sky が無いときは morning（モックとデザインシステムの見本の既定）
+sky_times:
+  morning: "05:00" # 朝：5:00〜9:59
+  day: "10:00" # 昼：10:00〜15:59
+  evening: "16:00" # 夕方：16:00〜18:59
+  night: "19:00" # 夜：19:00〜翌 4:59
+
+size:
+  control: 36px # ボタンと入力欄の高さ
+  check: 20px # チェックの一辺
+  chevron: 6px # プルダウンの下向きの印
+  glow: 56vmax # 背景のにじみ 1 と 3 の直径（にじみ 2 はこの 0.7 倍）。画面の端からはみ出して置く
+
+border:
+  width:
+    hairline: 1px # 入力欄の枠、白いボタンの縁、表の行の線
+    control: 2px # チェックの枠
+    focus: 2px # フォーカスの輪
+
+shadow:
+  raised: { light: "0 1px 2px rgba(60, 50, 40, 0.06), 0 8px 24px -12px rgba(60, 50, 40, 0.2)", dark: "0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6)" } # 浮いた紙
+  overlay: { light: "0 2px 6px rgba(60, 50, 40, 0.06), 0 24px 48px -16px rgba(60, 50, 40, 0.3)", dark: "0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.75)" } # 幕の上に浮かぶ窓
+  edge: { light: "0 2px 0 #ddd4c5", dark: "0 2px 0 #0f0e0c" } # 押せる白い物の厚み（color.edge を motion.distance.press の分だけ下に）
+  edge-accent: { light: "0 2px 0 #7f361c", dark: "0 2px 0 #a8573a" } # 主のボタンとチェックの厚み（color.accent.edge）
+
+effect:
+  opacity:
+    disabled: 0.45 # 押せない物
+    busy: 0.7 # 送っている間のボタンが息づく、薄いほうの濃さ
+    ambient: 0.85 # 背景のにじみの濃さ（砂色の地に重ねる）
+  blur:
+    ambient: 90px # 背景のにじみのぼかし（filter: blur。輪郭が見えず、色だけが広がる）
+
+text_rules:
+  - です・ます調で書く。ボタン、ラベル、見出しは短くし、文の終わりを付けない（「新しいページを作る」「ページの名前」「今日やること」）
+  - ボタンは、押すと何が起きるかを動詞で言う（「新しいページを作る」「もう一度保存する」）。「OK」「はい」だけにしない
+  - 同じ操作は、流れを通して同じ名前にする（「消す」と決めたら、確かめの文もボタンも「消す」にし、「削除」と混ぜない）
+  - 失敗の知らせは、何が起きたか、なぜか、どう直すかを言う（「ページを保存できませんでした。パソコンの空き容量が足りません。空きを作ってから、もう一度保存してください。」）。謝る言葉と「エラーが発生しました」だけの文で済ませない
+  - 空の画面は、これは何か、なぜ空か、どう始めるかを言う（「まだページがありません。左の『新しいページを作る』から、最初のページを作れます。」）
+  - ラベルは中身の名前にする（「ページの名前」「日付」）。入力の例は「例：」で始め、ラベルの代わりにしない
+  - 古い日時は、1 週間を過ぎたら日付で書く（「3 分前」「昨日 18:20」「2026.10.31」）
+  - 済んだことは、短くさりげなく知らせる（「保存しました」）。感嘆符と絵文字は使わない
+  - 急かす言い方と、くだけすぎた言い方をしない（「〜しましょう！」「〜してね」を使わない）。落ち着いて、隣で教えるように書く

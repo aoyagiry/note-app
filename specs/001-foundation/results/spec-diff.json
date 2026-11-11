@@ -1,0 +1,805 @@
+{
+  "from": "f30ec8e7f3e95d575583f28eff11b6751f8e491f",
+  "to": "worktree",
+  "changes": [
+    {
+      "key": "_intent/FACT-rust",
+      "kind": "FACT",
+      "area": "_intent",
+      "parent": null,
+      "change": "modified",
+      "before": {
+        "id": "FACT-rust",
+        "statement": "アプリは Rust で作る（人の指定。速さを大事にするため）"
+      },
+      "after": {
+        "id": "FACT-rust",
+        "statement": "アプリは Rust で作る（人の指定。速さを大事にするため）。そのうち、処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（001 の問い Q-004 の答えで決めた）"
+      }
+    },
+    {
+      "key": "TICKET/002-page-tree",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "modified",
+      "before": {
+        "id": "002-page-tree",
+        "title": "ページを作って左の並びから開く",
+        "purpose": "自分が、ページを作って名前を付け、ページの中にページを入れて整理し、画面の左に木の形で並んだページから目当てのページを開ける",
+        "scope": {
+          "includes": [
+            "自分が、ページを作り、名前を付ける",
+            "自分が、ページの中にページを入れ、画面の左に木の形で並んだページから開く（並べ替えや、別のページの中へ移す操作をどこまで作るかは、このチケットのヒアリングで決める）",
+            "自分が、ページを消す（中にページが入っているページを消したときにどうなるか、消したページを戻せるかは、このチケットのヒアリングで決める）"
+          ],
+          "excludes": [
+            "ページの本文を書くこと（003-page-editor で作る）",
+            "ほかのパソコンとの同期（006-page-sync で作る）"
+          ]
+        },
+        "depends_on": []
+      },
+      "after": {
+        "id": "002-page-tree",
+        "title": "ページを作って左の並びから開く",
+        "purpose": "自分が、ページを作って名前を付け、ページの中にページを入れて整理し、画面の左に木の形で並んだページから目当てのページを開ける",
+        "scope": {
+          "includes": [
+            "自分が、ページを作り、名前を付ける",
+            "自分が、ページの中にページを入れ、画面の左に木の形で並んだページから開く（並べ替えや、別のページの中へ移す操作をどこまで作るかは、このチケットのヒアリングで決める）",
+            "自分が、ページを消す（中にページが入っているページを消したときにどうなるか、消したページを戻せるかは、このチケットのヒアリングで決める）",
+            "自分が、アプリの中で明るい画面と暗い画面を切り替える。最初は端末（Mac や Windows）の設定に合わせて開き、アプリの中で選んだら、その後は選んだほうで開く"
+          ],
+          "excludes": [
+            "ページの本文を書くこと（003-page-editor で作る）",
+            "ほかのパソコンとの同期（006-page-sync で作る）"
+          ]
+        },
+        "depends_on": []
+      }
+    },
+    {
+      "key": "TICKET/008-start-using",
+      "kind": "TICKET",
+      "area": null,
+      "parent": null,
+      "change": "modified",
+      "before": {
+        "id": "008-start-using",
+        "title": "自分の Mac と Windows で使い始める",
+        "purpose": "作ったアプリを自分の Mac と Windows に入れ、データを預かるサーバーを動かして、日々のメモをこのアプリだけで書き始められる",
+        "scope": {
+          "includes": [
+            "自分が、Mac と Windows にアプリを入れて起動し、ログインして使い始める",
+            "データを預かるサーバーを、2 台のパソコンからネットを通して使える所で動かす"
+          ],
+          "excludes": [
+            "一般の人への配布（配り方を決めてから足す）"
+          ]
+        },
+        "depends_on": [
+          "007-two-devices-journey"
+        ],
+        "release": true
+      },
+      "after": {
+        "id": "008-start-using",
+        "title": "自分の Mac と Windows で使い始める",
+        "purpose": "作ったアプリを自分の Mac と Windows に入れ、データを預かるサーバーを動かして、日々のメモをこのアプリだけで書き始められる",
+        "scope": {
+          "includes": [
+            "自分が、Mac と Windows にアプリを入れて起動し、ログインして使い始める",
+            "データを預かるサーバーを、2 台のパソコンからネットを通して使える所で動かす",
+            "自分が、版の印を付けてビルドされた新しい版のアプリを、Mac と Windows に自分で入れ直す"
+          ],
+          "excludes": [
+            "一般の人への配布（配り方を決めてから足す）",
+            "アプリが新しい版を見つけて自分で入れ替わること（自動のアップデート。一般に配るときに足す）"
+          ]
+        },
+        "depends_on": [
+          "007-two-devices-journey"
+        ],
+        "release": true
+      }
+    },
+    {
+      "key": "_tech/TECH-app-platform",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-app-platform",
+        "summary": "アプリは Rust と Tauri 2 で作り、画面は Web の技術（HTML と CSS）で、OS の WebView（Windows は WebView2、Mac は WKWebView）に描く。ページの保存、検索、同期などの処理は Rust で書く",
+        "decision": "Rust（stable）と Tauri 2。処理の中心は Rust の crate（crates/core）に置き、Tauri のアプリ（apps/desktop/src-tauri）がそれをコマンドとして画面に渡す。画面は TypeScript で書き、OS の WebView で描く",
+        "reason": "問い Q-004 の答えで決めた。速さ（NFR-response-time）に照らすと、遅くなりやすいのは、1 万件のページの保存、読み出し、検索と、起動の処理で、これらはすべて Rust で行う。文字を打ってから出るまでは、WebView の中の本文の編集の部品が、処理とやり取りせずに次の描画（1 コマ 16 ミリ秒）で出す（Notion、VS Code、Obsidian も同じ形）。ページを開く、検索の結果を出すは、Rust の処理に 1 回聞いて、出す分だけを描くので、100 ミリ秒の中に収まる見込み。Tauri のアプリは、OS の WebView を使うので、起動が 1 秒より短い見込み。選んだ見た目（ひだまりの遊び）は CSS の変数と土台の CSS（base.css）で描かれていて、そのまま写せる。本文の編集は、Web の技術に成熟した部品がある",
+        "background": "人は「アプリは Rust で作る（速さを大事にするため）」と指定しました（FACT-rust）。この選択では、処理とデータは Rust で作りますが、画面は Web の技術（TypeScript）で描くので、指定から外れる所があります。Mac の画面は Safari と同じ仕組み（WebKit）、Windows の画面は Edge と同じ仕組み（Chromium）で描かれるので、両方で見え方と速さを確かめます",
+        "alternatives": [
+          {
+            "option": "画面も Rust で描く（GPUI、egui、Slint など）",
+            "effect": "描画は最も速いが、見た目の土台と本文の編集を一から作る"
+          },
+          {
+            "option": "Rust で画面を書き、WebView で描く（Dioxus、Leptos）",
+            "effect": "速さは同じで、本文の編集の部品が乏しい"
+          },
+          {
+            "option": "Electron",
+            "effect": "Rust で作る指定に合わず、重く起動も遅い"
+          }
+        ],
+        "if_changed": "画面をすべて作り直します。画面も Rust で描く形に変えるときは、見た目の土台（CSS）と、画面の e2e とスクリーンショットの確かめ方も作り直します。Rust の処理（crates/core）はそのまま使えます",
+        "sources": [
+          "https://github.com/tauri-apps/tauri-docs/blob/v2/src/content/docs/concept/process-model.md",
+          "https://github.com/tauri-apps/tauri-docs/blob/v2/src/content/docs/reference/webview-versions.md"
+        ]
+      }
+    },
+    {
+      "key": "_tech/TECH-ui-framework",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-ui-framework",
+        "summary": "画面は React と TypeScript で書き、Vite でビルドする。見た目は CSS Modules と、デザインシステムと同じ名前の CSS の変数だけで指定する",
+        "decision": "React（19 系）、TypeScript、Vite。CSS は CSS Modules と CSS の変数（apps/desktop/src/styles/tokens.css）。本文の編集の部品は 003 で選ぶ（ProseMirror の系統を前提にし、Yjs と組み合わせる）",
+        "reason": "本文の編集、木の形の並び、長い一覧を少しずつ描く部品など、作るものに要る部品と情報がいちばん揃っているため。文字を打つ処理は本文の編集の部品が React の外で行うので、キーを打ってから文字が出るまでの速さ（NFR-response-time）に React は効かない",
+        "background": "画面を組み立てる道具の選び方で、作れる部品と、作る役が迷わずに書けるかが変わります。すべての画面がこの道具の上に乗ります",
+        "alternatives": [
+          {
+            "option": "Svelte",
+            "effect": "本文の編集と木の部品の選択肢が少ない"
+          },
+          {
+            "option": "SolidJS",
+            "effect": "速いが部品と情報が少なく、作る量が増える"
+          },
+          {
+            "option": "Vue",
+            "effect": "本文の編集と Yjs の組み合わせの例が少ない"
+          }
+        ],
+        "if_changed": "すべての画面と、画面の単体テストを書き直します。e2e のテストと Rust の処理はそのまま使えます"
+      }
+    },
+    {
+      "key": "_tech/TECH-local-data",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-local-data",
+        "summary": "ページはパソコンの中の SQLite に保存し、ページの中身と並びは Yjs の形（CRDT。Rust では yrs）で持つ。ネットにつながっていなくても、すべての操作はパソコンの中のデータに対して行う",
+        "decision": "SQLite（rusqlite の bundled。Mac と Windows で同じ版）を、アプリのデータの置き場所（Tauri の app_data_dir）に置く。ページの本文と、ページの並び（親子と順番、名前）は Yjs の文書として保存し、更新の差分も残す。サーバーには、この差分を預ける（006）。表の形は rusqlite_migration で起動のときに合わせる。検索の索引の作り方は 004 で決める",
+        "reason": "2 台で同じページを書き換えたとき、両方の書き換えを行や文字の単位で自動で合わせる（RULE-merge-edits）には、書き換えを差分として持ち、どの順に届いても同じ結果になる仕組み（CRDT）が要るため。Yjs は本文の編集の部品との組み合わせ（y-prosemirror）があり、Rust の yrs と同じ形でやり取りできる。パソコンの中に保存するので、つながっていなくても読み書きできる（RULE-works-offline）",
+        "background": "ページをどんな形で保存するかで、つながっていない間に書いたものの合わせ方と、同期の仕組みが決まります。000 で、両方の書き換えを行や文字の単位で自動で合わせると決めました",
+        "alternatives": [
+          {
+            "option": "ふつうの表に保存し、後から書いた方を残す",
+            "effect": "文字の単位で合わせられない"
+          },
+          {
+            "option": "Automerge",
+            "effect": "本文の編集の部品との組み合わせが少ない"
+          },
+          {
+            "option": "Loro",
+            "effect": "新しく、長く使った実績が少ない"
+          }
+        ],
+        "if_changed": "保存したページを新しい形に移し替える処理と、同期の仕組みと、本文の編集のつなぎを作り直します",
+        "sources": [
+          "https://github.com/y-crdt/y-crdt"
+        ]
+      }
+    },
+    {
+      "key": "_tech/TECH-server",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-server",
+        "summary": "データを預かるサーバーは Supabase（データベース、ログイン、変更の知らせを運用まで任せられるサービス）を使う。サーバーはページの書き換えの差分を預かって相手のパソコンに知らせるだけで、合わせるのは各パソコンが行う。手元では Supabase の CLI で Docker の上に同じものを起こす。使い始めるのは 005 から",
+        "decision": "Supabase の Postgres、Auth、Realtime を使い、Edge Functions（サーバーの処理）は使わない。同期（006）は、各パソコンが Yjs の差分を Postgres の表（持ち主、ページ、差分）に足し、表に足されたことを Realtime の Broadcast（データベースから送る realtime.broadcast_changes）で同じアカウントのもう一方のパソコンに知らせ、受けたパソコンが差分を取って自分の文書に合わせる。つながっていなかった間の差分は、つながったときに表から取る。差分がたまったら、パソコンが 1 つにまとめた版を預け直す。ほかの人のページが見えないことは、Postgres の行ごとの制限（Row Level Security）と、Realtime の私用のチャンネルの制限で守る。パスワードは Supabase Auth が bcrypt でハッシュにして保存する（NFR-password-storage）。サーバーの定義（表の移し替え）は supabase/migrations/ に置く。本番のプロジェクトとデプロイは 008 で決める。Supabase とやり取りするのは画面の側の sync（公式のクライアント supabase-js）だけにし、Rust の処理はページのデータ、まだ預けていない差分の記録、届いた差分を合わせることを受け持つ（受け渡しは bridge のコマンド。architecture.md の「同期の受け持ち」。これより細かいことは 005 と 006 の計画で決める）",
+        "reason": "Supabase の公式のクライアントは JavaScript、Flutter、Swift、Python、C# だけで、Rust は公式にもコミュニティの一覧にも無い。Rust の処理からやり取りすると、ログインとトークンの更新（Auth の REST）、表への出し入れ（PostgREST）、Realtime の手順（WebSocket の上の join、25 秒ごとの heartbeat、トークンの入れ替え、つなぎ直し）を自前で書いて保守することになる。画面の側の supabase-js なら、これらは Supabase が保守するので自前で書くのは差分の受け渡しだけで済み、合わせる仕組みは Rust（yrs）に残せる。2 台の書き換えを文字の単位で合わせるのは CRDT（Yjs）が各パソコンで行い、差分はどの順に届いても同じ結果になるので、サーバーは差分を積んで知らせるだけでよい（RULE-merge-edits）。積んだ差分は消えないので、つながっていない間の書き換えも後から届く（RULE-works-offline）。データベースから送る Broadcast の遅れは、Supabase の計測で中央値 46 ミリ秒、遅い方の 5% でも 132 ミリ秒で、3 秒以内に出す（NFR-sync-delay）に十分な余裕がある。1 回に送れる大きさ（無料の枠で 256 KB）は、打った分の差分なら収まり、大きな初めの同期は知らせでなく表から取る。フルマネージドの希望に合い、データベース、ログイン、変更の知らせが 1 つのサービスにまとまっていて、手元でも Docker で同じものを動かせる。費用は、無料の枠（データベース 500 MB、プロジェクト 2 つ、使う人 5 万人まで）で、自分一人で使う間は足りる見込み。無料の枠のプロジェクトは 1 週間使わないと止まるので、使い始める 008 で、止まらない有料の枠（月 25 ドルから）にするかを決める",
+        "background": "壁打ちで「どのフルマネージドのサービスにするか（2 台の書き換えを文字の単位で合わせる仕組みとの相性も含めて）」を決めていませんでした。ログイン（005）と同期（006）の作りが、このサービスの上に乗ります",
+        "alternatives": [
+          {
+            "option": "Cloudflare（Durable Objects、D1）",
+            "effect": "Yjs の中継に向くが、ログインとパスワードの保存を自分で作る"
+          },
+          {
+            "option": "Supabase と Rust の処理が直にやり取りする",
+            "effect": "公式の Rust のクライアントが無く、Auth と Realtime を自前で書く"
+          },
+          {
+            "option": "Firebase",
+            "effect": "差分を積んで知らせられるが、手元で Docker で動かせない"
+          },
+          {
+            "option": "AWS（Cognito、AppSync、DynamoDB など）",
+            "effect": "差分を知らせる部品の組み合わせが多く、手元で動かしにくい"
+          },
+          {
+            "option": "GCP（Cloud Run、Cloud SQL など）",
+            "effect": "差分を中継する処理を自分で動かし、常に課金される"
+          }
+        ],
+        "if_changed": "ログインと同期のサーバー側とアプリの同期の処理を作り直し、預けたページを新しいサービスへ移します。パソコンの中のデータの形（TECH-local-data）と、合わせる仕組み（Yjs）はそのまま使えます",
+        "sources": [
+          "https://supabase.com/pricing",
+          "https://github.com/supabase/auth",
+          "https://supabase.com/docs/guides/realtime/benchmarks",
+          "https://supabase.com/docs/guides/realtime/limits",
+          "https://supabase.com/docs/guides/api/rest/client-libs",
+          "https://supabase.com/docs/guides/realtime/protocol"
+        ]
+      }
+    },
+    {
+      "key": "_tech/TECH-errors",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-errors",
+        "summary": "失敗は、決まった種類（見つからない、断られる、ほかと重なる、権限が無い、ログインしていない、想定外）と理由の符号だけで返し、画面が符号に当たる文を画面文の一覧から引いて出す。想定外の失敗では、中身を一切返さず、記録だけに残す",
+        "decision": "コマンドの失敗は { \"kind\", \"reason\" } の形（kind は not_found、rejected、conflict、forbidden、unauthenticated、internal のどれか。reason は snake_case の理由の符号）。試す場の HTTP では kind を状態コードに写す（architecture.md の「仕様の結果の写し方」）。想定外の失敗と panic は { \"kind\": \"internal\", \"reason\": \"internal\" } にし、詳細はパソコンの中の記録（tracing）に書く",
+        "reason": "失敗の理由ごとに画面の文を分けられ、文の直しがコードに及ばない。サーバーの内部の情報を返さない（NFR-error-details）",
+        "background": "失敗をどう返し、どう画面に出すかを、すべての操作で揃えます。後から変えると、すべての操作の失敗の扱いと、そのテストを直すことになります",
+        "alternatives": [
+          {
+            "option": "例外の文をそのまま返す",
+            "effect": "内部の情報が画面に出る（NFR-error-details）"
+          },
+          {
+            "option": "画面に出す文をサーバーが返す",
+            "effect": "文の直しのたびに処理を直すことになる"
+          }
+        ],
+        "if_changed": "すべての操作の失敗の返し方と、画面の失敗の出し方と、そのテストを直します"
+      }
+    },
+    {
+      "key": "_tech/TECH-monorepo",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-monorepo",
+        "summary": "アプリ、試す場、サーバーの定義、両方が使うデータの形を、このリポジトリ 1 つにまとめる（モノレポ）。Rust は Cargo の workspace、JavaScript の依存はリポジトリの直下の package.json 1 つで持つ",
+        "decision": "Cargo の workspace（依存の版は直下の Cargo.toml の workspace.dependencies にまとめ、各 crate は workspace = true で使う）。npm の依存は直下の package.json だけに書き、npm の workspaces は使わない"
+      }
+    },
+    {
+      "key": "_tech/TECH-dev-host",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-dev-host",
+        "summary": "試す場（devhost）を Rust で作る。アプリと同じコマンドの処理を HTTP で受け、ビルドした画面を配る。e2e、API のテスト、人がブラウザで画面を開くときに使う",
+        "decision": "axum の小さなサーバー（crates/devhost）。コマンドの入口は crates/commands の dispatch 1 つだけにする（コマンドの名前と JSON の引数を受け、JSON の結果か失敗の形を返し、想定外の失敗と panic もここで internal に変える）。Tauri のアプリは汎用のコマンド invoke_command 1 つから dispatch を呼ぶだけ、試す場の POST /api/invoke/<コマンド> も dispatch を呼ぶだけにし、アプリだけを通る処理を持たない。画面の bridge は、どちらの道でも同じ名前と同じ JSON の引数を渡す。テストのための受け口（時計、データの分け方、わざと失敗させるコマンド）は e2e の feature でビルドしたときだけ入る",
+        "reason": "Mac の WKWebView は Playwright で操作できないため、同じ処理を HTTP でつなぎ、ブラウザで画面と処理のつなぎ目まで確かめる。人もブラウザで開いて試せる"
+      }
+    },
+    {
+      "key": "_tech/TECH-test-tools",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-test-tools",
+        "summary": "テストは、画面の部品の単体テストと API のテストを Vitest、e2e を Playwright（Chromium のパソコンの幅とスマホの幅、Mac の画面に近い WebKit のパソコンの幅）、Rust の中のテストを cargo-nextest で流す。結果はすべて JUnit XML で reports/junit/ に出す",
+        "decision": "Vitest（projects：unit、api、foundation）、Playwright（projects：desktop、phone、webkit）、cargo-nextest。具体例のテストは TypeScript のファイル（*.test.ts、*.spec.ts）に書く（ハーネスは Rust のファイルの中の具体例の ID を数えないため）"
+      }
+    },
+    {
+      "key": "_tech/TECH-coverage",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-coverage",
+        "summary": "カバレッジは、TypeScript を Vitest（v8）で、Rust を cargo-llvm-cov で測る。Rust は、API のテストが呼んだ試す場の処理も含めて測る",
+        "decision": "npm run coverage が、cargo llvm-cov show-env の環境で試す場をビルドし、Vitest の unit と api を v8 のカバレッジ付きで流し、cargo nextest を流してから、両方の報告を coverage/ に出す。起動の処理、設定、生成した型、Tauri の窓の組み立ては除く"
+      }
+    },
+    {
+      "key": "_tech/TECH-lint",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-lint",
+        "summary": "書き方の決まりは lint の道具（ESLint、Prettier、rustfmt、clippy）で確かめる。git の hook は使わない",
+        "decision": "ESLint（typescript-eslint、react-hooks）と Prettier の check、cargo fmt --check、cargo clippy -D warnings を npm run lint で流す"
+      }
+    },
+    {
+      "key": "_tech/TECH-audit",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-audit",
+        "summary": "脆弱性の検査は npm audit（High 以上で落とす）と cargo audit（既知の脆弱性があれば深刻度によらず落とす）で行う",
+        "decision": "npm audit --audit-level=high と cargo audit。RustSec の勧告には深刻度の無いものが多く High だけに絞れないので、Rust 側は既知の脆弱性すべてで落とす（000 の線より厳しい側）。保守されていない、取り下げられた、の知らせだけでは落とさない。サーバーは Supabase の Postgres、Auth、Realtime だけを使い、こちらで依存のライブラリを置かない（表の移し替えの SQL だけ）ので、サーバー側はこの 2 つで足りる。後で Edge Functions などの依存を持つサーバーの処理を足すチケットは、その依存を調べるコマンドを audit に足す"
+      }
+    },
+    {
+      "key": "_tech/TECH-fonts",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-fonts",
+        "summary": "書体は、デザインシステムと同じものを Fontsource の npm パッケージでアプリに同梱する（今の案では Zen Maru Gothic と Nunito）。ネットにつながっていなくても同じ書体で出る",
+        "decision": "@fontsource の各書体のパッケージを、使う太さだけ apps/desktop/src/main.tsx で読み込む。デザインシステムの tokens.css の @import は使わない"
+      }
+    },
+    {
+      "key": "_tech/TECH-wordbreak",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-wordbreak",
+        "summary": "日本語の文の折り返しは、BudouX で文節の区切り（<wbr>）を入れて、Mac の画面（WebKit）でも文節で折り返す",
+        "decision": "budoux の日本語の解析器（loadDefaultJapaneseParser）で画面文を文節に分け、間に <wbr> を入れる。画面文を出す部品（apps/desktop/src/ui/Text.tsx）だけが区切りを入れる",
+        "sources": [
+          "https://github.com/google/budoux/blob/main/javascript/README.md"
+        ]
+      }
+    },
+    {
+      "key": "_tech/TECH-clock",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-clock",
+        "summary": "アプリの「今」（日付、時刻、時刻で変わる空の色）は、画面ではなく Rust の処理から受け取る。試す場では、起動のときの指定で時計を決められる",
+        "decision": "crates/core の時計（Clock）が今の時刻を返し、画面はコマンド now で受け取る。時刻と時間帯は jiff で扱う（Windows でも時間帯の表を同梱して同じに動く）。試す場は --clock <日時>（時間帯の無い日時はパソコンの時間帯の時刻）で時計を止めて起き、e2e では Asia/Tokyo の時間帯で動く"
+      }
+    },
+    {
+      "key": "_tech/TECH-logging",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-logging",
+        "summary": "想定外の失敗の詳細は、パソコンの中の記録のファイルにだけ書き、画面には出さない",
+        "decision": "tracing と tracing-appender で、アプリのデータの置き場所の logs/ に日ごとのファイルで書く。試す場は標準エラーにも書く"
+      }
+    },
+    {
+      "key": "_tech/TECH-shared-types",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-shared-types",
+        "summary": "アプリと試す場とサーバーがやり取りするデータの形は Rust で定義し、TypeScript の型を生成して使う",
+        "decision": "crates/protocol に型を書き、ts-rs で packages/protocol/src/generated/ に TypeScript の型を出す（npm run gen）。typecheck の前に生成し、生成したものはコミットしない"
+      }
+    },
+    {
+      "key": "_tech/TECH-ci",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-ci",
+        "summary": "CI は GitHub Actions で、PR（向け先が main と aidd/**、下書きを除く）と main への push のたびに、Mac と Windows の GitHub の機械で、すべての検証と e2e を流す（NFR-platforms）。リポジトリは公開にするので、GitHub の機械は無料で使え、回数の上限を気にせず毎回流せる（問い Q-003 の答え）。公開なので、認証情報はリポジトリに置かず、CI の秘密の値は GitHub の secrets にだけ置く",
+        "decision": ".github/workflows/ci.yml。検証のジョブ（Mac と Windows）と、e2e のジョブ（Mac と Windows それぞれで --shard を 2 つ）。Playwright の公式のコンテナは Linux だけなので使わない（Mac と Windows の機械では OS のパッケージを入れずにブラウザだけ入れられる）。きっかけに pull_request_target は使わない（ほかの人が送った PR のコードに秘密の値を渡さないため）",
+        "sources": [
+          "https://docs.github.com/en/billing/concepts/product-billing/github-actions"
+        ]
+      }
+    },
+    {
+      "key": "_tech/TECH-release",
+      "kind": "TECH",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "TECH-release",
+        "summary": "版の印（v で始まるタグ）を付けて送ったときだけ、Mac と Windows のアプリをビルドし、GitHub の下書きのリリースに置く。main へのマージでは何も起きない。署名はせず、新しい版は自分で入れ直す（自動のアップデートは一般に配るときに足す）",
+        "decision": ".github/workflows/release.yml（きっかけは push の tags 'v*' だけ）。tauri-apps/tauri-action で Mac（.dmg。引数 --target universal-apple-darwin で、Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリにする）と Windows（.msi と .exe）を作る。署名と公証、サーバーのデプロイは 008 で決める"
+      }
+    },
+    {
+      "key": "_tech/AC-test-levels-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-test-levels-1",
+        "aspect": "test-levels",
+        "when": "一時のフォルダ（apps/desktop/src/zztmp/）に、必ず通る見本と必ず落ちる見本の単体テストを置き、それぞれのファイルだけを test-unit のコマンドの末尾に渡して流す（Red の印 AIDD_RED を除いた環境で）",
+        "then": "通る見本は終了コード 0、落ちる見本は 0 以外で終わる。終わった後に一時のフォルダは消える",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-test-levels-2",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-test-levels-2",
+        "aspect": "test-levels",
+        "when": "一時のフォルダ（tests/api/zztmp/）に、試す場のコマンドを呼んで必ず通る見本と必ず落ちる見本の API のテストを置き、それぞれのファイルだけを test-api のコマンドの末尾に渡して流す（AIDD_RED を除いた環境で）",
+        "then": "通る見本は終了コード 0、落ちる見本は 0 以外で終わる",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-test-levels-3",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-test-levels-3",
+        "aspect": "test-levels",
+        "when": "一時のフォルダ（crates/core/tests/zztmp_pass/main.rs と crates/core/tests/zztmp_fail/main.rs）に、必ず通る見本と必ず落ちる見本の Rust のテストを置き、それぞれのファイルだけを test-rust のコマンドの末尾に渡して流す（AIDD_RED を除いた環境で）",
+        "then": "通る見本は終了コード 0、落ちる見本は 0 以外で終わる",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-test-levels-4",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-test-levels-4",
+        "aspect": "test-levels",
+        "when": "一時のフォルダ（e2e/zztmp/）に、一時的な画面（テストの中で中身を置いた画面）を開いて撮る、必ず通る見本と必ず落ちる見本の e2e を置き、それぞれのファイルだけを test-e2e のコマンドの末尾に渡して流す（AIDD_RED を除いた環境で）",
+        "then": "通る見本は終了コード 0、落ちる見本は 0 以外で終わる。通る見本を流すと、e2e-screenshots/zztmp--SCR-sample--desktop.png ができ、e2e-screenshots/ のほかの画像は消えない",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-test-levels-5",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-test-levels-5",
+        "aspect": "test-levels",
+        "when": "AIDD_RED=1 を付けて、一時のフォルダの通る見本の e2e を test-e2e のコマンドで流す",
+        "then": "desktop の project だけが流れ、phone と webkit の project は流れない",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-visual-regression-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-visual-regression-1",
+        "aspect": "visual-regression",
+        "when": "一時的な画面を見本の e2e で撮った後、その画面の色を変えて同じ名前で撮り直し、.claude/aidd/lib/visual.mjs の comparePng で前と後を比べる",
+        "then": "違う画素の割合が toolchain.yaml の visual_threshold（0.001）を超える。色を変えずに 2 回撮ったときは超えない",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-design-tokens-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-design-tokens-1",
+        "aspect": "design-tokens",
+        "when": "apps/desktop/src/styles/tokens.css の CSS の変数を、_tech/design.yaml の値（breakpoint を除く色、文字、間隔、角の丸みと、あれば size、border、shadow、motion、effect）と比べる",
+        "then": "design.yaml のすべての値が、欄の道筋を kebab にしてつないだ名前の変数として、同じ値で入っている（明るい地は :root、暗い地は [data-theme=\"dark\"]）",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-design-base-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-design-base-1",
+        "aspect": "design-base",
+        "when": "apps/desktop/src/styles/base.css の中身を、_tech/ds/ の下の base.css と比べる",
+        "then": "中身が同じ",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-design-base-2",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-design-base-2",
+        "aspect": "design-base",
+        "when": "apps/desktop/src/main.tsx の読み込みの順を見る",
+        "then": "書体、tokens.css、base.css が、ほかのどの CSS よりも先に、この順で読み込まれる",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-test-report-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-test-report-1",
+        "aspect": "test-report",
+        "when": "一時のフォルダの通る見本と落ちる見本を、test-unit、test-api、test-rust、test-e2e、test-foundation のコマンドでそれぞれ流す",
+        "then": "reports/junit/ に、コマンドごとの JUnit XML（unit.xml、api.xml、rust.xml、e2e.xml、foundation.xml）ができ、見本のテストの名前と、通ったか落ちたかが入っている",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-errors-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-errors-1",
+        "aspect": "errors",
+        "when": "e2e の feature でビルドした試す場で、panic するコマンド（__test_panic）を HTTP で呼ぶ",
+        "then": "500 と本文 {\"kind\":\"internal\",\"reason\":\"internal\"} だけが返り、本文にも応答の見出しにも、panic の文、スタックトレース、ファイルの場所（.rs）、crate や道具の名前と版が無い。試す場はその後もほかのコマンドに答える",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-errors-2",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-errors-2",
+        "aspect": "errors",
+        "when": "e2e の feature でビルドした試す場で、想定外の失敗を返すコマンド（__test_fail）を HTTP で呼ぶ",
+        "then": "500 と本文 {\"kind\":\"internal\",\"reason\":\"internal\"} だけが返り、失敗の詳細は試す場の記録にだけ書かれる",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-errors-3",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-errors-3",
+        "aspect": "errors",
+        "when": "e2e の feature でビルドした Tauri のアプリの汎用のコマンド invoke_command を、Tauri の試しの仕組み（tauri::test の mock runtime）で、名前 __test_panic と __test_fail、それにふつうのコマンド now で呼ぶ",
+        "then": "__test_panic と __test_fail は、試す場と同じ {\"kind\":\"internal\",\"reason\":\"internal\"} だけが返り、panic の文もファイルの場所も返らない。now は、試す場で呼んだときと同じ形の結果が返る",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-structure-4",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-structure-4",
+        "aspect": "structure",
+        "when": "画面の bridge を、Tauri の中の形（@tauri-apps/api/mocks の mockIPC）と、ブラウザの形（試す場への HTTP）で、同じ名前と同じ引数で呼ぶ",
+        "then": "Tauri の中の形では invoke_command に名前と引数が変えられずにそのまま渡り、ブラウザの形では POST /api/invoke/<名前> に同じ引数が本文で渡る。どちらでも、返った失敗の形がそのまま画面に渡る。Tauri のアプリが登録するコマンドは invoke_command だけ",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-structure-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-structure-1",
+        "aspect": "structure",
+        "when": "リポジトリのファイルと設定を見る",
+        "then": "architecture.md の標準のファイル構成のとおりにあり、Cargo の workspace に crates/core、crates/commands、crates/devhost、crates/protocol、apps/desktop/src-tauri が入り、package.json に react、@tauri-apps/api、vite、vitest、@playwright/test、budoux があり、Vitest の設定は vitest.config.ts にあって vite.config.ts に無く、.gitattributes が改行を LF に揃え、.gitignore に reports/、coverage/、e2e-screenshots/、test-results/、.browsers/、.data/、target/、apps/desktop/dist/、.env がある",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-structure-2",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-structure-2",
+        "aspect": "structure",
+        "when": "playwright.config.ts の設定を、AIDD_RED がある場合と無い場合で読む",
+        "then": "locale が ja-JP、timezoneId が Asia/Tokyo、reducedMotion が reduce、Chromium の projects の起動の引数に --lang=ja-JP、操作の待ちと移動の待ちが 5 秒、e2e の webServer が試す場を起こし、JUnit を reports/junit/e2e.xml に出し、出力先が e2e-screenshots/ と別。AIDD_RED があるときは、操作の待ちと expect の待ちが 1.5 秒、移動の待ちが 5 秒、projects が desktop だけ",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-structure-3",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-structure-3",
+        "aspect": "structure",
+        "when": ".github/workflows/ の定義を読む",
+        "then": "ci.yml は、向け先が main と aidd/** の PR（下書きを除く）と main への push で、Mac と Windows の両方で流れ、ジョブに時間の上限がある。release.yml は v で始まるタグの push だけで流れる。main への push で、アプリのビルドやサーバーのデプロイをする定義は無い。どの定義も、きっかけに pull_request_target を使わない",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-dev-env-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-dev-env-1",
+        "aspect": "dev-env",
+        "when": "道具をそろえた環境（手元は準備のコマンド npm run setup の後、CI はジョブの準備の段の後）を見る",
+        "then": ".browsers/ に Chromium と WebKit があり、cargo nextest、cargo llvm-cov、cargo audit が動き、rust-toolchain.toml の部品（clippy、rustfmt、llvm-tools-preview）が入り、Node.js の版が .node-version のメジャー版と同じ",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-dev-env-2",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-dev-env-2",
+        "aspect": "dev-env",
+        "when": "toolchain.yaml の start の command で試す場を起こし、url を開く",
+        "then": "アプリの土台の画面（001 では中身の無い画面）が返り、コマンド now が答える",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-dev-env-3",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-dev-env-3",
+        "aspect": "dev-env",
+        "when": "toolchain.yaml の start の clock の {at} に 2027-05-12T16:00 を入れて試す場を起こし、コマンド now を呼ぶ",
+        "then": "パソコンの時間帯の 2027 年 5 月 12 日 16 時 0 分が返る",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-write-scopes-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-write-scopes-1",
+        "aspect": "write-scopes",
+        "when": "作る役として、e2e/ の下のテストのファイル、apps/desktop/src の下の *.test.ts、playwright.config.ts、vitest.config.ts のどれかを変えて、コミットの検査（scope-check）を流す",
+        "then": "範囲外の変更として止められる。apps/desktop/src の下の実装のファイルだけを変えたときは止められない",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-ci-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-ci-1",
+        "aspect": "ci",
+        "when": "何も壊さない小さな変更の PR を出す",
+        "then": "CI が Mac と Windows の両方で流れ、すべて緑になる",
+        "checked_by": "ci"
+      }
+    },
+    {
+      "key": "_tech/AC-ci-2",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-ci-2",
+        "aspect": "ci",
+        "when": "同じ PR に、必ず落ちるテストを 1 つ足して送る",
+        "then": "CI が赤くなる",
+        "checked_by": "ci"
+      }
+    },
+    {
+      "key": "_tech/AC-deploy-1",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-deploy-1",
+        "aspect": "deploy",
+        "when": "版の印（例 v0.0.1）を付けて GitHub に送る",
+        "then": "Mac（.dmg。Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリ）と Windows（.msi と .exe）のアプリがビルドされ、GitHub の下書きのリリースに置かれる。それぞれを Mac と Windows に入れて開くと、アプリの土台の窓が開く（署名をしないので、Mac では初めて開くときに右クリックの「開く」が要る）",
+        "checked_by": "human"
+      }
+    }
+  ],
+  "examples_changed": [],
+  "impacts": [],
+  "intent": null,
+  "files": {
+    "ci": [],
+    "env": [],
+    "dependencies": [],
+    "tech_docs": [
+      "specs/_current/_tech/architecture.md",
+      "specs/_current/_tech/design.yaml",
+      "specs/_current/_tech/ds/sunlit-play/base.css",
+      "specs/_current/_tech/ds/sunlit-play/tokens.css",
+      "specs/_current/_tech/toolchain.yaml",
+      "specs/_current/_tech/write-scopes.json"
+    ]
+  },
+  "area_nfr": [],
+  "main_overlap": null,
+  "affects": [
+    {
+      "kind": "tickets",
+      "name": "ページを作って左の並びから開く",
+      "reason": "ほかのチケットの計画の行を変えるか消す",
+      "before_after": "できることに「自分が、アプリの中で明るい画面と暗い画面を切り替える。最初は端末（Mac や Windows）の設定に合わせて開き、アプリの中で選んだら、その後は選んだほうで開く」を足す",
+      "source": "spec-diff"
+    },
+    {
+      "kind": "tickets",
+      "name": "自分の Mac と Windows で使い始める",
+      "reason": "ほかのチケットの計画の行を変えるか消す",
+      "before_after": "できることに「自分が、版の印を付けてビルドされた新しい版のアプリを、Mac と Windows に自分で入れ直す」を足す、作らないものに「アプリが新しい版を見つけて自分で入れ替わること（自動のアップデート。一般に配るときに足す）」を足す",
+      "source": "spec-diff"
+    }
+  ]
+}

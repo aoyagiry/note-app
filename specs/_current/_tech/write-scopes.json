@@ -1,0 +1,58 @@
+{
+  "test-writer": {
+    "allow": [
+      "tests/**",
+      "e2e/**",
+      "perf/**",
+      "crates/*/tests/**",
+      "apps/desktop/src-tauri/tests/**",
+      "apps/desktop/src/**/*.test.ts",
+      "apps/desktop/src/**/*.test.tsx",
+      "vitest.config.ts",
+      "playwright.config.ts",
+      ".config/nextest.toml",
+      "apps/**",
+      "crates/**",
+      "packages/**",
+      "supabase/**"
+    ]
+  },
+  "implementer": {
+    "allow": [
+      "apps/**",
+      "crates/**",
+      "packages/**",
+      "supabase/**",
+      "scripts/**",
+      ".github/**",
+      "package.json",
+      "package-lock.json",
+      "Cargo.toml",
+      "Cargo.lock",
+      "rust-toolchain.toml",
+      ".node-version",
+      ".gitattributes",
+      "tsconfig.json",
+      "tsconfig.*.json",
+      "eslint.config.js",
+      ".prettierrc",
+      ".prettierignore",
+      "vite.config.ts",
+      "README.md",
+      ".gitignore"
+    ],
+    "deny": [
+      "tests/**",
+      "e2e/**",
+      "perf/**",
+      "crates/*/tests/**",
+      "apps/desktop/src-tauri/tests/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "vitest.config.ts",
+      "playwright.config.ts",
+      ".config/nextest.toml"
+    ]
+  }
+}

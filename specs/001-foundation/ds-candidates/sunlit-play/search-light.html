@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ひだまりの遊び：探す（明るい）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--type-family-text);
+    font-size: var(--type-size-md);
+    line-height: var(--type-leading-body);
+    line-break: strict; word-break: keep-all; overflow-wrap: anywhere;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color var(--motion-duration-base) var(--motion-easing-standard), color var(--motion-duration-base) var(--motion-easing-standard);
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: var(--border-width-focus) solid var(--color-focus); outline-offset: var(--border-width-focus); border-radius: var(--radius-sm); }
+
+  /* 背景：時刻の空。3 つのにじみの色が、朝、昼、夕方、夜で入れ替わり、ゆっくり漂う（ここは朝） */
+  .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .ambient span { position: absolute; width: var(--size-glow); height: var(--size-glow); border-radius: 50%; filter: blur(var(--effect-blur-ambient)); opacity: var(--effect-opacity-ambient); animation: drift var(--motion-duration-ambient) ease-in-out infinite alternate; transition: background-color var(--motion-duration-base) var(--motion-easing-standard); }
+  .ambient span:nth-child(1) { background: var(--color-sky-1); top: calc(var(--size-glow) / -3); right: calc(var(--size-glow) / -5); }
+  .ambient span:nth-child(2) { background: var(--color-sky-2); top: calc(var(--size-glow) / 5); right: calc(var(--size-glow) / 3); width: calc(var(--size-glow) * 0.7); height: calc(var(--size-glow) * 0.7); animation-delay: calc(var(--motion-duration-ambient) / -3); }
+  .ambient span:nth-child(3) { background: var(--color-sky-3); bottom: calc(var(--size-glow) / -2.2); left: calc(var(--size-glow) / 8); animation-delay: calc(var(--motion-duration-ambient) / -1.5); }
+  @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(calc(var(--motion-distance-drift) * -1), calc(var(--motion-distance-drift) * 0.6)) scale(1.1); } }
+
+  .app { position: relative; z-index: 1; display: grid; grid-template-columns: var(--size-sidebar) minmax(0, 1fr); gap: var(--spacing-4); padding: var(--spacing-4); min-height: 100vh; }
+
+  /* 押せる物の厚み：下に影の縁があり、押すとその分だけ沈む */
+  .press { box-shadow: var(--shadow-edge); transition: transform var(--motion-duration-fast) var(--motion-easing-spring), box-shadow var(--motion-duration-fast) var(--motion-easing-standard), background-color var(--motion-duration-fast) var(--motion-easing-standard), color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .press:active { transform: translateY(var(--motion-distance-press)); box-shadow: 0 0 0 var(--color-edge); transition-duration: var(--motion-duration-instant); }
+
+  /* 左の並び：浮いた丸い面 */
+  .side { background: color-mix(in srgb, var(--color-surface-raised) var(--effect-panel-mix), transparent); backdrop-filter: blur(var(--effect-blur-panel)); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised); padding: var(--spacing-5) var(--spacing-3) var(--spacing-3); display: flex; flex-direction: column; gap: var(--spacing-4); align-self: start; position: sticky; top: var(--spacing-4); min-height: calc(100vh - 2 * var(--spacing-4)); }
+  .name { font-family: var(--type-family-display); font-weight: var(--type-weight-heavy); font-size: var(--type-size-lg); padding: 0 var(--spacing-3); }
+  .search-entry { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-2) var(--spacing-4); border-radius: var(--radius-full); background: var(--color-surface-raised); color: var(--color-text-secondary); font-size: var(--type-size-sm); text-decoration: none; }
+  .search-entry:hover { color: var(--color-text-primary); background: var(--color-surface-base); }
+  .search-entry kbd { font-family: var(--type-family-numeric); font-weight: var(--type-weight-bold); font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+  .tree ul { padding-left: var(--spacing-4); }
+  .row { display: flex; align-items: center; gap: var(--spacing-2); width: 100%; padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); text-align: left; font-size: var(--type-size-sm); color: var(--color-text-secondary); transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), color var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-spring), box-shadow var(--motion-duration-fast) var(--motion-easing-standard); }
+  .row:hover { background: var(--color-surface-sunken); color: var(--color-text-primary); }
+  .row:active { transform: scale(var(--motion-scale-press)); }
+  .row[aria-current="page"] { background: var(--color-surface-raised); color: var(--color-accent-hover); font-weight: var(--type-weight-bold); box-shadow: var(--shadow-edge); }
+  .twist { width: var(--size-icon-sm); height: var(--size-icon-sm); flex: none; transition: transform var(--motion-duration-base) var(--motion-easing-spring); }
+  [aria-expanded] > .twist { background: var(--color-text-muted); mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M5 6.5l3 3 3-3' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat; }
+  [aria-expanded="false"] > .twist { transform: rotate(-90deg); }
+  /* ページの印：上の段のページに 1 つずつ。上に乗ると小さく弾む */
+  .mark { width: var(--size-mark); height: var(--size-mark); flex: none; border-radius: 50%; background: var(--c); transition: transform var(--motion-duration-base) var(--motion-easing-spring); }
+  .row:hover .mark { transform: scale(var(--motion-scale-mark)); }
+  .sub { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--motion-duration-base) var(--motion-easing-standard), opacity var(--motion-duration-fast) var(--motion-easing-standard); }
+  .sub.closed { grid-template-rows: 0fr; opacity: 0; }
+  .sub > ul { min-height: 0; overflow: hidden; }
+  .new-page { display: inline-flex; align-items: center; gap: var(--spacing-2); margin: var(--spacing-3) 0 0 var(--spacing-1); padding: var(--spacing-1) var(--spacing-4); border-radius: var(--radius-full); background: var(--color-accent-default); color: var(--color-accent-on); font-size: var(--type-size-sm); font-weight: var(--type-weight-bold); box-shadow: var(--shadow-edge-accent); }
+  .new-page:hover { background: var(--color-accent-hover); }
+  .new-page:active { box-shadow: 0 0 0 var(--color-accent-edge); }
+
+  /* 明るさの切り替え：つまみが厚みを持って滑る */
+  .theme { margin-top: auto; position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: var(--size-thumb-inset); border-radius: var(--radius-full); background: var(--color-surface-sunken); font-size: var(--type-size-xs); }
+  .theme .thumb { position: absolute; top: var(--size-thumb-inset); bottom: var(--size-thumb-inset); left: var(--size-thumb-inset); width: calc((100% - 2 * var(--size-thumb-inset)) / 3); border-radius: var(--radius-full); background: var(--color-surface-raised); box-shadow: var(--shadow-edge); transition: transform var(--motion-duration-base) var(--motion-easing-spring); }
+  .theme button { position: relative; padding: var(--spacing-1) 0; color: var(--color-text-muted); border-radius: var(--radius-full); transition: color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .theme button[aria-pressed="true"] { color: var(--color-text-primary); font-weight: var(--type-weight-bold); }
+
+  /* 本文：大きな丸い紙。ページを開くと短く浮き上がる */
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .sheet { flex: 1; background: var(--color-surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised); animation: enter var(--motion-duration-fast) var(--motion-easing-standard) both; }
+  @keyframes enter { from { opacity: 0; transform: translateY(var(--motion-distance-enter)) scale(var(--motion-scale-enter)); } to { opacity: 1; transform: none; } }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-3); padding: var(--spacing-4) var(--spacing-6); font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .crumbs { display: flex; gap: var(--spacing-2); flex-wrap: wrap; min-width: 0; }
+  .crumbs span + span::before { content: "›"; margin-right: var(--spacing-2); }
+  /* 保存の知らせ：点が一度だけ波打って、文字が出る */
+  .saved { display: inline-flex; align-items: center; gap: var(--spacing-2); padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); background: var(--color-surface-sunken); color: var(--color-success); white-space: nowrap; animation: saved var(--motion-duration-base) var(--motion-easing-spring) both; animation-delay: var(--motion-delay-status); }
+  .saved::before { content: ""; width: var(--size-mark); height: var(--size-mark); border-radius: 50%; background: currentColor; animation: ring var(--motion-duration-draw) var(--motion-easing-standard) both; animation-delay: var(--motion-delay-status); }
+  @keyframes saved { from { opacity: 0; transform: scale(var(--motion-scale-pop)); } to { opacity: 1; transform: none; } }
+  @keyframes ring { from { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); } to { box-shadow: 0 0 0 var(--motion-ring) transparent; } }
+  .menu-open { display: none; }
+  article { max-width: var(--size-measure); margin: 0 auto; padding: var(--spacing-7) var(--spacing-8) var(--spacing-10); }
+  /* 日付の行：時刻の空の小さな日と、数字 */
+  .meta { display: flex; align-items: center; gap: var(--spacing-2); font-family: var(--type-family-numeric); font-weight: var(--type-weight-bold); font-size: var(--type-size-xs); color: var(--color-text-muted); margin: 0 0 var(--spacing-2); }
+  .sun { width: var(--size-sun); height: var(--size-sun); border-radius: 50%; background: var(--color-sun); box-shadow: 0 0 0 calc(var(--size-sun) / 3) color-mix(in srgb, var(--color-sun) 30%, transparent); }
+  h1 { font-family: var(--type-family-display); font-size: var(--type-size-2xl); font-weight: var(--type-weight-heavy); line-height: var(--type-leading-tight); margin: 0 0 var(--spacing-6); }
+  h2 { font-family: var(--type-family-display); font-size: var(--type-size-xl); font-weight: var(--type-weight-bold); line-height: var(--type-leading-tight); margin: var(--spacing-8) 0 var(--spacing-3); }
+  p { margin: 0 0 var(--spacing-4); }
+  ul.bullets { margin: 0 0 var(--spacing-4); padding-left: 1.2em; }
+  ul.bullets li::marker { color: var(--color-accent-default); }
+  /* チェック：押すと縮み、印が左から引かれ、まわりに一度だけ波が出る。文字には線が引かれる */
+  .checks { list-style: none; margin: 0 0 var(--spacing-4); padding: 0; }
+  .checks li { display: flex; gap: var(--spacing-3); align-items: flex-start; padding: var(--spacing-1) 0; }
+  .checks input { appearance: none; width: var(--size-check); height: var(--size-check); margin: calc((1lh - var(--size-check)) / 2) 0 0; flex: none; border: var(--border-width-control) solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface-raised); box-shadow: var(--shadow-edge); display: grid; place-content: stretch; cursor: pointer; transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), border-color var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-spring); }
+  .checks input:active { transform: scale(var(--motion-scale-pop)); }
+  .checks input::after { content: ""; background: var(--color-accent-on); mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / 100% no-repeat; clip-path: inset(0 100% 0 0); transition: clip-path var(--motion-duration-draw) var(--motion-easing-standard); }
+  .checks input:checked { background: var(--color-accent-default); border-color: var(--color-accent-default); box-shadow: var(--shadow-edge-accent); animation: ring-check var(--motion-duration-draw) var(--motion-easing-standard); }
+  .checks input:checked::after { clip-path: inset(0); }
+  @keyframes ring-check { from { outline: 0 solid color-mix(in srgb, var(--color-accent-default) 40%, transparent); outline-offset: 0; } to { outline: var(--border-width-control) solid transparent; outline-offset: var(--motion-ring); } }
+  .checks span { transition: color var(--motion-duration-base) var(--motion-easing-standard); }
+  .checks input + span .s { background: linear-gradient(var(--color-accent-default), var(--color-accent-default)) left 58% / 0% var(--border-width-strike) no-repeat; box-decoration-break: clone; -webkit-box-decoration-break: clone; transition: background-size var(--motion-duration-draw) var(--motion-easing-standard); }
+  .checks input:checked + span { color: var(--color-text-muted); }
+  .checks input:checked + span .s { background-size: 100% var(--border-width-strike); }
+  a { color: var(--color-accent-default); text-decoration: none; background: var(--color-accent-subtle); padding: 0 var(--spacing-1); border-radius: var(--radius-sm); font-weight: var(--type-weight-medium); transition: background-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  a:hover { background: var(--color-highlight); }
+
+  @media (max-width: 720px) {
+    .app { grid-template-columns: minmax(0, 1fr); padding: var(--spacing-2); }
+    .side { display: none; }
+    .menu-open { display: inline-flex; padding: var(--spacing-1) var(--spacing-3); border-radius: var(--radius-full); background: var(--color-surface-raised); color: var(--color-text-secondary); }
+    .crumbs { display: none; }
+    .bar { padding: var(--spacing-3) var(--spacing-4); }
+    article { padding: var(--spacing-3) var(--spacing-5) var(--spacing-9); }
+    h1 { font-size: var(--type-size-xl); }
+    h2 { font-size: var(--type-size-lg); margin-top: var(--spacing-7); }
+  }
+  /* 動きを減らす設定：止めずに、短く穏やかにする。弾みと波は消し、空の漂いはごく遅くする */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: var(--motion-duration-instant) !important; transition-duration: var(--motion-duration-instant) !important; transition-timing-function: var(--motion-easing-standard) !important; }
+    .ambient span { animation-duration: calc(var(--motion-duration-ambient) * 4) !important; }
+    .row:hover .mark { transform: none; }
+    @keyframes enter { from { opacity: 0; } to { opacity: 1; } }
+  }
+  /* 探す：背景がぼけて、丸い窓が弾んで浮き上がる。見つけた言葉には蛍光ペンを引くように印が付く */
+  .scrim { position: fixed; inset: 0; z-index: 2; background: var(--color-surface-overlay); backdrop-filter: blur(var(--effect-blur-scrim)); animation: fade var(--motion-duration-fast) var(--motion-easing-standard) both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .finder { position: fixed; z-index: 3; top: var(--size-dialog-top); left: 50%; width: min(var(--size-dialog), calc(100% - 2 * var(--spacing-3))); transform: translateX(-50%); background: var(--color-surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-overlay); padding: var(--spacing-3); animation: rise var(--motion-duration-base) var(--motion-easing-spring) both; }
+  @keyframes rise { from { opacity: 0; transform: translateX(-50%) translateY(var(--motion-distance-enter)) scale(var(--motion-scale-press)); } to { opacity: 1; transform: translateX(-50%); } }
+  .finder input { width: 100%; font: inherit; font-size: var(--type-size-lg); color: var(--color-text-primary); background: var(--color-surface-sunken); border: var(--border-width-control) solid transparent; border-radius: var(--radius-md); padding: var(--spacing-3) var(--spacing-4); outline: none; transition: border-color var(--motion-duration-fast) var(--motion-easing-standard), background-color var(--motion-duration-fast) var(--motion-easing-standard); }
+  .finder input:focus-visible { border-color: var(--color-accent-default); background: var(--color-surface-raised); }
+  .finder .count { font-family: var(--type-family-numeric); font-weight: var(--type-weight-bold); font-size: var(--type-size-xs); color: var(--color-text-muted); padding: var(--spacing-3) var(--spacing-3) var(--spacing-1); }
+  .hits { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spacing-1); }
+  .hit { padding: var(--spacing-3) var(--spacing-4); border-radius: var(--radius-md); cursor: pointer; transition: background-color var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-spring), box-shadow var(--motion-duration-fast) var(--motion-easing-standard); animation: enter var(--motion-duration-fast) var(--motion-easing-standard) both; }
+  .hit:nth-child(2) { animation-delay: var(--motion-stagger); } .hit:nth-child(3) { animation-delay: calc(var(--motion-stagger) * 2); } .hit:nth-child(4) { animation-delay: calc(var(--motion-stagger) * 3); }
+  .hit:hover { background: var(--color-surface-sunken); }
+  .hit:active { transform: translateY(var(--motion-distance-press)); }
+  .hit[aria-selected="true"] { background: var(--color-surface-raised); box-shadow: inset 0 0 0 var(--border-width-control) var(--color-accent-subtle), var(--shadow-edge); }
+  .hit .t { font-weight: var(--type-weight-bold); line-height: var(--type-leading-tight); }
+  .hit .p { font-size: var(--type-size-xs); color: var(--color-text-muted); }
+  .hit .x { font-size: var(--type-size-sm); color: var(--color-text-secondary); margin-top: var(--spacing-1); line-height: var(--type-leading-snug); }
+  .hit mark { color: inherit; border-radius: var(--radius-sm); padding: 0 var(--spacing-1); background: linear-gradient(var(--color-highlight), var(--color-highlight)) left / 0% 100% no-repeat; animation: swipe var(--motion-duration-draw) var(--motion-easing-standard) both; animation-delay: var(--motion-duration-fast); }
+  @keyframes swipe { to { background-size: 100% 100%; } }
+  .finder .foot { display: flex; gap: var(--spacing-4); flex-wrap: wrap; font-size: var(--type-size-xs); color: var(--color-text-muted); padding: var(--spacing-3) var(--spacing-3) var(--spacing-1); }
+  @media (max-width: 720px) { .finder { top: var(--spacing-3); } }
+</style>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="app">
+  <nav class="side" aria-label="ページの並び">
+    <div class="name">自分のページ</div>
+    <a class="search-entry press" href="search-light.html"><span>ページを探す</span><kbd>Ctrl K</kbd></a>
+    <div>
+      <ul class="tree">
+        <li>
+          <button class="row" aria-expanded="true"><span class="twist"></span><span class="mark" style="--c: var(--color-mark-1)"></span>日々のメモ</button>
+          <div class="sub"><ul>
+            <li>
+              <button class="row" aria-expanded="true"><span class="twist"></span>2026年11月</button>
+              <div class="sub"><ul>
+                <li><button class="row"><span class="twist"></span>11月9日（月）</button></li>
+                <li><button class="row" aria-current="page"><span class="twist"></span>11月10日（火）</button></li>
+              </ul></div>
+            </li>
+            <li><button class="row" aria-expanded="false"><span class="twist"></span>2026年10月</button><div class="sub closed"><ul><li><button class="row"><span class="twist"></span>10月31日（土）</button></li></ul></div></li>
+          </ul></div>
+        </li>
+        <li>
+          <button class="row" aria-expanded="false"><span class="twist"></span><span class="mark" style="--c: var(--color-mark-3)"></span>仕事</button>
+          <div class="sub closed"><ul>
+            <li><button class="row"><span class="twist"></span>週次の振り返り</button></li>
+            <li><button class="row"><span class="twist"></span>来期の目標</button></li>
+          </ul></div>
+        </li>
+        <li><button class="row"><span class="twist"></span><span class="mark" style="--c: var(--color-mark-2)"></span>読書メモ</button></li>
+        <li><button class="row"><span class="twist"></span><span class="mark" style="--c: var(--color-mark-4)"></span>12月の旅行の計画</button></li>
+      </ul>
+      <button class="new-page press">＋ 新しいページ</button>
+    </div>
+    <div class="theme" role="group" aria-label="画面の明るさ">
+      <span class="thumb"></span>
+      <button data-set="system">端末</button>
+      <button data-set="light">明るい</button>
+      <button data-set="dark">暗い</button>
+    </div>
+  </nav>
+
+  <!--MAIN-->
+  <main class="main">
+    <div class="sheet">
+      <div class="bar">
+        <button class="menu-open press">ページの並び</button>
+        <div class="crumbs"><span>日々のメモ</span><span>2026年11月</span></div>
+        <span class="saved" role="status">保存しました</span>
+      </div>
+      <article>
+        <p class="meta"><span class="sun" aria-hidden="true"></span>朝　2026.11.10 08:42</p>
+        <h1>11月10日（火）</h1>
+        <p>朝は少し寒い。駅までの道で、昨日の打ち合わせで決めきれなかったことを考えていた。見積もりは週末までに出せばよいので、今日は資料の骨組みだけ作る。</p>
+        <h2>今日やること</h2>
+        <ul class="checks">
+          <li><input type="checkbox" checked aria-label="済み"><span><span class="s">見積もりの資料の骨組みを作る</span></span></li>
+          <li><input type="checkbox" aria-label="済み"><span><span class="s">歯医者の予約を木曜から金曜に変える</span></span></li>
+          <li><input type="checkbox" aria-label="済み"><span><span class="s"><a href="#">12月の旅行の計画</a> の宿を 2 つに絞る</span></span></li>
+        </ul>
+        <h2>打ち合わせのメモ</h2>
+        <ul class="bullets">
+          <li>画面の案は 3 通り出して、来週の頭に見比べる</li>
+          <li>締め切りは月末のまま。遅れそうなら水曜までに言う</li>
+          <li>前回の議事は <a href="#">週次の振り返り</a> に書いてある</li>
+        </ul>
+        <p>帰りに本屋に寄る。読みかけの本の続きは <a href="#">読書メモ</a> に。</p>
+      </article>
+    </div>
+  </main>
+  <!--/MAIN-->
+  <div class="scrim"></div>
+  <div class="finder" role="dialog" aria-label="ページを探す">
+    <input type="search" value="振り返り" aria-label="探す言葉" autocomplete="off">
+    <div class="count">名前と本文から 4 件見つかりました</div>
+    <ul class="hits" role="listbox">
+      <li class="hit" role="option" aria-selected="true"><div class="t">週次の<mark>振り返り</mark></div><div class="p">仕事</div><div class="x">今週は資料づくりに時間を取られた。来週は午前を書く時間にして、打ち合わせは午後にまとめる。</div></li>
+      <li class="hit" role="option"><div class="t">11月10日（火）</div><div class="p">日々のメモ › 2026年11月</div><div class="x">前回の議事は週次の<mark>振り返り</mark>に書いてある</div></li>
+      <li class="hit" role="option"><div class="t">来期の目標</div><div class="p">仕事</div><div class="x">毎月の終わりに、目標ごとに<mark>振り返り</mark>の時間を 30 分取る。</div></li>
+      <li class="hit" role="option"><div class="t">10月31日（土）</div><div class="p">日々のメモ › 2026年10月</div><div class="x">10 月の<mark>振り返り</mark>。読んだ本は 3 冊、走ったのは 42 km。</div></li>
+    </ul>
+    <div class="foot"><span>↑↓ で選ぶ</span><span>Enter で開く</span><span>Esc で閉じる</span></div>
+  </div>
+</div>
+<script>
+  const root = document.documentElement;
+  const btns = [...document.querySelectorAll(".theme button")];
+  const thumb = document.querySelector(".theme .thumb");
+  const mark = (v) => btns.forEach((b, i) => { const on = b.dataset.set === v; b.setAttribute("aria-pressed", String(on)); if (on) thumb.style.transform = `translateX(${i * 100}%)`; });
+  mark(root.dataset.theme);
+  btns.forEach((b) => b.addEventListener("click", () => {
+    const v = b.dataset.set;
+    root.dataset.theme = v === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : v;
+    mark(v);
+  }));
+  document.querySelectorAll(".row[aria-expanded]").forEach((b) => b.addEventListener("click", () => {
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    b.nextElementSibling.classList.toggle("closed", open);
+  }));
+</script>
+</body>
+</html>

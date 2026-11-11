@@ -1,0 +1,29 @@
+setup:
+  files: [package.json, package-lock.json, Cargo.toml, Cargo.lock, rust-toolchain.toml, .node-version, scripts/setup.mjs, scripts/browsers.mjs]
+  command: npm run setup
+commands:
+  lint: npm run lint
+  typecheck: npm run typecheck
+  build: npm run build
+  test-unit: npm run test-unit --
+  test-api: npm run test-api --
+  test-rust: npm run test-rust --
+  test-e2e: npm run test-e2e --
+  test-foundation: npm run test-foundation --
+  coverage: npm run coverage
+  start-check: npm run start-check
+  audit: npm run audit
+measurement:
+  _shared/NFR-response-time: npm run measure-response
+  _shared/NFR-sync-delay: npm run measure-sync
+nfr_commands:
+  _shared/NFR-vulnerabilities: [audit]
+  _shared/NFR-platforms: [test-unit, test-api, test-rust, test-e2e]
+dependencies: [package.json, package-lock.json, Cargo.toml, Cargo.lock]
+start:
+  command: npm run build && npm run serve
+  url: http://127.0.0.1:4310
+  seed: npm run seed
+  clock: npm run seed && npm run build && npm run serve -- --clock {at}
+test_reports: [reports/junit/*.xml]
+visual_threshold: 0.001

@@ -1,0 +1,15 @@
+verdict: architecture.md の直し（720px で切り替える決まりと、撮るときに animations を disabled にする決まり）は、design.yaml の breakpoint と base.css の動きを減らす設定に合っていて、AC-design-tokens-1 と AC-design-base-1 とも食い違わない。残るのは、人が Q-001 で選んだ理由の「時刻で変わる背景のにじみ」を描くための値が、design.yaml に無いこと 1 件。
+cycle: 1
+findings:
+  - id: SR-015
+    target: spec
+    where: _tech/design.yaml color.sky（朝の 1 組と、その暗い地しか無い）、size（control、check、chevron だけ）、motion、effect（opacity だけ）。hearing/questions.yaml Q-001 の answer（「時刻で変わる背景のにじみ」を挙げて選んだ）。_tech/architecture.md 48 行と tech.yaml TECH-clock（画面の「今」に「時刻で変わる背景の空の色」を含める）、architecture.md 160 行（画面は design.yaml の変数だけで指定し、値を直に書かない）。候補の ds-candidates/sunlit-play/tokens.css と page-light.html には、--size-glow、--motion-duration-ambient、--effect-blur-ambient、--effect-opacity-ambient があり、空の色が朝、昼、夕方、夜で入れ替わると書かれている
+    what: 人は Q-001 で、時刻で変わる背景のにじみを挙げてひだまりの遊びを選び、architecture.md と TECH-clock もそれを前提に、空の色を処理の「今」から決めるとしている。ところが、受け入れる値の元になる design.yaml には、空の色が朝の 1 組（とその暗い地）しか無く、昼、夕方、夜の色が無い。にじみとして描くための大きさ、ぼかし、濃さ、漂う長さも、候補には有ったが design.yaml と ds/sunlit-play/tokens.css から落ちている。画面は design.yaml の変数だけで指定し値を直に書かない決まりなので、後のチケットの作る役は、この背景を決まりどおりには描けない
+    scene: 002 で左の並びと本文の画面を作るとき、作る役は背景のにじみのぼかしや大きさを変数で指定できず、直に値を書く（決まりに反し、AC で見つからない）か、にじみを描かずに済ませる。描けたとしても、自分が夕方や夜にアプリを開くと、空の色は朝のまま変わらず、人が選んだ理由の 1 つが画面に出ない
+    kind:
+      name: 人が選んだデザインの要素のうち、design.yaml に値が無いもの
+      cases:
+        - 昼、夕方、夜の空の色（明るい地と暗い地の両方）
+        - 背景のにじみの大きさ、ぼかし、濃さ
+        - 背景のにじみがゆっくり漂う長さ
+    fix: Designer が、Q-001 の答えで選んだ要素を描くのに要る値を、design.yaml と ds/sunlit-play/tokens.css に 1 つの決まりで足す（空の色は時刻の区切りごとの組にし、どの時刻で入れ替わるかも design.yaml に書く。にじみの大きさ、ぼかし、濃さ、漂う長さは size、effect、motion に足す）。落としたのがわざとなら、その要素を描かないことを人に問う
