@@ -37,3 +37,5 @@ log:
   - { at: 2026-11-11T06:25:40Z, stage: hearing, note: 完了 2026-11-11T06:25:30Z 状態：完了 FACT-rust を書き直し、TECH-ci と CI の節を公開のリポジトリの前提に直し、秘密の値の扱いと pull_request_target を使わない決まりを足した }
   - { at: 2026-11-11T06:27:04Z, stage: spec-review, note: 起動 2026-11-11T06:27:04Z reviewer spec-review cycle 1（答えの後） head-before 259eebd279f0f5558b1a710ac72637df724e7329 }
   - { at: 2026-11-11T06:29:36Z, stage: spec-review, note: 完了 2026-11-11T06:29:22Z 状態：完了 指摘 1 件（SR-014 公開に切り替える手順が書かれていない）を reviews/spec/05-c1.yaml に書いた }
+  - { at: 2026-11-11T06:29:42Z, stage: hearing, note: 再開 2026-11-11T06:29:42Z specification foundation-hearing SR-014 を直す head-before 7ef5c16bd2c6b414e15ff1aaa180a7ea56d78bc6 }
+  - { at: 2026-11-11T06:30:25Z, stage: hearing, note: 完了 2026-11-11T06:30:12Z 状態：完了 「人が一度だけ行うこと」に、リポジトリを公開に切り替える手順を 1 行足した }

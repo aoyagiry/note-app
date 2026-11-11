@@ -285,6 +285,8 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 | Docker | Docker Desktop（005 から使う） | 同じ |
 | Supabase の CLI | 005 で npm の依存として入る | 同じ |
 
+- リポジトリを公開に切り替える（パソコンごとではなく 1 回だけ）：001 の PR で CI を流す前に、人が GitHub のリポジトリの設定（Settings の Danger Zone の Change visibility）で公開にする。AI は切り替えない。切り替えると、今のファイルだけでなく git の履歴のすべて（specs/ の壁打ちのメモと問いの答え、.claude/ のハーネスの定義、コミットの書き手の名前とメールアドレスを含む）が、誰からも見えるようになる
+
 その後、リポジトリで `npm run setup`（scripts/setup.mjs）を流す。中身：`npm ci`、`npm ci --prefix .claude/aidd`、`rustup show`（rust-toolchain.toml の版と部品を入れる）、cargo-nextest、cargo-llvm-cov、cargo-audit を入れる（`cargo install --locked`。版は scripts/setup.mjs に書く）、`npm run browsers`（.browsers/ に Chromium と WebKit を入れる）、`cargo fetch`。
 
 - コマンドは、Windows の cmd.exe と Mac の sh のどちらで流しても同じに動く形にする（toolchain.yaml のコマンドはすべて `npm run <名前>`。環境変数を渡すときは、`VAR=値 コマンド` と書かず、node のスクリプトか CLI の引数で渡す）
