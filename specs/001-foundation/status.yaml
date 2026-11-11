@@ -55,3 +55,5 @@ log:
   - { at: 2026-11-11T07:20:39Z, stage: design-system, note: 完了 2026-11-11T07:22:00Z 状態：完了 人の直しは見つからず、何も変えていない }
   - { at: 2026-11-11T07:22:07Z, stage: planning, note: 起動 2026-11-11T07:22:07Z planner implementation-planning head-before b5578bdc4f3323260e652c7f2a5edf4ae9eae6c6 }
   - { at: 2026-11-11T07:33:38Z, stage: planning, note: 完了 2026-11-11T07:33:27Z 状態：完了 implementation-plan.md と details.yaml（PD-001〜PD-022）を書いた。Rust の道具がこの機械に無いので、作る役の前に人の準備が要る }
+  - { at: 2026-11-11T07:33:42Z, stage: plan-review, note: 起動 2026-11-11T07:33:42Z reviewer plan-review cycle 1 head-before e3f3d7c265658d3b9c5dcbbbe6c6f819bbc4081c }
+  - { at: 2026-11-11T07:37:11Z, stage: plan-review, note: 完了 2026-11-11T07:36:59Z 状態：完了 指摘 6 件（medium 3、small 3）を reviews/plan/01-c1.yaml に書いた }

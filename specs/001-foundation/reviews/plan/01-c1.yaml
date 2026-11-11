@@ -1,0 +1,40 @@
+verdict: テストが呼ぶ形、変え方の方針、書き込み範囲、影響の一覧への影響は、おおむね成り立っている。ただし、基盤の検査を並べて流したときに試す場どうしのポートとビルドの出力がぶつかること、記録の置き場所の引数の渡し方、手で書く画面のファイルの配り方の 3 つを、作る前に決め直させる。
+cycle: 1
+findings:
+  - id: PR-001
+    severity: medium
+    target: plan
+    where: specs/001-foundation/plan/implementation-plan.md 112 行（ポート）、118〜122 行（基盤の検査）、155 行（vitest.config.ts の projects）
+    what: 基盤の検査（foundation の project）は、複数の検査のファイルから test-api（4312）、test-e2e（4311）、start の command（4310）を起こすが、計画は foundation の project のファイルを順に流すと決めていない。Vitest はふだんファイルを並べて流すので、AC-test-levels-2 と AC-test-report-1 が同時に 4312 に試す場を起こしたり、AC-test-levels-4 と AC-test-report-1 が同時に 4311 を使ったり、AC-dev-env-2 と 3 が同時に 4310 を使ったりして、ポートがぶつかって落ちる。どの起動も build:web で同じ apps/desktop/dist/ を書き直すので、ビルドの出力もぶつかる。npm run test-foundation を流すたびに、どの組が重なるかで結果が変わる。
+    fix: vitest.config.ts の foundation の project だけ、ファイルを 1 つずつ流す設定（fileParallelism を false にする）にすると計画の 1 の分担に書く。検査の 1 つのファイルの中でも、試す場を起こす確かめは順に流す（concurrent にしない）と 8 に書く。
+  - id: PR-002
+    severity: medium
+    target: plan
+    where: specs/001-foundation/plan/implementation-plan.md 64〜67 行（devhost の引数）、111 行（tests/run/devhost.mjs）、121 行（AC-errors-1 と 2）
+    what: tests/run/devhost.mjs は、記録の置き場所を自分で OS の一時の場所に向けて渡す（111 行）。一方で AC-errors-1 と 2 の検査は、同じスクリプトに --log-dir <一時のフォルダ> を渡す（121 行）。両方を devhost に渡すと --log-dir が 2 回付くが、devhost の引数の読み方（64 行。手で読む）で、同じ引数が 2 回来たときに後を使うのか、失敗にするのかが決まっていない。作る役が重なりを失敗にすると AC-errors-1 と 2 の試す場が起きず、前を使うと検査が見る置き場所に記録が書かれない。
+    fix: tests/run/devhost.mjs は、呼び出しの引数に --data や --log-dir があれば自分の既定を付けない、と 111 行に書く。あわせて、devhost は同じ引数が 2 回来たら失敗にする（黙って片方を使わない）と 64 行に書く。
+  - id: PR-003
+    severity: medium
+    target: plan
+    where: specs/001-foundation/plan/details.yaml PD-020、specs/001-foundation/plan/implementation-plan.md 76 行
+    what: 画面のファイルを tower-http を使わずに手で配ると決めたが、応答の content-type をどう決めるかが書かれていない。index.html は module の script で Vite の出した .js を読むので、.js を text/javascript で返さないと、Chromium も WebKit も読み込みを断り、画面が真っ白になる（module の script は MIME の型を厳しく見る）。書体（Fontsource の .woff2、.woff）と CSS も同じく型が要る。また、道の区切りの検査（.. などを 404 にする）はセキュリティにかかわる自前の処理なのに、参照した実装と選んだ理由が決め事に無い。
+    fix: PD-020 に、拡張子から content-type への表（Vite の出力に出る html、js、css、woff2、woff、svg、png、ico、json）と、表に無い拡張子の扱い（application/octet-stream）を書き、道の検査は参照した実装（例：tower-http の ServeDir の道の確かめ方）を挙げてそれに倣うと書く。手で書く量を減らしたいなら、tower-http を技術の選択に足すかを仕様担当に問う形に変える。
+  - id: PR-004
+    severity: small
+    target: plan
+    where: specs/001-foundation/plan/implementation-plan.md 102 行
+    what: textsPlugin の options.dir は、計画のどこからも既定以外の値で使われていない（ID の重なりの確かめは loadTexts に一時のフォルダを渡して行う。156 行）。使われない一般化。
+    fix: textsPlugin は引数を取らず、specs/_current を読む形にする。
+  - id: PR-005
+    severity: small
+    target: plan
+    where: specs/001-foundation/plan/implementation-plan.md 134 行
+    what: scripts/measure-response.mjs が npx playwright test -c perf/playwright.config.ts を流すとき、PLAYWRIGHT_BROWSERS_PATH を .browsers に向けて渡すことが書かれていない。architecture.md の e2e のブラウザの節は計測にも渡すと決めていて、渡さないとブラウザが見つからずに計測が落ちる。
+    fix: 134 行に、measure-response.mjs が子のプロセスに PLAYWRIGHT_BROWSERS_PATH=<リポジトリ>/.browsers を渡すと書き足す。
+  - id: PR-006
+    severity: small
+    target: plan
+    where: specs/001-foundation/plan/implementation-plan.md 93〜94 行
+    what: 93 行は Core を呼ぶ側が .manage() で渡すとしているのに、94 行の invoke_command の形には状態を受ける引数が無く、どこから Core を取るかが形から読めない。
+    fix: >-
+      94 行の形を invoke_command(core: tauri::State<'_, app_core::Core>, name: String, args: serde_json::Value) のように、状態を受ける引数を含めて書く。
