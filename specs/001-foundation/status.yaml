@@ -1,5 +1,5 @@
 ticket_id: 001-foundation
-state: 承認待ち
+state: 計画中
 pr: 2
 affects:
   - { kind: tickets, name: ページを作って左の並びから開く, reason: ほかのチケットの計画の行を変えるか消す, before_after: できることに「自分が、アプリの中で明るい画面と暗い画面を切り替える。最初は端末（Mac や Windows）の設定に合わせて開き、アプリの中で選んだら、その後は選んだほうで開く」を足す, source: spec-diff }
@@ -7,7 +7,7 @@ affects:
   - { kind: shared, name: アプリは Rust で作る（人の指定。速さを大事にするため）, reason: 画面の作り方を問いで決めたので、前提の事実に書き足す, before_after: 前「アプリは Rust で作る」、後「アプリは Rust で作る。そのうち処理の中心とデータは Rust、画面は Web の技術（TypeScript）で描く」, source: lead }
 draft_shown: { commit: 4f8fabfa7403b26d17ac1e5f6fbf503070ead01a, at: 2026-11-11T07:21:02Z }
 consult_started: { at: 2026-11-11T07:00:10Z }
-approval: null
+approval: { by: aoyagiry, at: 2026-11-11T07:21:50Z, commit: 215e233fcabeb260602763b6870f0243fb6042ee, comment_url: "https://github.com/aoyagiry/yakyu/pull/2#issuecomment-6789723630" }
 main_checked_at: f30ec8e7f3e95d575583f28eff11b6751f8e491f
 hold: null
 log:
