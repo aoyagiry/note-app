@@ -6,7 +6,7 @@ affects:
   - { kind: tickets, name: 自分の Mac と Windows で使い始める, reason: ほかのチケットの計画の行を変えるか消す, before_after: できることに「自分が、版の印を付けてビルドされた新しい版のアプリを、Mac と Windows に自分で入れ直す」を足す、作らないものに「アプリが新しい版を見つけて自分で入れ替わること（自動のアップデート。一般に配るときに足す）」を足す, source: spec-diff }
   - { kind: shared, name: アプリは Rust で作る（人の指定。速さを大事にするため）, reason: 画面の作り方を問いで決めたので、前提の事実に書き足す, before_after: 前「アプリは Rust で作る」、後「アプリは Rust で作る。そのうち処理の中心とデータは Rust、画面は Web の技術（TypeScript）で描く」, source: lead }
 draft_shown: null
-consult_started: null
+consult_started: { at: 2026-11-11T07:00:10Z }
 approval: null
 main_checked_at: f30ec8e7f3e95d575583f28eff11b6751f8e491f
 hold: null
