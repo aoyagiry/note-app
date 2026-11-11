@@ -72,7 +72,7 @@ acceptance:
   - id: AC-structure-1
     aspect: structure
     when: リポジトリのファイルと設定を見る
-    then: architecture.md の標準のファイル構成のとおりにあり、Cargo の workspace に crates/core、crates/commands、crates/devhost、crates/protocol、apps/desktop/src-tauri が入り、package.json に react、@tauri-apps/api、vite、vitest、@playwright/test、budoux があり、Vitest の設定は vitest.config.ts にあって vite.config.ts に無く、.gitattributes が改行を LF に揃え、.gitignore に reports/、coverage/、e2e-screenshots/、test-results/、.browsers/、.data/、target/、apps/desktop/dist/ がある
+    then: architecture.md の標準のファイル構成のとおりにあり、Cargo の workspace に crates/core、crates/commands、crates/devhost、crates/protocol、apps/desktop/src-tauri が入り、package.json に react、@tauri-apps/api、vite、vitest、@playwright/test、budoux があり、Vitest の設定は vitest.config.ts にあって vite.config.ts に無く、.gitattributes が改行を LF に揃え、.gitignore に reports/、coverage/、e2e-screenshots/、test-results/、.browsers/、.data/、target/、apps/desktop/dist/、.env がある
     checked_by: test
   - id: AC-structure-2
     aspect: structure
@@ -82,7 +82,7 @@ acceptance:
   - id: AC-structure-3
     aspect: structure
     when: .github/workflows/ の定義を読む
-    then: ci.yml は、向け先が main と aidd/** の PR（下書きを除く）と main への push で、Mac と Windows の両方で流れ、ジョブに時間の上限がある。release.yml は v で始まるタグの push だけで流れる。main への push で、アプリのビルドやサーバーのデプロイをする定義は無い
+    then: ci.yml は、向け先が main と aidd/** の PR（下書きを除く）と main への push で、Mac と Windows の両方で流れ、ジョブに時間の上限がある。release.yml は v で始まるタグの push だけで流れる。main への push で、アプリのビルドやサーバーのデプロイをする定義は無い。どの定義も、きっかけに pull_request_target を使わない
     checked_by: test
   - id: AC-dev-env-1
     aspect: dev-env

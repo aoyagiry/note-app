@@ -2,7 +2,7 @@ tech:
   - id: TECH-app-platform
     summary: アプリは Rust と Tauri 2 で作り、画面は Web の技術（HTML と CSS）で、OS の WebView（Windows は WebView2、Mac は WKWebView）に描く。ページの保存、検索、同期などの処理は Rust で書く
     decision: Rust（stable）と Tauri 2。処理の中心は Rust の crate（crates/core）に置き、Tauri のアプリ（apps/desktop/src-tauri）がそれをコマンドとして画面に渡す。画面は TypeScript で書き、OS の WebView で描く
-    reason: 問い Q-004 の答えで決める（提案）。速さ（NFR-response-time）に照らすと、遅くなりやすいのは、1 万件のページの保存、読み出し、検索と、起動の処理で、これらはすべて Rust で行う。文字を打ってから出るまでは、WebView の中の本文の編集の部品が、処理とやり取りせずに次の描画（1 コマ 16 ミリ秒）で出す（Notion、VS Code、Obsidian も同じ形）。ページを開く、検索の結果を出すは、Rust の処理に 1 回聞いて、出す分だけを描くので、100 ミリ秒の中に収まる見込み。Tauri のアプリは、OS の WebView を使うので、起動が 1 秒より短い見込み。選んだ見た目（ひだまりの遊び）は CSS の変数と土台の CSS（base.css）で描かれていて、そのまま写せる。本文の編集は、Web の技術に成熟した部品がある
+    reason: 問い Q-004 の答えで決めた。速さ（NFR-response-time）に照らすと、遅くなりやすいのは、1 万件のページの保存、読み出し、検索と、起動の処理で、これらはすべて Rust で行う。文字を打ってから出るまでは、WebView の中の本文の編集の部品が、処理とやり取りせずに次の描画（1 コマ 16 ミリ秒）で出す（Notion、VS Code、Obsidian も同じ形）。ページを開く、検索の結果を出すは、Rust の処理に 1 回聞いて、出す分だけを描くので、100 ミリ秒の中に収まる見込み。Tauri のアプリは、OS の WebView を使うので、起動が 1 秒より短い見込み。選んだ見た目（ひだまりの遊び）は CSS の変数と土台の CSS（base.css）で描かれていて、そのまま写せる。本文の編集は、Web の技術に成熟した部品がある
     background: 人は「アプリは Rust で作る（速さを大事にするため）」と指定しました（FACT-rust）。この選択では、処理とデータは Rust で作りますが、画面は Web の技術（TypeScript）で描くので、指定から外れる所があります。Mac の画面は Safari と同じ仕組み（WebKit）、Windows の画面は Edge と同じ仕組み（Chromium）で描かれるので、両方で見え方と速さを確かめます
     alternatives:
       - { option: 画面も Rust で描く（GPUI、egui、Slint など）, effect: 描画は最も速いが、見た目の土台と本文の編集を一から作る }
@@ -99,8 +99,8 @@ tech:
     summary: アプリと試す場とサーバーがやり取りするデータの形は Rust で定義し、TypeScript の型を生成して使う
     decision: crates/protocol に型を書き、ts-rs で packages/protocol/src/generated/ に TypeScript の型を出す（npm run gen）。typecheck の前に生成し、生成したものはコミットしない
   - id: TECH-ci
-    summary: CI は GitHub Actions で、PR（向け先が main と aidd/**、下書きを除く）と main への push のたびに、Mac と Windows の GitHub の機械で、すべての検証と e2e を流す。非公開のリポジトリの無料の枠（月 12 ドル分）では 1 回あたり約 2 ドルかかり、月に 6 回ほどしか流せない見込みで足りない（足りない分の扱いは問い Q-003）
-    decision: .github/workflows/ci.yml。検証のジョブ（Mac と Windows）と、e2e のジョブ（Mac と Windows それぞれで --shard を 2 つ）。Playwright の公式のコンテナは Linux だけなので使わない（Mac と Windows の機械では OS のパッケージを入れずにブラウザだけ入れられる）。見積もりは、Mac の機械が 1 分 0.062 ドル、Windows が 1 分 0.010 ドルで、1 回に Mac 約 25 分、Windows 約 30 分として出した
+    summary: CI は GitHub Actions で、PR（向け先が main と aidd/**、下書きを除く）と main への push のたびに、Mac と Windows の GitHub の機械で、すべての検証と e2e を流す（NFR-platforms）。リポジトリは公開にするので、GitHub の機械は無料で使え、回数の上限を気にせず毎回流せる（問い Q-003 の答え）。公開なので、認証情報はリポジトリに置かず、CI の秘密の値は GitHub の secrets にだけ置く
+    decision: .github/workflows/ci.yml。検証のジョブ（Mac と Windows）と、e2e のジョブ（Mac と Windows それぞれで --shard を 2 つ）。Playwright の公式のコンテナは Linux だけなので使わない（Mac と Windows の機械では OS のパッケージを入れずにブラウザだけ入れられる）。きっかけに pull_request_target は使わない（ほかの人が送った PR のコードに秘密の値を渡さないため）
     sources:
       - https://docs.github.com/en/billing/concepts/product-billing/github-actions
   - id: TECH-release

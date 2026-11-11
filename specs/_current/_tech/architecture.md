@@ -58,7 +58,7 @@
 | ログイン、差分を預ける、預けた差分を取る、変更の知らせを受ける | 画面の側の sync（supabase-js） |
 
 - sync と処理の間の差分の受け渡しは、bridge のコマンドで行う。合わせ方は処理だけが決め、sync は差分の中身を読まない
-- これより細かいこと（ログインの情報の保存の仕方、差分の受け渡しの形、窓を閉じた後の同期、e2e と CI で sync が相手にする Supabase）は、005 と 006 の計画で決める（CI での置き方は、問い Q-003 の答えにもよる）
+- これより細かいこと（ログインの情報の保存の仕方、差分の受け渡しの形、窓を閉じた後の同期、e2e と CI で sync が相手にする Supabase）は、005 と 006 の計画で決める
 
 ## 標準のファイル構成
 
@@ -111,6 +111,7 @@ e2e-screenshots/                  e2e のスクリーンショット（.gitignor
 test-results/                     Playwright の出力（.gitignore）
 .browsers/                        Playwright のブラウザ（.gitignore）
 .data/                            人が試すときのデータ（.gitignore）
+.env                              手元の秘密の値（.gitignore。リポジトリは公開なので、認証情報はファイルに入れない）
 target/、apps/desktop/dist/       ビルドの出力（.gitignore）
 ```
 
@@ -302,14 +303,15 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 - 時間の上限：checks は `timeout-minutes: 30`（キャッシュの無い初めての Rust のビルドが 15 分を超えることがあるため）、e2e は `timeout-minutes: 20`
 - キャッシュ：actions/setup-node の `cache: npm`、Swatinem/rust-cache（OS ごと）、.browsers/（キーは OS と package-lock.json の Playwright の版）。cargo-nextest などの道具は taiki-e/install-action で入れる（ビルドしないので速い）
 - PLAYWRIGHT_BROWSERS_PATH に `${{ github.workspace }}/.browsers` を渡す
-- データベースのサービス：005 から、サーバーが要るテストのために置く。GitHub の Mac と Windows の機械では Linux のコンテナの Docker を動かせないので、置き方は問い Q-003 の答えと 005 の計画で決める
+- データベースのサービス：005 から、サーバーが要るテストのために置く。GitHub の Mac と Windows の機械では Linux のコンテナの Docker を動かせないので、置き方は 005 の計画で決める
 - main への push の CI も、同じ形で残す
-- 費用：非公開のリポジトリの GitHub Free の無料の枠は月 12 ドル分。1 分あたり Mac 0.062 ドル、Windows 0.010 ドル。1 回の CI を Mac 約 25 分、Windows 約 30 分と見込むと約 2 ドルで、無料の枠では月に 6 回ほどしか流せない。足りない分の扱いは問い Q-003 の答えで決める
+- 費用：リポジトリは公開にする（001 の問い Q-003 の答え）。公開のリポジトリでは GitHub の標準の機械を無料で使えるので、PR と main への push のたびに、Mac と Windows の両方で毎回流す。版の印のビルド（release.yml）も同じく無料
+- 公開のリポジトリでの秘密の値：認証情報（Supabase の鍵など）は、リポジトリのファイルにも .env の写しにも置かず、CI で要るものは GitHub の secrets にだけ置く。ワークフローのきっかけに pull_request_target は使わない（ほかの人が送った PR のコードに秘密の値を渡さないため。ふつうの pull_request では、ほかの人のフォークからの PR に secrets は渡らない）。手元の秘密の値は .env に置き、.gitignore に入れる
 
 ## リリースとデプロイ
 
 - main へのマージでは、CI のほかに何も動かない。サーバーにもアプリの配布にも何も起きない
-- アプリ：版の印（`v` で始まるタグ。例 `v0.1.0`）を付けて GitHub に送ったときだけ、.github/workflows/release.yml が Mac（macos-latest。.dmg。`--target universal-apple-darwin` で、Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリにする。そのために rustup で aarch64-apple-darwin と x86_64-apple-darwin を入れる）と Windows（windows-latest。.msi と .exe）のアプリを tauri-apps/tauri-action でビルドし、GitHub の下書きのリリースに置く。版の番号は、タグの版を tauri.conf.json と Cargo.toml の版に揃えてから付ける
+- アプリ：版の印（`v` で始まるタグ。例 `v0.1.0`）を付けて GitHub に送ったときだけ、.github/workflows/release.yml が Mac（macos-latest。.dmg。`--target universal-apple-darwin` で、Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリにする。そのために rustup で aarch64-apple-darwin と x86_64-apple-darwin を入れる）と Windows（windows-latest。.msi と .exe）のアプリを tauri-apps/tauri-action でビルドし、GitHub の下書きのリリースに置く（下書きのリリースは、リポジトリを公開にしても、書き込みの権限のある人にしか見えない）。版の番号は、タグの版を tauri.conf.json と Cargo.toml の版に揃えてから付ける
 - 署名はしない（Mac は初めて開くときに右クリックの「開く」が要り、Windows は SmartScreen の知らせが出る）。署名と公証をするかは 008 で決める
 - 新しい版は、自分で下書きのリリースから入れ直す。自動のアップデートは、一般に配るとき（later の public-distribution）に足す（001 の問い Q-002 の答え）
 - サーバーのデプロイ：後で決める（008-start-using。本番の Supabase のプロジェクトの作り方、表の移し替えを本番に当てるコマンド、切り戻しの方法）。決めるきっかけは、自分がコマンドを打つか印を付けたときだけにし、main へのマージでは動かさない（001 の壁打ち）

@@ -32,3 +32,5 @@ log:
   - { at: 2026-11-11T05:08:03Z, stage: hearing, note: 完了 2026-11-11T05:07:52Z 状態：完了 SR-012、SR-013 を、細部の決め事を消して 005 と 006 の計画に任せる形で直した }
   - { at: 2026-11-11T05:08:20Z, stage: spec-review, note: 起動 2026-11-11T05:08:20Z reviewer review-step-back（spec-review）cycle 4 head-before da854524fe681745f43332894f2e558c8e9b640e }
   - { at: 2026-11-11T05:09:53Z, stage: spec-review, note: 完了 2026-11-11T05:09:42Z 状態：完了 一歩引いた見直し。指摘 0 件。根の原因は 3 回目の直しで解けている }
+  - { at: 2026-11-11T06:23:46Z, stage: hearing, note: 再開 2026-11-11T06:23:46Z specification foundation-hearing 人の答え（Q-003、Q-004）に仕様を合わせる head-before 550735b907e75c0b8d32900df27f48959ab328e9 }
+  - { at: 2026-11-11T06:25:40Z, stage: hearing, note: 完了 2026-11-11T06:25:30Z 状態：完了 FACT-rust を書き直し、TECH-ci と CI の節を公開のリポジトリの前提に直し、秘密の値の扱いと pull_request_target を使わない決まりを足した }
