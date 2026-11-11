@@ -15,7 +15,7 @@ facts:
   - id: FACT-platforms
     statement: アプリは Windows と Mac のパソコンで動かす
   - id: FACT-rust
-    statement: アプリの処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（人の指定。速さを大事にするため）
+    statement: アプリは Rust で作る（人の指定。速さを大事にするため）
   - id: FACT-single-user-first
     statement: 最初に使うのは自分一人。ほかの人との共有は後で足す
   - id: FACT-no-design-reference

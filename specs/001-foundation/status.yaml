@@ -25,3 +25,5 @@ log:
   - { at: 2026-11-11T04:54:44Z, stage: hearing, note: 完了 2026-11-11T04:54:34Z 状態：完了 SR-001〜SR-008 を直した。Q-004（画面の作り方）を足し、Q-003 の文を直した }
   - { at: 2026-11-11T04:55:05Z, stage: spec-review, note: 起動 2026-11-11T04:55:05Z reviewer spec-review cycle 2 head-before e9d7a9a81ea92887ad4d818a03104c7a6d57b4d1 }
   - { at: 2026-11-11T04:58:24Z, stage: spec-review, note: 完了 2026-11-11T04:58:13Z 状態：完了 指摘 3 件（SR-009〜SR-011）を reviews/spec/02-c2.yaml に書いた }
+  - { at: 2026-11-11T04:58:29Z, stage: hearing, note: 再開 2026-11-11T04:58:29Z specification foundation-hearing 仕様のレビュー 2 回目の指摘を直す head-before 31f38824f2fccc5394643ff116e9240031e717a8 }
+  - { at: 2026-11-11T05:04:01Z, stage: hearing, note: 完了 2026-11-11T05:03:50Z 状態：完了 SR-009〜SR-011 を直した。FACT-rust を元に戻し、Supabase とのやり取りを画面の側の sync に決め、Q-004 に反映 }

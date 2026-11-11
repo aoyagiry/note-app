@@ -15,7 +15,7 @@
 | 文節の区切り | BudouX（budoux） |
 | 試す場 | axum（crates/devhost） |
 | データの形の共有 | crates/protocol と ts-rs |
-| サーバー（005 から） | Supabase（Postgres、Auth、Realtime。Edge Functions は使わない）。手元は Supabase の CLI と Docker |
+| サーバー（005 から） | Supabase（Postgres、Auth、Realtime。Edge Functions は使わない）。アプリからは画面の側の supabase-js でやり取りする。ログインの情報は keyring で OS の鍵の置き場所に置く。手元は Supabase の CLI と Docker |
 | テスト | Vitest、Playwright（Chromium、WebKit）、cargo-nextest |
 | カバレッジ | Vitest の v8、cargo-llvm-cov |
 | 書き方の検査 | ESLint、Prettier、rustfmt、clippy |
@@ -27,6 +27,8 @@
 
 ```
 画面（apps/desktop/src。React）
+  ├ sync（apps/desktop/src/sync。005 から）：supabase-js で Supabase とやり取りする（ログイン、差分を預ける、知らせを受ける）
+  │   └ 差分の受け渡しは bridge のコマンドで処理に頼む
   └ bridge：コマンドの呼び出し。Tauri の中では invoke("invoke_command")、ブラウザでは試す場への HTTP
       ├ Tauri のアプリ（apps/desktop/src-tauri）─ 汎用のコマンド invoke_command ─┐
       └ 試す場（crates/devhost）─ POST /api/invoke/<コマンド> ─────────────┤
@@ -34,7 +36,7 @@
                                                   └ 処理（crates/core）
                                                       ├ パソコンの中のデータ（SQLite と Yjs の文書）
                                                       ├ 時計（Clock）
-                                                      └ 同期（006。サーバーへ差分を預ける）
+                                                      └ 同期の手前（006。まだ預けていない差分を出す、届いた差分を合わせる）
 サーバー（supabase/。005 から）：Auth、Postgres（差分を積む表と行ごとの制限）、Realtime（データベースから送る Broadcast）
 ```
 
@@ -45,6 +47,19 @@
 - 画面は bridge 以外から処理を呼ばない。bridge は、Tauri の中（window.__TAURI_INTERNALS__ がある）なら `invoke("invoke_command", { name, args })`、そうでなければ同じ origin の `POST /api/invoke/<name>`（本文は args）を呼ぶ。どちらの道でも、同じ名前と同じ JSON の引数を渡し、返った失敗の形をそのまま渡す
 - 画面の「今」（日付、時刻、時刻で変わる背景の空の色）は、コマンド now で処理から受け取る。画面で Date.now() や new Date() を「今」に使わない（試す場を --clock で起こしたときに、画面の今も変わるように）。受け取った後の秒の進みは、受け取った時刻と performance.now() の差で足す
 - ネットにつながっていなくても、ページの操作はすべてパソコンの中のデータに対して行う（RULE-works-offline）。サーバーへの同期は裏で行い、操作の結果を待たせない
+- Supabase とやり取りするのは、画面の側の sync（公式のクライアント supabase-js）だけにする。Supabase には Rust の公式のクライアントが無いため（下の「同期の受け持ち」）
+
+### 同期の受け持ち（005、006）
+
+| 受け持つもの | 置き場所 |
+| --- | --- |
+| ページのデータ、Yjs の文書、まだ預けていない差分の記録、届いた差分を合わせること（CRDT） | 処理（crates/core。yrs） |
+| ログイン、トークンの更新、差分を表に足す、表から取る、Realtime の私用のチャンネルで知らせを受ける | 画面の側の sync（supabase-js） |
+| ログインの情報（トークン）の保存 | 処理が OS の鍵の置き場所（Mac のキーチェーン、Windows の資格情報マネージャー。keyring の crate）に置く。sync は supabase-js の storage を、処理のコマンドで読み書きする形に差し替える |
+
+- 流れ：sync は、処理のコマンドで「まだ預けていない差分」を受け取り（Yjs の差分は base64 の文字列で JSON に入れる）、表に足し、足せたら処理に「預けた」と知らせる。知らせを受けるか、つながり直したら、表から前に取った所より後の差分を取り、処理のコマンドで合わせる。合わせ方は処理だけが決め、sync は差分の中身を読まない
+- sync はアプリが開いている間（窓が見えていない間も含む）に動く。窓を閉じたときにアプリを残すかは 006 で決める
+- e2e では、試す場の画面でも同じ sync が動き、手元の Supabase（Docker）を相手にする
 - データの形は crates/protocol に Rust で書き、ts-rs で TypeScript の型を packages/protocol/src/generated/ に生成する（npm run gen。生成したものはコミットしない）
 
 ## 標準のファイル構成
@@ -125,7 +140,7 @@ target/、apps/desktop/dist/       ビルドの出力（.gitignore）
 - 入力の欄ごとの誤りがあるときだけ、`"fields": [{ "field": "title", "reason": "required" }]` を足す
 - 文、例外の文、スタックトレース、ファイルの場所、道具の名前と版は返さない（NFR-error-details）。dispatch が、core の想定外の失敗（anyhow など）と panic（catch_unwind）を `internal` に変え（Tauri と試す場で同じ仕組み）、詳細は記録（tracing。アプリのデータの置き場所の logs/）にだけ書く
 - 画面は、理由の符号に当たる画面文の ID を引いて出す。ID の決まりは `<領域>.error.<reason>`（例：`pages.error.title_too_long`）、どの領域にも共通の失敗（internal、つながっていない、など）は `common.error.<reason>`（_tech/texts.yaml）
-- サーバー（005 から）の失敗も、アプリの同期の処理がこの形に変えてから画面に渡す。Postgres や Supabase の失敗の文を画面に渡さない
+- サーバー（005 から）の失敗も、画面の側の sync がこの形に変えてから画面に渡す。Postgres や Supabase の失敗の文を画面に渡さない
 
 ## 画面
 
@@ -187,7 +202,7 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 
 - 具体例と計画の決め事を確かめるテストは、TypeScript のファイル（*.test.ts、*.spec.ts）に書き、テストの名前に `<領域>/AC-…` を入れる。ハーネスは Rust のファイルの中の ID を数えない
 - 結果はすべて JUnit XML で reports/junit/ に出す（unit.xml、api.xml、e2e.xml、rust.xml、foundation.xml）。テストが 0 件でも成功にする（Vitest は passWithNoTests、Playwright は --pass-with-no-tests、nextest は --no-tests=pass）
-- テストのコマンドは、末尾にテストのファイルを渡すと、そのファイルだけを流す。test-rust は、tests/run/rust.mjs が渡されたファイル（crates/<crate>/tests/<名前>.rs か crates/<crate>/tests/<名前>/main.rs）を nextest の `binary(<名前>)` の絞り込みに変える
+- テストのコマンドは、末尾にテストのファイルを渡すと、そのファイルだけを流す。test-rust は、tests/run/rust.mjs が渡されたファイル（Cargo の workspace のどの crate でも、その crate の tests/<名前>.rs か tests/<名前>/main.rs）を、その crate と nextest の `binary(<名前>)` の絞り込みに変える
 
 ### テストの設定と支えの置き場所
 
