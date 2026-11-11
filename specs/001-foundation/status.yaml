@@ -2,9 +2,9 @@ ticket_id: 001-foundation
 state: ヒアリング中
 pr: 2
 affects:
+  - { kind: shared, name: アプリは Rust で作る（人の指定。速さを大事にするため）, reason: 前提の事実を変える, before_after: 前「アプリは Rust で作る（人の指定。」、後「アプリの処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（人の指定。」, source: spec-diff }
   - { kind: tickets, name: ページを作って左の並びから開く, reason: ほかのチケットの計画の行を変えるか消す, before_after: できることに「自分が、アプリの中で明るい画面と暗い画面を切り替える。最初は端末（Mac や Windows）の設定に合わせて開き、アプリの中で選んだら、その後は選んだほうで開く」を足す, source: spec-diff }
   - { kind: tickets, name: 自分の Mac と Windows で使い始める, reason: ほかのチケットの計画の行を変えるか消す, before_after: できることに「自分が、版の印を付けてビルドされた新しい版のアプリを、Mac と Windows に自分で入れ直す」を足す、作らないものに「アプリが新しい版を見つけて自分で入れ替わること（自動のアップデート。一般に配るときに足す）」を足す, source: spec-diff }
-  - { kind: tech, name: アプリは Rust で作る（人の指定。速さを大事にするため）, reason: 処理の中心は Rust だが、画面は Tauri で Web の技術（TypeScript と React）で描くので、すべてを Rust で書くわけではない, before_after: 前「アプリは Rust で作る」、後「処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く」, source: lead }
 draft_shown: null
 consult_started: null
 approval: null

@@ -3,6 +3,21 @@
   "to": "worktree",
   "changes": [
     {
+      "key": "_intent/FACT-rust",
+      "kind": "FACT",
+      "area": "_intent",
+      "parent": null,
+      "change": "modified",
+      "before": {
+        "id": "FACT-rust",
+        "statement": "アプリは Rust で作る（人の指定。速さを大事にするため）"
+      },
+      "after": {
+        "id": "FACT-rust",
+        "statement": "アプリの処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（人の指定。速さを大事にするため）"
+      }
+    },
+    {
       "key": "TICKET/002-page-tree",
       "kind": "TICKET",
       "area": null,
@@ -99,23 +114,23 @@
         "id": "TECH-app-platform",
         "summary": "アプリは Rust と Tauri 2 で作り、画面は Web の技術（HTML と CSS）で、OS の WebView（Windows は WebView2、Mac は WKWebView）に描く。ページの保存、検索、同期などの処理は Rust で書く",
         "decision": "Rust（stable）と Tauri 2。処理の中心は Rust の crate（crates/core）に置き、Tauri のアプリ（apps/desktop/src-tauri）がそれをコマンドとして画面に渡す。画面は TypeScript で書き、OS の WebView で描く",
-        "reason": "Rust で作るという指定（FACT-rust）を処理の側で守りつつ、選んだ見た目（ひだまりの遊び。CSS の変数と HTML で描かれている）をそのまま写せるため。Notion のような本文の編集は、Web の技術に成熟した部品があり、一から作らずに済む。アプリの大きさが小さく、起動が速い",
-        "background": "壁打ちで「アプリの画面の作り方（Rust だけで描くか、Web の技術と組み合わせるか）」を決めていませんでした。この選び方で、選んだ見た目をどう写すか、本文の編集をどう作るか、画面をどう試すかが決まります。この選択では、画面の部分は Rust ではなく TypeScript で書きます。Mac の画面は Safari と同じ仕組み（WebKit）で、Windows の画面は Edge と同じ仕組み（Chromium）で描かれるので、両方で見え方を確かめます",
+        "reason": "問い Q-004 の答えで決める（提案）。速さ（NFR-response-time）に照らすと、遅くなりやすいのは、1 万件のページの保存、読み出し、検索と、起動の処理で、これらはすべて Rust で行う。文字を打ってから出るまでは、WebView の中の本文の編集の部品が、処理とやり取りせずに次の描画（1 コマ 16 ミリ秒）で出す（Notion、VS Code、Obsidian も同じ形）。ページを開く、検索の結果を出すは、Rust の処理に 1 回聞いて、出す分だけを描くので、100 ミリ秒の中に収まる見込み。Tauri のアプリは、OS の WebView を使うので、起動が 1 秒より短い見込み。選んだ見た目（ひだまりの遊び）は CSS の変数と土台の CSS（base.css）で描かれていて、そのまま写せる。本文の編集は、Web の技術に成熟した部品がある",
+        "background": "人は「アプリは Rust で作る（速さを大事にするため）」と指定しました（FACT-rust）。この選択では、処理とデータは Rust で作りますが、画面は Web の技術（TypeScript）で描くので、指定から外れる所があります。Mac の画面は Safari と同じ仕組み（WebKit）、Windows の画面は Edge と同じ仕組み（Chromium）で描かれるので、両方で見え方と速さを確かめます",
         "alternatives": [
           {
-            "option": "Rust だけで描く（egui、iced、Slint、GPUI など）",
-            "effect": "見た目と本文の編集を一から作ることになる"
+            "option": "画面も Rust で描く（GPUI、egui、Slint など）",
+            "effect": "描画は最も速いが、見た目の土台と本文の編集を一から作る"
           },
           {
-            "option": "Rust で画面も書き、WebView で描く（Dioxus、Leptos）",
-            "effect": "本文の編集の部品が乏しく、作る量が多い"
+            "option": "Rust で画面を書き、WebView で描く（Dioxus、Leptos）",
+            "effect": "速さは同じで、本文の編集の部品が乏しい"
           },
           {
             "option": "Electron",
             "effect": "Rust で作る指定に合わず、重く起動も遅い"
           }
         ],
-        "if_changed": "画面をすべて作り直します。Rust の処理（crates/core）はそのまま使えます",
+        "if_changed": "画面をすべて作り直します。画面も Rust で描く形に変えるときは、見た目の土台（CSS）と、画面の e2e とスクリーンショットの確かめ方も作り直します。Rust の処理（crates/core）はそのまま使えます",
         "sources": [
           "https://github.com/tauri-apps/tauri-docs/blob/v2/src/content/docs/concept/process-model.md",
           "https://github.com/tauri-apps/tauri-docs/blob/v2/src/content/docs/reference/webview-versions.md"
@@ -191,32 +206,34 @@
       "change": "added",
       "after": {
         "id": "TECH-server",
-        "summary": "データを預かるサーバーは Supabase（データベース、ログイン、変更の知らせ、サーバーの処理を運用まで任せられるサービス）を使う。手元では Supabase の CLI で Docker の上に同じものを起こす。使い始めるのは 005 から",
-        "decision": "Supabase（Postgres、Auth、Realtime、Edge Functions）。手元の開発は Supabase の CLI（supabase start。Docker で動く）。ほかの人のページが見えないことは、Postgres の行ごとの制限（Row Level Security）で守る。パスワードは Supabase Auth が bcrypt でハッシュにして保存する（NFR-password-storage）。サーバーの定義（表の移し替え、サーバーの処理）は supabase/ に置く。本番のプロジェクトとデプロイは 008 で決める",
-        "reason": "フルマネージドの希望に合い、データベース、ログイン、変更の知らせが 1 つのサービスにまとまっていて、手元でも Docker で同じものを動かせるため。費用は、無料の枠（データベース 500 MB、プロジェクト 2 つ、使う人 5 万人まで）で、自分一人で使う間は足りる見込み。無料の枠のプロジェクトは 1 週間使わないと止まるので、使い始める 008 で、止まらない有料の枠（月 25 ドルから）にするかを決める",
-        "background": "壁打ちで「どのフルマネージドのサービスにするか」を決めていませんでした。ログイン（005）と同期（006）の作りが、このサービスの上に乗ります",
+        "summary": "データを預かるサーバーは Supabase（データベース、ログイン、変更の知らせを運用まで任せられるサービス）を使う。サーバーはページの書き換えの差分を預かって相手のパソコンに知らせるだけで、合わせるのは各パソコンが行う。手元では Supabase の CLI で Docker の上に同じものを起こす。使い始めるのは 005 から",
+        "decision": "Supabase の Postgres、Auth、Realtime を使い、Edge Functions（サーバーの処理）は使わない。同期（006）は、各パソコンが Yjs の差分を Postgres の表（持ち主、ページ、差分）に足し、表に足されたことを Realtime の Broadcast（データベースから送る realtime.broadcast_changes）で同じアカウントのもう一方のパソコンに知らせ、受けたパソコンが差分を取って自分の文書に合わせる。つながっていなかった間の差分は、つながったときに表から取る。差分がたまったら、パソコンが 1 つにまとめた版を預け直す。ほかの人のページが見えないことは、Postgres の行ごとの制限（Row Level Security）と、Realtime の私用のチャンネルの制限で守る。パスワードは Supabase Auth が bcrypt でハッシュにして保存する（NFR-password-storage）。サーバーの定義（表の移し替え）は supabase/migrations/ に置く。本番のプロジェクトとデプロイは 008 で決める",
+        "reason": "2 台の書き換えを文字の単位で合わせるのは CRDT（Yjs）が各パソコンで行い、差分はどの順に届いても同じ結果になるので、サーバーは差分を積んで知らせるだけでよい（RULE-merge-edits）。積んだ差分は消えないので、つながっていない間の書き換えも後から届く（RULE-works-offline）。データベースから送る Broadcast の遅れは、Supabase の計測で中央値 46 ミリ秒、遅い方の 5% でも 132 ミリ秒で、3 秒以内に出す（NFR-sync-delay）に十分な余裕がある。1 回に送れる大きさ（無料の枠で 256 KB）は、打った分の差分なら収まり、大きな初めの同期は知らせでなく表から取る。フルマネージドの希望に合い、データベース、ログイン、変更の知らせが 1 つのサービスにまとまっていて、手元でも Docker で同じものを動かせる。費用は、無料の枠（データベース 500 MB、プロジェクト 2 つ、使う人 5 万人まで）で、自分一人で使う間は足りる見込み。無料の枠のプロジェクトは 1 週間使わないと止まるので、使い始める 008 で、止まらない有料の枠（月 25 ドルから）にするかを決める",
+        "background": "壁打ちで「どのフルマネージドのサービスにするか（2 台の書き換えを文字の単位で合わせる仕組みとの相性も含めて）」を決めていませんでした。ログイン（005）と同期（006）の作りが、このサービスの上に乗ります",
         "alternatives": [
           {
+            "option": "Cloudflare（Durable Objects、D1）",
+            "effect": "Yjs の中継に向くが、ログインを自分で作る"
+          },
+          {
             "option": "Firebase",
-            "effect": "手元で Docker で動かせず、行ごとの制限の書き方が独自"
+            "effect": "差分を積んで知らせられるが、手元で Docker で動かせない"
           },
           {
             "option": "AWS（Cognito、AppSync、DynamoDB など）",
-            "effect": "組み合わせる部品が多く、手元で動かしにくい"
+            "effect": "差分を知らせる部品の組み合わせが多く、手元で動かしにくい"
           },
           {
             "option": "GCP（Cloud Run、Cloud SQL など）",
-            "effect": "データベースが常に課金され、安くならない"
-          },
-          {
-            "option": "Cloudflare（Durable Objects、D1）",
-            "effect": "ログインの仕組みを自分で作ることになる"
+            "effect": "差分を中継する処理を自分で動かし、常に課金される"
           }
         ],
-        "if_changed": "ログインと同期のサーバー側とアプリの同期の処理を作り直し、預けたページを新しいサービスへ移します。パソコンの中のデータの形（TECH-local-data）はそのまま使えます",
+        "if_changed": "ログインと同期のサーバー側とアプリの同期の処理を作り直し、預けたページを新しいサービスへ移します。パソコンの中のデータの形（TECH-local-data）と、合わせる仕組み（Yjs）はそのまま使えます",
         "sources": [
           "https://supabase.com/pricing",
-          "https://github.com/supabase/auth"
+          "https://github.com/supabase/auth",
+          "https://supabase.com/docs/guides/realtime/benchmarks",
+          "https://supabase.com/docs/guides/realtime/limits"
         ]
       }
     },
@@ -266,7 +283,7 @@
       "after": {
         "id": "TECH-dev-host",
         "summary": "試す場（devhost）を Rust で作る。アプリと同じコマンドの処理を HTTP で受け、ビルドした画面を配る。e2e、API のテスト、人がブラウザで画面を開くときに使う",
-        "decision": "axum の小さなサーバー（crates/devhost）。画面は Tauri の invoke の代わりに HTTP でコマンドを呼ぶ（apps/desktop/src/bridge が切り替える）。コマンドの処理と失敗の写し方は Tauri と同じもの（crates/commands）を使う。テストのための受け口（時計、データの分け方、わざと失敗させるコマンド）は e2e の feature でビルドしたときだけ入る",
+        "decision": "axum の小さなサーバー（crates/devhost）。コマンドの入口は crates/commands の dispatch 1 つだけにする（コマンドの名前と JSON の引数を受け、JSON の結果か失敗の形を返し、想定外の失敗と panic もここで internal に変える）。Tauri のアプリは汎用のコマンド invoke_command 1 つから dispatch を呼ぶだけ、試す場の POST /api/invoke/<コマンド> も dispatch を呼ぶだけにし、アプリだけを通る処理を持たない。画面の bridge は、どちらの道でも同じ名前と同じ JSON の引数を渡す。テストのための受け口（時計、データの分け方、わざと失敗させるコマンド）は e2e の feature でビルドしたときだけ入る",
         "reason": "Mac の WKWebView は Playwright で操作できないため、同じ処理を HTTP でつなぎ、ブラウザで画面と処理のつなぎ目まで確かめる。人もブラウザで開いて試せる"
       }
     },
@@ -315,7 +332,7 @@
       "after": {
         "id": "TECH-audit",
         "summary": "脆弱性の検査は npm audit（High 以上で落とす）と cargo audit（既知の脆弱性があれば深刻度によらず落とす）で行う",
-        "decision": "npm audit --audit-level=high と cargo audit。RustSec の勧告には深刻度の無いものが多く High だけに絞れないので、Rust 側は既知の脆弱性すべてで落とす（000 の線より厳しい側）。保守されていない、取り下げられた、の知らせだけでは落とさない"
+        "decision": "npm audit --audit-level=high と cargo audit。RustSec の勧告には深刻度の無いものが多く High だけに絞れないので、Rust 側は既知の脆弱性すべてで落とす（000 の線より厳しい側）。保守されていない、取り下げられた、の知らせだけでは落とさない。サーバーは Supabase の Postgres、Auth、Realtime だけを使い、こちらで依存のライブラリを置かない（表の移し替えの SQL だけ）ので、サーバー側はこの 2 つで足りる。後で Edge Functions などの依存を持つサーバーの処理を足すチケットは、その依存を調べるコマンドを audit に足す"
       }
     },
     {
@@ -405,7 +422,7 @@
       "after": {
         "id": "TECH-release",
         "summary": "版の印（v で始まるタグ）を付けて送ったときだけ、Mac と Windows のアプリをビルドし、GitHub の下書きのリリースに置く。main へのマージでは何も起きない。署名はせず、新しい版は自分で入れ直す（自動のアップデートは一般に配るときに足す）",
-        "decision": ".github/workflows/release.yml（きっかけは push の tags 'v*' だけ）。tauri-apps/tauri-action で Mac（.dmg）と Windows（.msi と .exe）を作る。署名と公証、サーバーのデプロイは 008 で決める"
+        "decision": ".github/workflows/release.yml（きっかけは push の tags 'v*' だけ）。tauri-apps/tauri-action で Mac（.dmg。引数 --target universal-apple-darwin で、Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリにする）と Windows（.msi と .exe）を作る。署名と公証、サーバーのデプロイは 008 で決める"
       }
     },
     {
@@ -577,6 +594,34 @@
       }
     },
     {
+      "key": "_tech/AC-errors-3",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-errors-3",
+        "aspect": "errors",
+        "when": "e2e の feature でビルドした Tauri のアプリの汎用のコマンド invoke_command を、Tauri の試しの仕組み（tauri::test の mock runtime）で、名前 __test_panic と __test_fail、それに引数を持つふつうのコマンド（now）で呼ぶ",
+        "then": "__test_panic と __test_fail は、試す場と同じ {\"kind\":\"internal\",\"reason\":\"internal\"} だけが返り、panic の文もファイルの場所も返らない。now は、試す場で同じ引数で呼んだときと同じ形の結果が返る",
+        "checked_by": "test"
+      }
+    },
+    {
+      "key": "_tech/AC-structure-4",
+      "kind": "AC",
+      "area": "_tech",
+      "parent": null,
+      "change": "added",
+      "after": {
+        "id": "AC-structure-4",
+        "aspect": "structure",
+        "when": "画面の bridge を、Tauri の中の形（@tauri-apps/api/mocks の mockIPC）と、ブラウザの形（試す場への HTTP）で、同じ名前と同じ引数で呼ぶ",
+        "then": "Tauri の中の形では invoke_command に名前と引数が変えられずにそのまま渡り、ブラウザの形では POST /api/invoke/<名前> に同じ引数が本文で渡る。どちらでも、返った失敗の形がそのまま画面に渡る。Tauri のアプリが登録するコマンドは invoke_command だけ",
+        "checked_by": "test"
+      }
+    },
+    {
       "key": "_tech/AC-structure-1",
       "kind": "AC",
       "area": "_tech",
@@ -627,8 +672,8 @@
       "after": {
         "id": "AC-dev-env-1",
         "aspect": "dev-env",
-        "when": "準備のコマンド（npm run setup）を流した後の環境を見る",
-        "then": ".browsers/ に Chromium と WebKit があり、cargo nextest、cargo llvm-cov、cargo audit が動き、Node.js の版が .node-version のメジャー版と同じ",
+        "when": "道具をそろえた環境（手元は準備のコマンド npm run setup の後、CI はジョブの準備の段の後）を見る",
+        "then": ".browsers/ に Chromium と WebKit があり、cargo nextest、cargo llvm-cov、cargo audit が動き、rust-toolchain.toml の部品（clippy、rustfmt、llvm-tools-preview）が入り、Node.js の版が .node-version のメジャー版と同じ",
         "checked_by": "test"
       }
     },
@@ -712,7 +757,7 @@
         "id": "AC-deploy-1",
         "aspect": "deploy",
         "when": "版の印（例 v0.0.1）を付けて GitHub に送る",
-        "then": "Mac（.dmg）と Windows（.msi と .exe）のアプリがビルドされ、GitHub の下書きのリリースに置かれる。それぞれを Mac と Windows に入れて開くと、アプリの土台の窓が開く（署名をしないので、Mac では初めて開くときに右クリックの「開く」が要る）",
+        "then": "Mac（.dmg。Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリ）と Windows（.msi と .exe）のアプリがビルドされ、GitHub の下書きのリリースに置かれる。それぞれを Mac と Windows に入れて開くと、アプリの土台の窓が開く（署名をしないので、Mac では初めて開くときに右クリックの「開く」が要る）",
         "checked_by": "human"
       }
     }
@@ -733,6 +778,13 @@
   "area_nfr": [],
   "main_overlap": null,
   "affects": [
+    {
+      "kind": "shared",
+      "name": "アプリは Rust で作る（人の指定。速さを大事にするため）",
+      "reason": "前提の事実を変える",
+      "before_after": "前「アプリは Rust で作る（人の指定。」、後「アプリの処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（人の指定。」",
+      "source": "spec-diff"
+    },
     {
       "kind": "tickets",
       "name": "ページを作って左の並びから開く",
