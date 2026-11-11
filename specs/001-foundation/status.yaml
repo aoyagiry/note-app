@@ -28,3 +28,5 @@ log:
   - { at: 2026-11-11T05:04:01Z, stage: hearing, note: 完了 2026-11-11T05:03:50Z 状態：完了 SR-009〜SR-011 を直した。FACT-rust を元に戻し、Supabase とのやり取りを画面の側の sync に決め、Q-004 に反映 }
   - { at: 2026-11-11T05:04:17Z, stage: spec-review, note: 起動 2026-11-11T05:04:17Z reviewer spec-review cycle 3 head-before df908bcb9319e06a06f9d5cec99dd637f26688b3 }
   - { at: 2026-11-11T05:06:53Z, stage: spec-review, note: 完了 2026-11-11T05:06:41Z 状態：完了 指摘 2 件（SR-012、SR-013）を reviews/spec/03-c3.yaml に書いた }
+  - { at: 2026-11-11T05:06:57Z, stage: hearing, note: 再開 2026-11-11T05:06:57Z specification foundation-hearing 仕様のレビュー 3 回目の指摘を直す head-before bfe7c7bc1e09454792ab8d0be191f1b46ea5e09d }
+  - { at: 2026-11-11T05:08:03Z, stage: hearing, note: 完了 2026-11-11T05:07:52Z 状態：完了 SR-012、SR-013 を、細部の決め事を消して 005 と 006 の計画に任せる形で直した }

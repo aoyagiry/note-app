@@ -15,7 +15,7 @@
 | 文節の区切り | BudouX（budoux） |
 | 試す場 | axum（crates/devhost） |
 | データの形の共有 | crates/protocol と ts-rs |
-| サーバー（005 から） | Supabase（Postgres、Auth、Realtime。Edge Functions は使わない）。アプリからは画面の側の supabase-js でやり取りする。ログインの情報は keyring で OS の鍵の置き場所に置く。手元は Supabase の CLI と Docker |
+| サーバー（005 から） | Supabase（Postgres、Auth、Realtime。Edge Functions は使わない）。アプリからは画面の側の supabase-js でやり取りする。手元は Supabase の CLI と Docker |
 | テスト | Vitest、Playwright（Chromium、WebKit）、cargo-nextest |
 | カバレッジ | Vitest の v8、cargo-llvm-cov |
 | 書き方の検査 | ESLint、Prettier、rustfmt、clippy |
@@ -47,20 +47,18 @@
 - 画面は bridge 以外から処理を呼ばない。bridge は、Tauri の中（window.__TAURI_INTERNALS__ がある）なら `invoke("invoke_command", { name, args })`、そうでなければ同じ origin の `POST /api/invoke/<name>`（本文は args）を呼ぶ。どちらの道でも、同じ名前と同じ JSON の引数を渡し、返った失敗の形をそのまま渡す
 - 画面の「今」（日付、時刻、時刻で変わる背景の空の色）は、コマンド now で処理から受け取る。画面で Date.now() や new Date() を「今」に使わない（試す場を --clock で起こしたときに、画面の今も変わるように）。受け取った後の秒の進みは、受け取った時刻と performance.now() の差で足す
 - ネットにつながっていなくても、ページの操作はすべてパソコンの中のデータに対して行う（RULE-works-offline）。サーバーへの同期は裏で行い、操作の結果を待たせない
-- Supabase とやり取りするのは、画面の側の sync（公式のクライアント supabase-js）だけにする。Supabase には Rust の公式のクライアントが無いため（下の「同期の受け持ち」）
+- データの形は crates/protocol に Rust で書き、ts-rs で TypeScript の型を packages/protocol/src/generated/ に生成する（npm run gen。生成したものはコミットしない）
+- Supabase とやり取りするのは、画面の側の sync（公式のクライアント supabase-js）だけにする。Supabase には Rust の公式のクライアントが無いため
 
 ### 同期の受け持ち（005、006）
 
 | 受け持つもの | 置き場所 |
 | --- | --- |
 | ページのデータ、Yjs の文書、まだ預けていない差分の記録、届いた差分を合わせること（CRDT） | 処理（crates/core。yrs） |
-| ログイン、トークンの更新、差分を表に足す、表から取る、Realtime の私用のチャンネルで知らせを受ける | 画面の側の sync（supabase-js） |
-| ログインの情報（トークン）の保存 | 処理が OS の鍵の置き場所（Mac のキーチェーン、Windows の資格情報マネージャー。keyring の crate）に置く。sync は supabase-js の storage を、処理のコマンドで読み書きする形に差し替える |
+| ログイン、差分を預ける、預けた差分を取る、変更の知らせを受ける | 画面の側の sync（supabase-js） |
 
-- 流れ：sync は、処理のコマンドで「まだ預けていない差分」を受け取り（Yjs の差分は base64 の文字列で JSON に入れる）、表に足し、足せたら処理に「預けた」と知らせる。知らせを受けるか、つながり直したら、表から前に取った所より後の差分を取り、処理のコマンドで合わせる。合わせ方は処理だけが決め、sync は差分の中身を読まない
-- sync はアプリが開いている間（窓が見えていない間も含む）に動く。窓を閉じたときにアプリを残すかは 006 で決める
-- e2e では、試す場の画面でも同じ sync が動き、手元の Supabase（Docker）を相手にする
-- データの形は crates/protocol に Rust で書き、ts-rs で TypeScript の型を packages/protocol/src/generated/ に生成する（npm run gen。生成したものはコミットしない）
+- sync と処理の間の差分の受け渡しは、bridge のコマンドで行う。合わせ方は処理だけが決め、sync は差分の中身を読まない
+- これより細かいこと（ログインの情報の保存の仕方、差分の受け渡しの形、窓を閉じた後の同期、e2e と CI で sync が相手にする Supabase）は、005 と 006 の計画で決める（CI での置き方は、問い Q-003 の答えにもよる）
 
 ## 標準のファイル構成
 
