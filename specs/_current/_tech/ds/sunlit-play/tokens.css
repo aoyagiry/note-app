@@ -1,0 +1,161 @@
+/* ひだまりの遊び：値（tokens.json と同じ一覧から書いた）。明るい地を :root に、暗い地を [data-theme="dark"] に書く */
+@import url("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Nunito:wght@500;700&display=swap");
+
+:root,
+[data-theme="light"] {
+  /* 色：明るい地（砂色の地に白い紙。素焼きの橙を一点。空のにじみは朝） */
+  --color-surface-base: #f0ebe2;
+  --color-surface-raised: #fffdf9;
+  --color-surface-sunken: #e7e1d5;
+  --color-surface-overlay: rgba(60, 50, 40, 0.16);
+  --color-sky-1: #f7d6c2;
+  --color-sky-2: #f3e6bd;
+  --color-sky-3: #d8e3e8;
+  --color-sun: #f2b27c;
+  --color-text-primary: #2a2724;
+  --color-text-secondary: #5e574f;
+  --color-text-muted: #6f675c;
+  --color-border-subtle: #e8e2d7;
+  --color-border-strong: #d6cdbf;
+  --color-border-control: #8a8276;
+  --color-edge: #ddd4c5;
+  --color-accent-default: #b5532f;
+  --color-accent-hover: #9f4626;
+  --color-accent-subtle: #fae3d6;
+  --color-accent-edge: #7f361c;
+  --color-accent-on: #ffffff;
+  --color-accent-text: #9a4425;
+  --color-highlight: #fbdf9c;
+  --color-danger-default: #ad3b2f;
+  --color-danger-subtle: #f8e0db;
+  --color-success-default: #436e4a;
+  --color-success-subtle: #e6eee2;
+  --color-focus: #b5532f;
+  --color-mark-1: #e7a585;
+  --color-mark-2: #a8c398;
+  --color-mark-3: #9dbccf;
+  --color-mark-4: #c6add2;
+  /* 影 */
+  --shadow-raised: 0 1px 2px rgba(60, 50, 40, 0.06), 0 8px 24px -12px rgba(60, 50, 40, 0.2);
+  --shadow-overlay: 0 2px 6px rgba(60, 50, 40, 0.06), 0 24px 48px -16px rgba(60, 50, 40, 0.3);
+  --shadow-edge: 0 2px 0 #ddd4c5;
+  --shadow-edge-accent: 0 2px 0 #7f361c;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  /* 色：暗い地（焦げ茶の地に灯りの橙。空のにじみは同じ時刻を夜の色で） */
+  --color-surface-base: #1b1917;
+  --color-surface-raised: #26231f;
+  --color-surface-sunken: #151412;
+  --color-surface-overlay: rgba(0, 0, 0, 0.45);
+  --color-sky-1: #3b2a22;
+  --color-sky-2: #352f1f;
+  --color-sky-3: #1f2a31;
+  --color-sun: #c98a57;
+  --color-text-primary: #f0ebe3;
+  --color-text-secondary: #b4ab9f;
+  --color-text-muted: #958d82;
+  --color-border-subtle: #322e29;
+  --color-border-strong: #4a443c;
+  --color-border-control: #7a7267;
+  --color-edge: #0f0e0c;
+  --color-accent-default: #ef8b63;
+  --color-accent-hover: #f6a383;
+  --color-accent-subtle: #3b261d;
+  --color-accent-edge: #a8573a;
+  --color-accent-on: #1b1917;
+  --color-accent-text: #f6a383;
+  --color-highlight: #5a4520;
+  --color-danger-default: #ef8a7a;
+  --color-danger-subtle: #3a1f1b;
+  --color-success-default: #9dbf9f;
+  --color-success-subtle: #1f2a20;
+  --color-focus: #ef8b63;
+  --color-mark-1: #b8775c;
+  --color-mark-2: #7f9a70;
+  --color-mark-3: #6f8fa3;
+  --color-mark-4: #977fa3;
+  /* 影 */
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.75);
+  --shadow-edge: 0 2px 0 #0f0e0c;
+  --shadow-edge-accent: 0 2px 0 #a8573a;
+  color-scheme: dark;
+}
+
+:root {
+  /* 文字 */
+  --type-family-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-text: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-numeric: "Nunito", "Zen Maru Gothic", sans-serif;
+  --type-size-xs: 0.75rem;
+  --type-size-sm: 0.8125rem;
+  --type-size-md: 0.9375rem;
+  --type-size-lg: 1.0625rem;
+  --type-size-xl: 1.375rem;
+  --type-size-2xl: 2rem;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-bold: 700;
+  --type-weight-heavy: 900;
+  --type-leading-tight: 1.35;
+  --type-leading-snug: 1.7;
+  --type-leading-body: 1.85;
+  --type-tracking-wide: 0.03em;
+  /* 文字の役（font の一括指定で使う：font: var(--type-role-body)） */
+  --type-role-title: var(--type-weight-heavy) var(--type-size-2xl)/var(--type-leading-tight) var(--type-family-display);
+  --type-role-heading: var(--type-weight-bold) var(--type-size-xl)/var(--type-leading-tight) var(--type-family-display);
+  --type-role-body: var(--type-weight-regular) var(--type-size-md)/var(--type-leading-body) var(--type-family-text);
+  --type-role-label: var(--type-weight-medium) var(--type-size-sm)/var(--type-leading-snug) var(--type-family-text);
+  --type-role-button: var(--type-weight-bold) var(--type-size-sm)/var(--type-leading-snug) var(--type-family-text);
+  --type-role-numeric: var(--type-weight-bold) var(--type-size-xs)/var(--type-leading-snug) var(--type-family-numeric);
+  --type-role-error: var(--type-weight-medium) var(--type-size-sm)/var(--type-leading-snug) var(--type-family-text);
+
+  /* 間隔 */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+  --spacing-9: 48px;
+  --spacing-10: 64px;
+
+  /* 角の丸み */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-full: 999px;
+
+  /* 動き */
+  --motion-duration-instant: 90ms;
+  --motion-duration-fast: 160ms;
+  --motion-duration-base: 240ms;
+  --motion-duration-draw: 320ms;
+  --motion-duration-pulse: 1200ms;
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance-press: 2px;
+  --motion-distance-enter: 8px;
+  --motion-distance-ring: 8px;
+  --motion-scale-press: 0.97;
+  --motion-scale-pop: 0.8;
+
+  /* 大きさ */
+  --size-control: 36px;
+  --size-check: 20px;
+  --size-chevron: 6px;
+
+  /* 線 */
+  --border-width-hairline: 1px;
+  --border-width-control: 2px;
+  --border-width-focus: 2px;
+
+  /* 効果 */
+  --effect-opacity-disabled: 0.45;
+  --effect-opacity-busy: 0.7;
+}

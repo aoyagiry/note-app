@@ -1,0 +1,390 @@
+/* ひだまりの遊び：土台の CSS。値は tokens.css の変数だけで書く。
+   セレクタは要素、状態、data 属性だけで書き、すべて :where() で包む（詳細度 0。画面の CSS がいつでも上書きできる） */
+
+/* ---------- 地と文字 ---------- */
+:where(html) {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+:where(body) {
+  margin: 0;
+  background: var(--color-surface-base);
+  color: var(--color-text-primary);
+  font: var(--type-role-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color var(--motion-duration-base) var(--motion-easing-standard),
+    color var(--motion-duration-base) var(--motion-easing-standard);
+}
+:where(*, *::before, *::after) {
+  box-sizing: border-box;
+}
+::selection {
+  background: var(--color-highlight);
+  color: var(--color-text-primary);
+}
+
+/* ---------- 1. 日本語の行の折り返し ----------
+   auto-phrase は Chromium（Windows の WebView2）だけが対応し、WebKit（Mac の WKWebView）では捨てられて keep-all が残る。
+   keep-all で折り返せない長い文は、<Text> が BudouX で入れる <wbr> で文節の間を折り返す。
+   overflow-wrap: anywhere は BudouX が勧める組み合わせ（区切りの無い長い語だけを、はみ出す所で折る） */
+:where(:root) {
+  line-break: strict;
+  word-break: keep-all;
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+/* 文に入れた値（名前など）：行に収まらなければ丸ごと次の行へ送り、1 行より長い値だけ中で折り返す */
+:where([data-value]) {
+  display: inline-block;
+  max-width: 100%;
+}
+/* 1 行で切る欄：入りきらない所を「…」にする。中の値は inline に戻す（inline-block のままだと値が丸ごと「…」になる） */
+:where([data-truncate]) {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+:where([data-truncate] [data-value]) {
+  display: inline;
+}
+
+/* ---------- 2. 操作の応答と動き ---------- */
+
+/* 押せる物の共通：色と形の移り変わり。離すと小さく弾んで戻る */
+:where(button, a, summary, select, [role="button"], [role="tab"], [role="option"], [role="menuitem"], input[type="checkbox"]) {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--motion-duration-fast) var(--motion-easing-spring),
+    box-shadow var(--motion-duration-fast) var(--motion-easing-standard),
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard),
+    color var(--motion-duration-fast) var(--motion-easing-standard),
+    opacity var(--motion-duration-fast) var(--motion-easing-standard);
+}
+:where(button) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+:where(a) {
+  color: var(--color-accent-text);
+  text-decoration-thickness: var(--border-width-hairline);
+  text-underline-offset: 0.2em;
+}
+
+/* 厚みの無い押せる物（行、項目）：押すと少し縮む */
+:where(button:not([data-variant]):active:not(:disabled), summary:active, [role="button"]:active, [role="tab"]:active, [role="option"]:active, [role="menuitem"]:active) {
+  transform: scale(var(--motion-scale-press));
+  transition-duration: var(--motion-duration-instant);
+}
+
+/* ボタン：下に厚みがあり、押すとその分だけ沈む */
+:where(button[data-variant], [data-press]) {
+  box-shadow: var(--shadow-edge);
+}
+:where(button[data-variant]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  min-height: var(--size-control);
+  padding: 0 var(--spacing-5);
+  border-radius: var(--radius-full);
+  font: var(--type-role-button);
+  white-space: nowrap;
+}
+:where(button[data-variant="primary"]) {
+  background: var(--color-accent-default);
+  color: var(--color-accent-on);
+  box-shadow: var(--shadow-edge-accent);
+}
+:where(button[data-variant="secondary"]) {
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-strong), var(--shadow-edge);
+}
+@media (hover: hover) {
+  :where(button[data-variant="primary"]:hover:not(:disabled)) {
+    background: var(--color-accent-hover);
+  }
+  :where(button[data-variant="secondary"]:hover:not(:disabled)) {
+    background: var(--color-surface-base);
+  }
+}
+:where(button[data-variant]:active:not(:disabled):not([aria-busy="true"]), [data-press]:active:not([aria-disabled="true"])) {
+  transform: translateY(var(--motion-distance-press));
+  box-shadow: 0 0 0 var(--color-edge);
+  transition-duration: var(--motion-duration-instant);
+}
+:where(button[data-variant="primary"]:active:not(:disabled):not([aria-busy="true"])) {
+  box-shadow: 0 0 0 var(--color-accent-edge);
+}
+:where(button[data-variant="secondary"]:active:not(:disabled):not([aria-busy="true"])) {
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-strong), 0 0 0 var(--color-edge);
+}
+
+/* フォーカス：輪が外から寄ってきて止まる（キーボードで動かしたときだけ） */
+:where(:focus-visible) {
+  outline: var(--border-width-focus) solid var(--color-focus);
+  outline-offset: var(--border-width-focus);
+  animation: aidd-focus-in var(--motion-duration-fast) var(--motion-easing-standard);
+}
+:where(:focus:not(:focus-visible)) {
+  outline: none;
+}
+@keyframes aidd-focus-in {
+  from {
+    outline-offset: var(--motion-distance-ring);
+    outline-color: transparent;
+  }
+}
+
+/* 送っている間：押せないまま、ゆっくり息づく。待っていることが見え、押し直されない */
+:where([aria-busy="true"]) {
+  cursor: progress;
+}
+:where(button[aria-busy="true"]) {
+  pointer-events: none;
+  animation: aidd-busy var(--motion-duration-pulse) var(--motion-easing-standard) infinite alternate;
+}
+@keyframes aidd-busy {
+  to {
+    opacity: var(--effect-opacity-busy);
+  }
+}
+
+/* 押せない物：薄くして、厚みと応答を消す */
+:where(:disabled, [aria-disabled="true"]) {
+  opacity: var(--effect-opacity-disabled);
+  cursor: not-allowed;
+}
+:where(button[data-variant]:disabled, [data-press][aria-disabled="true"]) {
+  box-shadow: none;
+}
+
+/* 知らせ：下から少し上がって、小さく弾んで出る。消すときは data-leaving を付け、animationend の後に外す */
+:where([role="status"], [role="alert"]) {
+  animation: aidd-notice-in var(--motion-duration-base) var(--motion-easing-spring) both;
+}
+:where([role="status"][data-leaving], [role="alert"][data-leaving]) {
+  animation: aidd-notice-out var(--motion-duration-fast) var(--motion-easing-exit) both;
+}
+@keyframes aidd-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-enter));
+  }
+}
+@keyframes aidd-notice-out {
+  to {
+    opacity: 0;
+    transform: translateY(calc(var(--motion-distance-enter) / -2));
+  }
+}
+
+/* ---------- 3. 入力の部品の形 ---------- */
+
+/* 文字の入力欄、プルダウン、日付と時刻：同じ高さ、同じ丸み、同じ枠 */
+:where(
+    input:not([type]),
+    input[type="text"],
+    input[type="search"],
+    input[type="email"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select
+  ) {
+  font: var(--type-role-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-raised);
+  border: var(--border-width-hairline) solid var(--color-border-control);
+  border-radius: var(--radius-md);
+  min-height: var(--size-control);
+  padding: var(--spacing-1) var(--spacing-3);
+  margin: 0;
+  max-width: 100%;
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-easing-standard),
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    outline-offset var(--motion-duration-fast) var(--motion-easing-standard);
+}
+:where(textarea) {
+  padding: var(--spacing-2) var(--spacing-3);
+  resize: vertical;
+}
+@media (hover: hover) {
+  :where(input:not([type="checkbox"], [type="file"]):hover:not(:disabled):not(:focus), textarea:hover:not(:disabled):not(:focus), select:hover:not(:disabled):not(:focus)) {
+    border-color: var(--color-text-secondary);
+  }
+}
+/* 文字を打つ欄は、クリックで入ったときもフォーカスを見せる（打つ場所が分かるように） */
+:where(input:not([type="checkbox"], [type="file"]):focus, textarea:focus, select:focus) {
+  border-color: var(--color-focus);
+  outline: var(--border-width-focus) solid var(--color-focus);
+  outline-offset: 0;
+  animation: none;
+}
+:where(input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"]) {
+  border-color: var(--color-danger-default);
+}
+:where(input, textarea)::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+/* プルダウン：端末の見た目を外し、右に下向きの印 */
+:where(select) {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: calc(var(--spacing-4) * 2 + var(--size-chevron));
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-text-secondary) 50%),
+    linear-gradient(135deg, var(--color-text-secondary) 50%, transparent 50%);
+  background-position:
+    calc(100% - var(--spacing-4) - var(--size-chevron)) 55%,
+    calc(100% - var(--spacing-4)) 55%;
+  background-size: var(--size-chevron) var(--size-chevron);
+  background-repeat: no-repeat;
+}
+:where(select option) {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+}
+
+/* 日付と時刻：数字は Nunito で桁をそろえる。暦と時計の印は color-scheme で明るさに合う */
+:where(input[type="date"], input[type="time"]) {
+  font-family: var(--type-family-numeric);
+  font-variant-numeric: tabular-nums;
+  cursor: text;
+}
+:where(input[type="date"], input[type="time"])::-webkit-datetime-edit {
+  padding: 0;
+}
+:where(input[type="date"], input[type="time"])::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+:where(input[type="date"], input[type="time"])::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-1);
+  opacity: 0.7;
+  transition: opacity var(--motion-duration-fast) var(--motion-easing-standard),
+    background-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+:where(input[type="date"], input[type="time"])::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: var(--color-surface-sunken);
+}
+
+/* ファイルを選ぶ：選ぶボタンは白いボタンと同じ形、横に選んだファイルの名前 */
+:where(input[type="file"]) {
+  font: var(--type-role-label);
+  color: var(--color-text-secondary);
+  max-width: 100%;
+  cursor: pointer;
+}
+:where(input[type="file"])::file-selector-button {
+  font: var(--type-role-button);
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+  border: 0;
+  border-radius: var(--radius-full);
+  min-height: var(--size-control);
+  padding: 0 var(--spacing-5);
+  margin-right: var(--spacing-3);
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-strong), var(--shadow-edge);
+  cursor: pointer;
+  transition:
+    transform var(--motion-duration-fast) var(--motion-easing-spring),
+    box-shadow var(--motion-duration-fast) var(--motion-easing-standard),
+    background-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+:where(input[type="file"]:hover:not(:disabled))::file-selector-button {
+  background: var(--color-surface-base);
+}
+:where(input[type="file"]:active:not(:disabled))::file-selector-button {
+  transform: translateY(var(--motion-distance-press));
+  box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-border-strong), 0 0 0 var(--color-edge);
+  transition-duration: var(--motion-duration-instant);
+}
+
+/* チェック：押すと縮み、印が左から引かれ、まわりに一度だけ波が出る。
+   波は box-shadow の移り変わりで出す（animation にすると、済みのチェックが並んだページを開くたびに一斉に波打つため） */
+:where(input[type="checkbox"]) {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-content: stretch;
+  flex: none;
+  width: var(--size-check);
+  height: var(--size-check);
+  margin: 0;
+  vertical-align: middle;
+  border: var(--border-width-control) solid var(--color-border-control);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-edge), 0 0 0 0 var(--color-accent-subtle);
+  cursor: pointer;
+  transition:
+    transform var(--motion-duration-fast) var(--motion-easing-spring),
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard),
+    box-shadow var(--motion-duration-draw) var(--motion-easing-standard);
+}
+:where(input[type="checkbox"])::after {
+  content: "";
+  background: var(--color-accent-on);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / 100% no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / 100% no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--motion-duration-draw) var(--motion-easing-standard);
+}
+:where(input[type="checkbox"]:active:not(:disabled)) {
+  transform: scale(var(--motion-scale-pop));
+  transition-duration: var(--motion-duration-instant);
+}
+:where(input[type="checkbox"]:checked) {
+  background: var(--color-accent-default);
+  border-color: var(--color-accent-default);
+  box-shadow: var(--shadow-edge-accent), 0 0 0 var(--motion-distance-ring) transparent;
+}
+:where(input[type="checkbox"]:checked)::after {
+  clip-path: inset(0);
+}
+:where(label:has(> input[type="checkbox"])) {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  cursor: pointer;
+}
+:where(label:has(> input[type="checkbox"])) > :where(input[type="checkbox"]) {
+  margin-top: calc((1lh - var(--size-check)) / 2);
+}
+
+/* ---------- 動きを減らす設定：止めずに、短く穏やかにする ----------
+   動く距離、縮み、弾みを 0 にし、長さを短くする。色と濃さの移り変わり（フェード）は残す */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: var(--motion-duration-instant);
+    --motion-duration-base: var(--motion-duration-instant);
+    --motion-duration-draw: var(--motion-duration-instant);
+    --motion-easing-spring: var(--motion-easing-standard);
+    --motion-distance-press: 0px;
+    --motion-distance-enter: 0px;
+    --motion-distance-ring: 0px;
+    --motion-scale-press: 1;
+    --motion-scale-pop: 1;
+  }
+}
