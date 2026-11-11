@@ -1,0 +1,111 @@
+acceptance:
+  - id: AC-test-levels-1
+    aspect: test-levels
+    when: 一時のフォルダ（apps/desktop/src/zztmp/）に、必ず通る見本と必ず落ちる見本の単体テストを置き、それぞれのファイルだけを test-unit のコマンドの末尾に渡して流す（Red の印 AIDD_RED を除いた環境で）
+    then: 通る見本は終了コード 0、落ちる見本は 0 以外で終わる。終わった後に一時のフォルダは消える
+    checked_by: test
+  - id: AC-test-levels-2
+    aspect: test-levels
+    when: 一時のフォルダ（tests/api/zztmp/）に、試す場のコマンドを呼んで必ず通る見本と必ず落ちる見本の API のテストを置き、それぞれのファイルだけを test-api のコマンドの末尾に渡して流す（AIDD_RED を除いた環境で）
+    then: 通る見本は終了コード 0、落ちる見本は 0 以外で終わる
+    checked_by: test
+  - id: AC-test-levels-3
+    aspect: test-levels
+    when: 一時のフォルダ（crates/core/tests/zztmp_pass/main.rs と crates/core/tests/zztmp_fail/main.rs）に、必ず通る見本と必ず落ちる見本の Rust のテストを置き、それぞれのファイルだけを test-rust のコマンドの末尾に渡して流す（AIDD_RED を除いた環境で）
+    then: 通る見本は終了コード 0、落ちる見本は 0 以外で終わる
+    checked_by: test
+  - id: AC-test-levels-4
+    aspect: test-levels
+    when: 一時のフォルダ（e2e/zztmp/）に、一時的な画面（テストの中で中身を置いた画面）を開いて撮る、必ず通る見本と必ず落ちる見本の e2e を置き、それぞれのファイルだけを test-e2e のコマンドの末尾に渡して流す（AIDD_RED を除いた環境で）
+    then: 通る見本は終了コード 0、落ちる見本は 0 以外で終わる。通る見本を流すと、e2e-screenshots/zztmp--SCR-sample--desktop.png ができ、e2e-screenshots/ のほかの画像は消えない
+    checked_by: test
+  - id: AC-test-levels-5
+    aspect: test-levels
+    when: AIDD_RED=1 を付けて、一時のフォルダの通る見本の e2e を test-e2e のコマンドで流す
+    then: desktop の project だけが流れ、phone と webkit の project は流れない
+    checked_by: test
+  - id: AC-visual-regression-1
+    aspect: visual-regression
+    when: 一時的な画面を見本の e2e で撮った後、その画面の色を変えて同じ名前で撮り直し、.claude/aidd/lib/visual.mjs の comparePng で前と後を比べる
+    then: 違う画素の割合が toolchain.yaml の visual_threshold（0.001）を超える。色を変えずに 2 回撮ったときは超えない
+    checked_by: test
+  - id: AC-design-tokens-1
+    aspect: design-tokens
+    when: apps/desktop/src/styles/tokens.css の CSS の変数を、_tech/design.yaml の値（breakpoint を除く色、文字、間隔、角の丸みと、あれば size、border、shadow、motion、effect）と比べる
+    then: design.yaml のすべての値が、欄の道筋を kebab にしてつないだ名前の変数として、同じ値で入っている（明るい地は :root、暗い地は [data-theme="dark"]）
+    checked_by: test
+  - id: AC-design-base-1
+    aspect: design-base
+    when: apps/desktop/src/styles/base.css の中身を、_tech/ds/ の下の base.css と比べる
+    then: 中身が同じ
+    checked_by: test
+  - id: AC-design-base-2
+    aspect: design-base
+    when: apps/desktop/src/main.tsx の読み込みの順を見る
+    then: 書体、tokens.css、base.css が、ほかのどの CSS よりも先に、この順で読み込まれる
+    checked_by: test
+  - id: AC-test-report-1
+    aspect: test-report
+    when: 一時のフォルダの通る見本と落ちる見本を、test-unit、test-api、test-rust、test-e2e、test-foundation のコマンドでそれぞれ流す
+    then: reports/junit/ に、コマンドごとの JUnit XML（unit.xml、api.xml、rust.xml、e2e.xml、foundation.xml）ができ、見本のテストの名前と、通ったか落ちたかが入っている
+    checked_by: test
+  - id: AC-errors-1
+    aspect: errors
+    when: e2e の feature でビルドした試す場で、panic するコマンド（__test_panic）を HTTP で呼ぶ
+    then: 500 と本文 {"kind":"internal","reason":"internal"} だけが返り、本文にも応答の見出しにも、panic の文、スタックトレース、ファイルの場所（.rs）、crate や道具の名前と版が無い。試す場はその後もほかのコマンドに答える
+    checked_by: test
+  - id: AC-errors-2
+    aspect: errors
+    when: e2e の feature でビルドした試す場で、想定外の失敗を返すコマンド（__test_fail）を HTTP で呼ぶ
+    then: 500 と本文 {"kind":"internal","reason":"internal"} だけが返り、失敗の詳細は試す場の記録にだけ書かれる
+    checked_by: test
+  - id: AC-structure-1
+    aspect: structure
+    when: リポジトリのファイルと設定を見る
+    then: architecture.md の標準のファイル構成のとおりにあり、Cargo の workspace に crates/core、crates/commands、crates/devhost、crates/protocol、apps/desktop/src-tauri が入り、package.json に react、@tauri-apps/api、vite、vitest、@playwright/test、budoux があり、Vitest の設定は vitest.config.ts にあって vite.config.ts に無く、.gitattributes が改行を LF に揃え、.gitignore に reports/、coverage/、e2e-screenshots/、test-results/、.browsers/、.data/、target/、apps/desktop/dist/ がある
+    checked_by: test
+  - id: AC-structure-2
+    aspect: structure
+    when: playwright.config.ts の設定を、AIDD_RED がある場合と無い場合で読む
+    then: locale が ja-JP、timezoneId が Asia/Tokyo、reducedMotion が reduce、Chromium の projects の起動の引数に --lang=ja-JP、操作の待ちと移動の待ちが 5 秒、e2e の webServer が試す場を起こし、JUnit を reports/junit/e2e.xml に出し、出力先が e2e-screenshots/ と別。AIDD_RED があるときは、操作の待ちと expect の待ちが 1.5 秒、移動の待ちが 5 秒、projects が desktop だけ
+    checked_by: test
+  - id: AC-structure-3
+    aspect: structure
+    when: .github/workflows/ の定義を読む
+    then: ci.yml は、向け先が main と aidd/** の PR（下書きを除く）と main への push で、Mac と Windows の両方で流れ、ジョブに時間の上限がある。release.yml は v で始まるタグの push だけで流れる。main への push で、アプリのビルドやサーバーのデプロイをする定義は無い
+    checked_by: test
+  - id: AC-dev-env-1
+    aspect: dev-env
+    when: 準備のコマンド（npm run setup）を流した後の環境を見る
+    then: .browsers/ に Chromium と WebKit があり、cargo nextest、cargo llvm-cov、cargo audit が動き、Node.js の版が .node-version のメジャー版と同じ
+    checked_by: test
+  - id: AC-dev-env-2
+    aspect: dev-env
+    when: toolchain.yaml の start の command で試す場を起こし、url を開く
+    then: アプリの土台の画面（001 では中身の無い画面）が返り、コマンド now が答える
+    checked_by: test
+  - id: AC-dev-env-3
+    aspect: dev-env
+    when: toolchain.yaml の start の clock の {at} に 2027-05-12T16:00 を入れて試す場を起こし、コマンド now を呼ぶ
+    then: パソコンの時間帯の 2027 年 5 月 12 日 16 時 0 分が返る
+    checked_by: test
+  - id: AC-write-scopes-1
+    aspect: write-scopes
+    when: 作る役として、e2e/ の下のテストのファイル、apps/desktop/src の下の *.test.ts、playwright.config.ts、vitest.config.ts のどれかを変えて、コミットの検査（scope-check）を流す
+    then: 範囲外の変更として止められる。apps/desktop/src の下の実装のファイルだけを変えたときは止められない
+    checked_by: test
+  - id: AC-ci-1
+    aspect: ci
+    when: 何も壊さない小さな変更の PR を出す
+    then: CI が Mac と Windows の両方で流れ、すべて緑になる
+    checked_by: ci
+  - id: AC-ci-2
+    aspect: ci
+    when: 同じ PR に、必ず落ちるテストを 1 つ足して送る
+    then: CI が赤くなる
+    checked_by: ci
+  - id: AC-deploy-1
+    aspect: deploy
+    when: 版の印（例 v0.0.1）を付けて GitHub に送る
+    then: Mac（.dmg）と Windows（.msi と .exe）のアプリがビルドされ、GitHub の下書きのリリースに置かれる。それぞれを Mac と Windows に入れて開くと、アプリの土台の窓が開く（署名をしないので、Mac では初めて開くときに右クリックの「開く」が要る）
+    checked_by: human

@@ -14,3 +14,5 @@ log:
   - { at: 2026-11-10T10:00:22Z, stage: hearing-premise, note: 完了 2026-11-10T10:00:12Z 状態：完了 前提の問い 2 つ（見た目の案、新しい版の入れ方）を questions.yaml に書いた }
   - { at: 2026-11-10T10:05:52Z, stage: design-candidates, note: 起動 2026-11-10T10:05:52Z designer design-system 候補の回（2 回目、遊びを足す） head-before 42be69472a7765d2b10cc82ef23ebe80de788f8c }
   - { at: 2026-11-11T04:22:21Z, stage: design-candidates, note: 完了 2026-11-11T04:22:09Z 状態：完了（利用の上限で 1 回止まり、再開して仕上げた） soft-play、sunlit-play、wild-play の遊びの強さ 3 段を明暗の両方で描いた。precise-tool と quiet-paper を消した }
+  - { at: 2026-11-11T04:31:08Z, stage: hearing, note: 起動 2026-11-11T04:31:08Z specification foundation-hearing 下書きの回 head-before 24efc7832bd6bf77b3cd00a6739807e205fa63cc }
+  - { at: 2026-11-11T04:45:48Z, stage: hearing, note: 完了 2026-11-11T04:45:38Z 状態：完了 _tech の下書き（tech.yaml、architecture.md、toolchain.yaml、write-scopes.json、acceptance.yaml）、Q-003（CI の機械）、ticket-plan の 002 と 008 の行 }
