@@ -1,0 +1,28 @@
+verdict: 前の回の 8 件はおおむね直ったが、直しから 2 つの問題が生じた。根の原因は、問い Q-004 の答えを待たずに提案の答えを人の事実の文に書き込んだこと（SR-009）と、直しで決め事を変えたときに、同じことを書いたほかの所をそろえなかったこと（SR-010）。元からの問題として、同期とログインを Rust の処理に置くのに、Supabase には Rust の公式のクライアントが無く、それをどう埋めるかが決まっていない（SR-011）。
+cycle: 2
+from_previous_fix: true
+findings:
+  - id: SR-009
+    target: spec
+    where: _intent/intent.yaml FACT-rust、specs/001-foundation/results/spec-diff.json（_intent/FACT-rust の modified）、status.yaml affects 1 行目、hearing/questions.yaml Q-004（answer が無い）
+    what: 人が話したのは「アプリは Rust で作る（速さのため）」だけで、画面をどう作るかは Q-004 で問う所でまだ答えが無い。それなのに FACT-rust の文を、Q-004 の提案の答え（画面は Web の技術で描く）に書き換え、しかも「（人の指定。速さを大事にするため）」を付けたままにしている。人が言っていない「画面は TypeScript で描く」を、人の指定として前提の事実に書いたことになる。前の回の SR-007 の直し方の案（affects の「後」のとおりに intent.yaml を直す）を、答えの前に当てたことから生じた
+    scene: 人が Q-004 で「画面も Rust で描く」を選ぶと、前提の事実には人が言っていない逆の指定が残り、承認のページでは「人の指定」として見える。直し忘れれば、002 からの仕様とレビューが、この誤った事実を根拠に読まれる
+    fix: FACT-rust を元の文に戻し、Q-004 の答えが出てから、答えに合わせて書き直す（そのとき、人が話した所と Q-004 の答えで決めた所を分けて書き、括弧の「人の指定」は人が話した所にだけ付ける）。spec-diff と affects の行は、書き直した後に流し直して出す
+  - id: SR-010
+    target: spec
+    where: _tech/tech.yaml TECH-errors（decision の「試す場とサーバーの HTTP では」）、_tech/architecture.md 190（test-rust に渡せるファイルは crates/<crate>/tests/ だけ）と 185（rust のレベルに apps/desktop/src-tauri/tests/** を足した）、_tech/acceptance.yaml AC-errors-3（「引数を持つふつうのコマンド（now）」）と architecture.md 46（now は引数を持たない）
+    what: 前の回の直しで、サーバーの処理（Edge Functions）を持たないこと、Tauri の invoke_command のテストを apps/desktop/src-tauri/tests/ に置くこと、invoke_command を now でも確かめることを決めたが、同じことを書いたほかの所が直す前のままで、かみ合っていない
+    scene: 001 のテストを書く役が apps/desktop/src-tauri/tests/ に invoke_command のテストを書き、Red を確かめるために test-rust の末尾にそのファイルを渡すと、tests/run/rust.mjs の決まりに無い置き場所なので、絞り込みに変えられずに流れない。AC-errors-3 のテストを書くときは、引数の無い now に「同じ引数」を渡す形が書けず、now に引数を足すか、受入条件を読み替えることになる
+    kind:
+      name: 前の回の直しで変えた決め事が、同じことを書いたほかの所に及んでいない
+      cases:
+        - TECH-errors が、もう無いサーバーの HTTP の状態コードへの写し方を書いている
+        - test-rust にファイルを渡す決まりが、新しく足した apps/desktop/src-tauri/tests/ を知らない
+        - AC-errors-3 が、引数の無い now を「引数を持つコマンド」として扱っている
+    fix: 前の回の直しの決め事に合わせて古い文を消すか、決まりを場所によらない形にまとめる。TECH-errors の「サーバーの」を消す。test-rust の決まりは「Cargo の workspace の crate の tests/<名前>.rs か tests/<名前>/main.rs」とまとめ、置き場所を並べない。AC-errors-3 は「引数を持つ」を消し、now を試す場と同じ形の結果が返ることだけを見る
+  - id: SR-011
+    target: spec
+    where: _tech/tech.yaml TECH-server（decision、reason）、_tech/architecture.md 34-37（同期は crates/core の中）、41、ticket-plan.yaml 005-account-login、006-page-sync
+    what: 同期（006）は Rust の処理（crates/core）に置き、ログイン（005）の結果もそこで使う作りだが、Supabase の公式のクライアントは JavaScript、Flutter、Swift、Python、C# だけで、Rust は公式にもコミュニティの一覧にも無い（https://supabase.com/docs/guides/api/rest/client-libs）。crates.io にある Realtime の crate は個人のもので、最近の取得数も数百件にとどまる（rp-supabase-realtime、supabase-client-realtime など）。TECH-server は、どちらの側（Rust の処理か、画面の TypeScript の supabase-js か）が Supabase とやり取りするか、Rust ならどの crate を使うか、何を自前で書くか（Auth のログインとトークンの更新、Realtime の私用のチャンネルにつなぐ手順）を書いておらず、選んだ理由にも、この手間が入っていない
+    scene: 005 で Rust の処理からログインし、006 で Realtime の Broadcast を受ける段になって、保守の当てにできる Rust のクライアントが無いと分かり、Auth と Realtime の手順を自前で書くか、同期を画面の側（supabase-js）に移すかを、その場で選ぶことになる。同期を画面に移すと、architecture の「同期は core」と、窓を閉じた後も裏で同期するかどうか（RULE-works-offline）の扱いが変わり、計画を組み直すことになる
+    fix: TECH-server に、Supabase とやり取りする側を 1 つ決めて書く。Rust の処理なら、使う crate（保守とライセンスを出典で確かめる）か、自前で書く範囲（Auth の REST とトークンの更新、Realtime の手順）とその手間を reason に入れる。画面の supabase-js なら、architecture の構成図の同期の置き場所を直し、Yjs の差分を bridge でどう受け渡すかを書く。どちらも重いなら、Rust の yrs の同期の手順をそのまま中継できる案（Cloudflare の Durable Objects など）と、ログインを自分で作る手間とを比べて alternatives の effect に書く
