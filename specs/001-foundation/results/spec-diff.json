@@ -3,21 +3,6 @@
   "to": "worktree",
   "changes": [
     {
-      "key": "_intent/FACT-rust",
-      "kind": "FACT",
-      "area": "_intent",
-      "parent": null,
-      "change": "modified",
-      "before": {
-        "id": "FACT-rust",
-        "statement": "アプリは Rust で作る（人の指定。速さを大事にするため）"
-      },
-      "after": {
-        "id": "FACT-rust",
-        "statement": "アプリの処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（人の指定。速さを大事にするため）"
-      }
-    },
-    {
       "key": "TICKET/002-page-tree",
       "kind": "TICKET",
       "area": null,
@@ -207,13 +192,17 @@
       "after": {
         "id": "TECH-server",
         "summary": "データを預かるサーバーは Supabase（データベース、ログイン、変更の知らせを運用まで任せられるサービス）を使う。サーバーはページの書き換えの差分を預かって相手のパソコンに知らせるだけで、合わせるのは各パソコンが行う。手元では Supabase の CLI で Docker の上に同じものを起こす。使い始めるのは 005 から",
-        "decision": "Supabase の Postgres、Auth、Realtime を使い、Edge Functions（サーバーの処理）は使わない。同期（006）は、各パソコンが Yjs の差分を Postgres の表（持ち主、ページ、差分）に足し、表に足されたことを Realtime の Broadcast（データベースから送る realtime.broadcast_changes）で同じアカウントのもう一方のパソコンに知らせ、受けたパソコンが差分を取って自分の文書に合わせる。つながっていなかった間の差分は、つながったときに表から取る。差分がたまったら、パソコンが 1 つにまとめた版を預け直す。ほかの人のページが見えないことは、Postgres の行ごとの制限（Row Level Security）と、Realtime の私用のチャンネルの制限で守る。パスワードは Supabase Auth が bcrypt でハッシュにして保存する（NFR-password-storage）。サーバーの定義（表の移し替え）は supabase/migrations/ に置く。本番のプロジェクトとデプロイは 008 で決める",
-        "reason": "2 台の書き換えを文字の単位で合わせるのは CRDT（Yjs）が各パソコンで行い、差分はどの順に届いても同じ結果になるので、サーバーは差分を積んで知らせるだけでよい（RULE-merge-edits）。積んだ差分は消えないので、つながっていない間の書き換えも後から届く（RULE-works-offline）。データベースから送る Broadcast の遅れは、Supabase の計測で中央値 46 ミリ秒、遅い方の 5% でも 132 ミリ秒で、3 秒以内に出す（NFR-sync-delay）に十分な余裕がある。1 回に送れる大きさ（無料の枠で 256 KB）は、打った分の差分なら収まり、大きな初めの同期は知らせでなく表から取る。フルマネージドの希望に合い、データベース、ログイン、変更の知らせが 1 つのサービスにまとまっていて、手元でも Docker で同じものを動かせる。費用は、無料の枠（データベース 500 MB、プロジェクト 2 つ、使う人 5 万人まで）で、自分一人で使う間は足りる見込み。無料の枠のプロジェクトは 1 週間使わないと止まるので、使い始める 008 で、止まらない有料の枠（月 25 ドルから）にするかを決める",
+        "decision": "Supabase の Postgres、Auth、Realtime を使い、Edge Functions（サーバーの処理）は使わない。同期（006）は、各パソコンが Yjs の差分を Postgres の表（持ち主、ページ、差分）に足し、表に足されたことを Realtime の Broadcast（データベースから送る realtime.broadcast_changes）で同じアカウントのもう一方のパソコンに知らせ、受けたパソコンが差分を取って自分の文書に合わせる。つながっていなかった間の差分は、つながったときに表から取る。差分がたまったら、パソコンが 1 つにまとめた版を預け直す。ほかの人のページが見えないことは、Postgres の行ごとの制限（Row Level Security）と、Realtime の私用のチャンネルの制限で守る。パスワードは Supabase Auth が bcrypt でハッシュにして保存する（NFR-password-storage）。サーバーの定義（表の移し替え）は supabase/migrations/ に置く。本番のプロジェクトとデプロイは 008 で決める。Supabase とやり取りするのは画面の側の sync（公式のクライアント supabase-js）だけにし、Rust の処理はページのデータ、まだ預けていない差分の記録、届いた差分を合わせることを受け持つ（受け渡しは bridge のコマンド。architecture.md の「同期の受け持ち」）。ログインの情報は、処理が keyring で OS の鍵の置き場所に置く",
+        "reason": "Supabase の公式のクライアントは JavaScript、Flutter、Swift、Python、C# だけで、Rust は公式にもコミュニティの一覧にも無い。Rust の処理からやり取りすると、ログインとトークンの更新（Auth の REST）、表への出し入れ（PostgREST）、Realtime の手順（WebSocket の上の join、25 秒ごとの heartbeat、トークンの入れ替え、つなぎ直し）を自前で書いて保守することになる。画面の側の supabase-js なら、これらは Supabase が保守するので自前で書くのは差分の受け渡しだけで済み、合わせる仕組みは Rust（yrs）に残せる。2 台の書き換えを文字の単位で合わせるのは CRDT（Yjs）が各パソコンで行い、差分はどの順に届いても同じ結果になるので、サーバーは差分を積んで知らせるだけでよい（RULE-merge-edits）。積んだ差分は消えないので、つながっていない間の書き換えも後から届く（RULE-works-offline）。データベースから送る Broadcast の遅れは、Supabase の計測で中央値 46 ミリ秒、遅い方の 5% でも 132 ミリ秒で、3 秒以内に出す（NFR-sync-delay）に十分な余裕がある。1 回に送れる大きさ（無料の枠で 256 KB）は、打った分の差分なら収まり、大きな初めの同期は知らせでなく表から取る。フルマネージドの希望に合い、データベース、ログイン、変更の知らせが 1 つのサービスにまとまっていて、手元でも Docker で同じものを動かせる。費用は、無料の枠（データベース 500 MB、プロジェクト 2 つ、使う人 5 万人まで）で、自分一人で使う間は足りる見込み。無料の枠のプロジェクトは 1 週間使わないと止まるので、使い始める 008 で、止まらない有料の枠（月 25 ドルから）にするかを決める",
         "background": "壁打ちで「どのフルマネージドのサービスにするか（2 台の書き換えを文字の単位で合わせる仕組みとの相性も含めて）」を決めていませんでした。ログイン（005）と同期（006）の作りが、このサービスの上に乗ります",
         "alternatives": [
           {
             "option": "Cloudflare（Durable Objects、D1）",
-            "effect": "Yjs の中継に向くが、ログインを自分で作る"
+            "effect": "Yjs の中継に向くが、ログインとパスワードの保存を自分で作る"
+          },
+          {
+            "option": "Supabase と Rust の処理が直にやり取りする",
+            "effect": "公式の Rust のクライアントが無く、Auth と Realtime を自前で書く"
           },
           {
             "option": "Firebase",
@@ -233,7 +222,9 @@
           "https://supabase.com/pricing",
           "https://github.com/supabase/auth",
           "https://supabase.com/docs/guides/realtime/benchmarks",
-          "https://supabase.com/docs/guides/realtime/limits"
+          "https://supabase.com/docs/guides/realtime/limits",
+          "https://supabase.com/docs/guides/api/rest/client-libs",
+          "https://supabase.com/docs/guides/realtime/protocol"
         ]
       }
     },
@@ -246,7 +237,7 @@
       "after": {
         "id": "TECH-errors",
         "summary": "失敗は、決まった種類（見つからない、断られる、ほかと重なる、権限が無い、ログインしていない、想定外）と理由の符号だけで返し、画面が符号に当たる文を画面文の一覧から引いて出す。想定外の失敗では、中身を一切返さず、記録だけに残す",
-        "decision": "コマンドの失敗は { \"kind\", \"reason\" } の形（kind は not_found、rejected、conflict、forbidden、unauthenticated、internal のどれか。reason は snake_case の理由の符号）。試す場とサーバーの HTTP では kind を状態コードに写す（architecture.md の「仕様の結果の写し方」）。想定外の失敗と panic は { \"kind\": \"internal\", \"reason\": \"internal\" } にし、詳細はパソコンの中の記録（tracing）に書く",
+        "decision": "コマンドの失敗は { \"kind\", \"reason\" } の形（kind は not_found、rejected、conflict、forbidden、unauthenticated、internal のどれか。reason は snake_case の理由の符号）。試す場の HTTP では kind を状態コードに写す（architecture.md の「仕様の結果の写し方」）。想定外の失敗と panic は { \"kind\": \"internal\", \"reason\": \"internal\" } にし、詳細はパソコンの中の記録（tracing）に書く",
         "reason": "失敗の理由ごとに画面の文を分けられ、文の直しがコードに及ばない。サーバーの内部の情報を返さない（NFR-error-details）",
         "background": "失敗をどう返し、どう画面に出すかを、すべての操作で揃えます。後から変えると、すべての操作の失敗の扱いと、そのテストを直すことになります",
         "alternatives": [
@@ -602,8 +593,8 @@
       "after": {
         "id": "AC-errors-3",
         "aspect": "errors",
-        "when": "e2e の feature でビルドした Tauri のアプリの汎用のコマンド invoke_command を、Tauri の試しの仕組み（tauri::test の mock runtime）で、名前 __test_panic と __test_fail、それに引数を持つふつうのコマンド（now）で呼ぶ",
-        "then": "__test_panic と __test_fail は、試す場と同じ {\"kind\":\"internal\",\"reason\":\"internal\"} だけが返り、panic の文もファイルの場所も返らない。now は、試す場で同じ引数で呼んだときと同じ形の結果が返る",
+        "when": "e2e の feature でビルドした Tauri のアプリの汎用のコマンド invoke_command を、Tauri の試しの仕組み（tauri::test の mock runtime）で、名前 __test_panic と __test_fail、それにふつうのコマンド now で呼ぶ",
+        "then": "__test_panic と __test_fail は、試す場と同じ {\"kind\":\"internal\",\"reason\":\"internal\"} だけが返り、panic の文もファイルの場所も返らない。now は、試す場で呼んだときと同じ形の結果が返る",
         "checked_by": "test"
       }
     },
@@ -778,13 +769,6 @@
   "area_nfr": [],
   "main_overlap": null,
   "affects": [
-    {
-      "kind": "shared",
-      "name": "アプリは Rust で作る（人の指定。速さを大事にするため）",
-      "reason": "前提の事実を変える",
-      "before_after": "前「アプリは Rust で作る（人の指定。」、後「アプリの処理の中心とデータは Rust で作り、画面は Web の技術（TypeScript）で描く（人の指定。」",
-      "source": "spec-diff"
-    },
     {
       "kind": "tickets",
       "name": "ページを作って左の並びから開く",
