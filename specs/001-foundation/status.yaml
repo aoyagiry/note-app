@@ -1,5 +1,5 @@
 ticket_id: 001-foundation
-state: ヒアリング中
+state: 承認待ち
 pr: 2
 affects:
   - { kind: tickets, name: ページを作って左の並びから開く, reason: ほかのチケットの計画の行を変えるか消す, before_after: できることに「自分が、アプリの中で明るい画面と暗い画面を切り替える。最初は端末（Mac や Windows）の設定に合わせて開き、アプリの中で選んだら、その後は選んだほうで開く」を足す, source: spec-diff }
