@@ -43,3 +43,5 @@ log:
   - { at: 2026-11-11T06:31:33Z, stage: spec-review, note: 完了 2026-11-11T06:31:20Z 状態：完了 指摘 0 件。SR-014 は直っている }
   - { at: 2026-11-11T06:31:38Z, stage: design-system, note: 起動 2026-11-11T06:31:38Z designer design-system 作る回 head-before 1a0aa91b416c6d10ae27fa437662419c6ea2b248 }
   - { at: 2026-11-11T06:45:59Z, stage: design-system, note: 完了 2026-11-11T06:45:45Z 状態：完了 sunlit-play をデザインシステムにして公開（https://claude.ai/artifact/RAmdHWAwHTnZM4hr4Wpijz）。design.yaml、ds/sunlit-play/tokens.css と base.css を置いた。文字の読みやすさのために色を一部濃くした }
+  - { at: 2026-11-11T06:46:03Z, stage: hearing, note: 起動 2026-11-11T06:46:03Z specification foundation-hearing design.yaml に合わせた architecture.md の直し head-before db12f5a89ce34923d1409712831c79236f6b1aa9 }
+  - { at: 2026-11-11T06:47:43Z, stage: hearing, note: 完了 2026-11-11T06:47:31Z 状態：完了 画面の幅を 720px で切り替える決まりと、スクリーンショットで動きを止める決まりを design.yaml に合わせた }

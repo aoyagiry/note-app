@@ -145,19 +145,20 @@ target/、apps/desktop/dist/       ビルドの出力（.gitignore）
 
 ### 画面の幅
 
-| 名前 | 大きさ | 使う所 |
-| --- | --- | --- |
-| desktop | 1280×800 | 既定（canvas.yaml に widths を書かない画面）。アプリの窓の最初の大きさ |
-| phone | 390×844 | パソコンで窓を細くしたときと、後で足すスマートフォン（phone-view） |
+| 名前 | 大きさ | 形が効く窓の幅 | 使う所 |
+| --- | --- | --- | --- |
+| desktop | 1280×800 | 721px 以上 | 既定（canvas.yaml に widths を書かない画面）。アプリの窓の最初の大きさ |
+| phone | 390×844 | 720px 以下（breakpoint.phone.max_width） | パソコンで窓を細くしたときと、後で足すスマートフォン（phone-view）。左の並びを隠し、本文の面だけにする |
 
-design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変数にはしない。
+- 名前、大きさ、切り替える幅は、design.yaml の breakpoint と同じにする。大きさは e2e の viewport とモックの大きさに使い、切り替える幅は @media に使う
+- 窓の幅が 720px 以下になったら phone の形に切り替える。e2e の phone（390px）は phone の形、desktop（1280px）は desktop の形で撮れる
 
 ### 見た目の共通の値
 
 - `_tech/design.yaml` の値（color、type、spacing、radius と、書いてあれば size、border、shadow、motion、effect）を、apps/desktop/src/styles/tokens.css に CSS の変数で写す。変数の名前は、デザインシステムの tokens.css と同じにする（design.yaml の欄の道筋を kebab にしてつなぐ。例：`--color-surface-sunken`、`--spacing-5`）
 - 明るい地を `:root` に、暗い地を `[data-theme="dark"]` に書く（デザインシステムと同じ）。アプリは、起動のときに `<html>` の data-theme を決める：アプリの中で選んだ明るさがあればそれ、無ければ端末の設定（`matchMedia("(prefers-color-scheme: dark)")`）。選んだ明るさの持ち方は、明るさを切り替えるチケット（002）で決める
 - 画面は、色、文字、間隔、角の丸みと、design.yaml にある size、border、shadow、motion、effect を、この変数だけで指定する。値を直に書かない
-- breakpoint は CSS の変数にしない。画面の幅で配置を変える所は、上の表の幅を @media に書く
+- breakpoint は CSS の変数にしない（@media の条件には CSS の変数を使えないため）。窓の幅で配置を変える所は、phone の形を `@media (max-width: 720px)`（design.yaml の breakpoint.phone.max_width）に書き、desktop の形をその外に書く。390px や 1280px（撮る大きさ）を @media に書かない
 - 書体は、tokens.css の @import を使わず、Fontsource の npm パッケージ（使う太さだけ）を main.tsx で読み込む。アプリに同梱するので、ネットにつながっていなくても同じ書体で出る
 
 ### 土台の CSS
@@ -248,7 +249,7 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 - 撮る前に揺れを止める
   - 処理の時計を、そのテストの具体例の「今日」に固定する（上の時計の受け口）
   - ブラウザの時計は、移動の前に `page.clock.install({ time: <具体例の今日> })` で入れる（ほかの時計の呼び出しより先に呼ぶ）
-  - 動きは `reducedMotion: "reduce"` で止める
+  - 動きは `reducedMotion: "reduce"` で減らし、撮るときに `page.screenshot` の `animations: "disabled"` で止める。design.yaml と base.css は、動きを減らす設定でも動きを止めず、長さを 90ms（motion.duration.instant）に縮めて色と濃さの移り変わりを残し、送っている間のボタンの息づき（motion.duration.pulse。繰り返し続く）はそのまま動くため。`animations: "disabled"` は、終わりのある動きを終わりまで進め、繰り返す動きを始めの形に戻して撮る（Playwright の説明）
   - 書体の読み込みを `await page.evaluate(() => document.fonts.ready)` で待つ
 - 画面の下に固定した部品（bottom を指定した sticky と、下に近い fixed）があり、ページが画面より高い画面は、撮る関数が、まず最初の 1 画面（画面の大きさの分だけ）を名前の末尾に `--top` を付けて撮り（例 `pages--SCR-tree--phone--top.png`）、次に `.claude/aidd/lib/pin-fixed.mjs` の `findPinned`、`pinToBottom` を `page.evaluate` に渡して部品をページの下端に置いてから全体を撮り、撮った後に `unpin` で戻す（型は `pin-fixed.d.mts`）
 - 見た目の回帰テストで違いとみなす画素の割合は toolchain.yaml の visual_threshold（0.001）。基準は OS ごと（`-mac`、`-win`）に持つ
