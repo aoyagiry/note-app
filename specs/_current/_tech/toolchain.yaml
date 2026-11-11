@@ -1,5 +1,5 @@
 setup:
-  files: [package.json, package-lock.json, Cargo.toml, Cargo.lock, rust-toolchain.toml, .node-version, scripts/setup.mjs]
+  files: [package.json, package-lock.json, Cargo.toml, Cargo.lock, rust-toolchain.toml, .node-version, scripts/setup.mjs, scripts/browsers.mjs]
   command: npm run setup
 commands:
   lint: npm run lint

@@ -5,6 +5,7 @@
       "e2e/**",
       "perf/**",
       "crates/*/tests/**",
+      "apps/desktop/src-tauri/tests/**",
       "apps/desktop/src/**/*.test.ts",
       "apps/desktop/src/**/*.test.tsx",
       "vitest.config.ts",
@@ -37,13 +38,15 @@
       ".prettierrc",
       ".prettierignore",
       "vite.config.ts",
-      "README.md"
+      "README.md",
+      ".gitignore"
     ],
     "deny": [
       "tests/**",
       "e2e/**",
       "perf/**",
       "crates/*/tests/**",
+      "apps/desktop/src-tauri/tests/**",
       "**/*.test.ts",
       "**/*.test.tsx",
       "**/*.spec.ts",

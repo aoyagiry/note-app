@@ -15,7 +15,7 @@
 | 文節の区切り | BudouX（budoux） |
 | 試す場 | axum（crates/devhost） |
 | データの形の共有 | crates/protocol と ts-rs |
-| サーバー（005 から） | Supabase（Postgres、Auth、Realtime、Edge Functions）。手元は Supabase の CLI と Docker |
+| サーバー（005 から） | Supabase（Postgres、Auth、Realtime。Edge Functions は使わない）。手元は Supabase の CLI と Docker |
 | テスト | Vitest、Playwright（Chromium、WebKit）、cargo-nextest |
 | カバレッジ | Vitest の v8、cargo-llvm-cov |
 | 書き方の検査 | ESLint、Prettier、rustfmt、clippy |
@@ -27,19 +27,22 @@
 
 ```
 画面（apps/desktop/src。React）
-  └ bridge：コマンドの呼び出し。Tauri の中では invoke、ブラウザでは試す場への HTTP
-      ├ Tauri のアプリ（apps/desktop/src-tauri）── コマンドの受け口（crates/commands）
-      └ 試す場（crates/devhost）────────────── コマンドの受け口（crates/commands）
+  └ bridge：コマンドの呼び出し。Tauri の中では invoke("invoke_command")、ブラウザでは試す場への HTTP
+      ├ Tauri のアプリ（apps/desktop/src-tauri）─ 汎用のコマンド invoke_command ─┐
+      └ 試す場（crates/devhost）─ POST /api/invoke/<コマンド> ─────────────┤
+                                                  dispatch（crates/commands。ただ 1 つの入口）
                                                   └ 処理（crates/core）
                                                       ├ パソコンの中のデータ（SQLite と Yjs の文書）
                                                       ├ 時計（Clock）
                                                       └ 同期（006。サーバーへ差分を預ける）
-サーバー（supabase/。005 から）：Auth、Postgres（行ごとの制限）、Realtime、Edge Functions
+サーバー（supabase/。005 から）：Auth、Postgres（差分を積む表と行ごとの制限）、Realtime（データベースから送る Broadcast）
 ```
 
 - 処理の中心は crates/core に置く。core は Tauri にも HTTP にも頼らない。画面に出す文を持たず、理由の符号だけを返す
-- crates/commands は、コマンドの名前、引数と戻り値の型、失敗の写し方（下の「エラーの形」）を 1 か所で決める。Tauri のアプリと試す場は、どちらもこれを呼ぶだけにし、処理を書かない
-- 画面は bridge 以外から処理を呼ばない。bridge は、Tauri の中（window.__TAURI_INTERNALS__ がある）なら invoke、そうでなければ同じ origin の `POST /api/invoke/<コマンド>` を呼ぶ
+- crates/commands の `dispatch(名前, JSON の引数) -> JSON の結果か失敗の形` を、コマンドのただ 1 つの入口にする。コマンドの名前、引数と戻り値の型、引数の読み取り、失敗の写し方（下の「エラーの形」）、想定外の失敗と panic を internal に変えること（catch_unwind）は、すべて dispatch の中で行う
+- Tauri のアプリは、汎用のコマンド `invoke_command { name, args }` を 1 つだけ登録し、受けた name と args（JSON のまま）を dispatch に渡して、返ったものをそのまま返す。コマンドごとの Tauri のコマンドは作らない（Tauri の引数の名前の変換（camelCase と snake_case）を通らないように）。試す場の `POST /api/invoke/<コマンド>` も、本文の JSON を dispatch に渡すだけにする。どちらも処理を書かない。こうして、API のテストと e2e が通る道と、アプリが通る道を、dispatch から先で同じにする
+- アプリだけに残る部分（bridge の invoke の分かれと、invoke_command が dispatch へ渡すこと）は、基盤の受入条件（AC-errors-3、AC-structure-4）で確かめる
+- 画面は bridge 以外から処理を呼ばない。bridge は、Tauri の中（window.__TAURI_INTERNALS__ がある）なら `invoke("invoke_command", { name, args })`、そうでなければ同じ origin の `POST /api/invoke/<name>`（本文は args）を呼ぶ。どちらの道でも、同じ名前と同じ JSON の引数を渡し、返った失敗の形をそのまま渡す
 - 画面の「今」（日付、時刻、時刻で変わる背景の空の色）は、コマンド now で処理から受け取る。画面で Date.now() や new Date() を「今」に使わない（試す場を --clock で起こしたときに、画面の今も変わるように）。受け取った後の秒の進みは、受け取った時刻と performance.now() の差で足す
 - ネットにつながっていなくても、ページの操作はすべてパソコンの中のデータに対して行う（RULE-works-offline）。サーバーへの同期は裏で行い、操作の結果を待たせない
 - データの形は crates/protocol に Rust で書き、ts-rs で TypeScript の型を packages/protocol/src/generated/ に生成する（npm run gen。生成したものはコミットしない）
@@ -79,7 +82,7 @@ crates/
   devhost/                        試す場（HTTP で画面とコマンドを配る）
   protocol/                       データの形
 packages/protocol/                生成した TypeScript の型
-supabase/                         サーバーの定義（005 から。migrations/、functions/）
+supabase/                         サーバーの定義（005 から。migrations/ だけ）
 tests/
   api/                            API のテスト（*.test.ts。試す場を相手にする）
   support/                        テストの支え（コマンドを呼ぶ関数、準備の関数、時刻の表）
@@ -88,6 +91,7 @@ e2e/                              e2e のテスト（*.spec.ts）
 e2e/support/                      e2e の支え（フィクスチャ、撮る関数）
 perf/                             計測（*.perf.ts と設定）
 crates/*/tests/                   Rust のテスト（結合のテストの形だけ。src の中に #[cfg(test)] のテストを書かない）
+apps/desktop/src-tauri/tests/     Tauri のアプリの invoke_command のテスト（tauri::test の mock runtime）
 reports/junit/                    テストの結果（JUnit XML。.gitignore）
 coverage/                         カバレッジ（.gitignore）
 e2e-screenshots/                  e2e のスクリーンショット（.gitignore）
@@ -99,7 +103,7 @@ target/、apps/desktop/dist/       ビルドの出力（.gitignore）
 
 ## 仕様の結果の写し方
 
-コマンドは名前と引数で呼ぶ形（RPC）で、HTTP の道筋ごとに分けない。成功は Rust の `Ok(値)` で返し、失敗は下の「エラーの形」で返す。試す場とサーバー（Edge Functions）の HTTP では、失敗の種類を状態コードに写す。
+コマンドは名前と引数で呼ぶ形（RPC）で、HTTP の道筋ごとに分けない。成功は Rust の `Ok(値)` で返し、失敗は下の「エラーの形」で返す。試す場の HTTP では、失敗の種類を状態コードに写す。
 
 | 業務の結果 | 技術の形 |
 | --- | --- |
@@ -119,7 +123,7 @@ target/、apps/desktop/dist/       ビルドの出力（.gitignore）
 
 - kind は上の表の 7 つのどれか。reason は snake_case の理由の符号で、kind ごとに具体例が決める（例：`page_has_children`）。kind が not_found、forbidden、unauthenticated、internal のときは reason を kind と同じにしてよい
 - 入力の欄ごとの誤りがあるときだけ、`"fields": [{ "field": "title", "reason": "required" }]` を足す
-- 文、例外の文、スタックトレース、ファイルの場所、道具の名前と版は返さない（NFR-error-details）。crates/commands が、core の想定外の失敗（anyhow など）と panic（Tauri のコマンドは catch_unwind、試す場は tower-http の CatchPanicLayer）を `internal` に変え、詳細は記録（tracing。アプリのデータの置き場所の logs/）にだけ書く
+- 文、例外の文、スタックトレース、ファイルの場所、道具の名前と版は返さない（NFR-error-details）。dispatch が、core の想定外の失敗（anyhow など）と panic（catch_unwind）を `internal` に変え（Tauri と試す場で同じ仕組み）、詳細は記録（tracing。アプリのデータの置き場所の logs/）にだけ書く
 - 画面は、理由の符号に当たる画面文の ID を引いて出す。ID の決まりは `<領域>.error.<reason>`（例：`pages.error.title_too_long`）、どの領域にも共通の失敗（internal、つながっていない、など）は `common.error.<reason>`（_tech/texts.yaml）
 - サーバー（005 から）の失敗も、アプリの同期の処理がこの形に変えてから画面に渡す。Postgres や Supabase の失敗の文を画面に渡さない
 
@@ -178,7 +182,7 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 | unit | Vitest（project unit、jsdom） | apps/desktop/src/**/*.test.ts(x) | 画面の部品と画面の中の処理 |
 | api | Vitest（project api、node） | tests/api/**/*.test.ts | 具体例の業務の結果。試す場の HTTP でコマンドを呼び、処理とパソコンの中のデータまで通す |
 | e2e | Playwright | e2e/**/*.spec.ts | 画面の操作と、画面と処理のつなぎ目。スクリーンショットを撮る |
-| rust | cargo-nextest | crates/*/tests/** | Rust の中の細かい決め事（具体例の ID は書かない） |
+| rust | cargo-nextest | crates/*/tests/**、apps/desktop/src-tauri/tests/** | Rust の中の細かい決め事と、Tauri の invoke_command が dispatch に渡すこと（具体例の ID は書かない） |
 | foundation | Vitest（project foundation） | specs/_current/_tech/checks/**/*.test.ts | 基盤の受入条件 |
 
 - 具体例と計画の決め事を確かめるテストは、TypeScript のファイル（*.test.ts、*.spec.ts）に書き、テストの名前に `<領域>/AC-…` を入れる。ハーネスは Rust のファイルの中の ID を数えない
@@ -220,7 +224,7 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 - 待ち：テスト 1 件の待ちは道具の既定のまま。操作の待ち（actionTimeout）と移動の待ち（navigationTimeout）は 5 秒。expect の待ちは道具の既定のまま
 - Red の印（環境変数 `AIDD_RED=1`）があるときだけ、操作の待ちと expect の待ちを 1.5 秒にし（移動の待ちは 5 秒のまま）、projects を desktop だけにする。desktop はすべての e2e のファイルを流すので、Red の回にもどの e2e のファイルも流れる。Red の印は run-capture.mjs が付ける。テストを書く役が、run-capture の前に自分で流して Red を確かめる回にも付ける
 - 出力：Playwright の出力先は test-results/e2e/。JUnit は reports/junit/e2e.xml
-- ブラウザ：プロジェクトの中の `.browsers/` に入れる（.gitignore）。node_modules の中には置かない。準備のコマンド、e2e のテストのコマンド（tests/run/e2e.mjs）、CI、計測に `PLAYWRIGHT_BROWSERS_PATH=<リポジトリ>/.browsers` を渡す。入れるのは `npx playwright install chromium webkit`（`--with-deps` は付けない）
+- ブラウザ：プロジェクトの中の `.browsers/` に入れる（.gitignore）。node_modules の中には置かない。準備のコマンド、e2e のテストのコマンド（tests/run/e2e.mjs）、CI、計測に `PLAYWRIGHT_BROWSERS_PATH=<リポジトリ>/.browsers` を渡す。入れるのは `npm run browsers`（中身は `npx playwright install chromium webkit`。`--with-deps` は付けない）
 
 ### スクリーンショット
 
@@ -242,8 +246,10 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 
 ### 計測
 
-- perf/ に Playwright で書く（perf/playwright.config.ts。Chromium、desktop の幅）。試す場を e2e の feature で起こし、準備のコマンドでページを 1 万件入れてから測る
-- `npm run measure-response`（NFR-response-time）：起動して並びが出るまで、ページを開く、検索の結果、ボタンの結果、キーを打って文字が出るまで（Event Timing の duration）を、作った機能の分だけ測る。測る場面はチケットごとに足す（001 は、起動して土台の画面が出るまで）
+- どの OS で測るか：計測は、流した機械の OS（Mac か Windows）で測る。最後の行に、OS とブラウザの仕組みごとの値を書く。もう一方の OS の速さは、NFR-polished-look の人の確認（Mac と Windows でアプリを開いて触る）で見る
+- 画面の中の速さ：perf/ に Playwright で書く（perf/playwright.config.ts。desktop の幅）。Chromium（Windows の WebView2 と同じ仕組み）と WebKit（Mac の WKWebView に近い仕組み）の両方で測り、どちらも基準の中に収まることを求める。試す場を e2e の feature で起こし、準備のコマンドでページを 1 万件入れてから測る。試す場は HTTP でコマンドを呼ぶので、アプリの invoke より遅い側に出る（基準に収まれば、アプリでも収まる）
+- アプリの起動の速さ：窓と WebView を起こす時間は試す場では測れないので、リリースのビルドのアプリそのものを起こして測る。アプリは、起動の引数 `--measure-startup` を受けたときだけ、処理が始まった時刻から、画面がページの並び（001 では土台の画面）を描き終えたと知らせるまでの時間を標準出力に書いて終わる。計測のスクリプトはこれを 5 回流し、中央値を 1 秒の基準と比べる
+- `npm run measure-response`（NFR-response-time）：上のアプリの起動と、ページを開く、検索の結果、ボタンの結果、キーを打って文字が出るまで（Event Timing の duration）を、作った機能の分だけ測る。測る場面はチケットごとに足す（001 は、アプリの起動して土台の画面が出るまでと、試す場で土台の画面が出るまで）
 - `npm run measure-sync`（NFR-sync-delay）：2 つの試す場の間で、片方の書き換えがもう一方に出るまでを測る。測る場面は 006 で足す。場面が 0 件のときは「計測する場面はまだありません」と出して成功で終える
 - 数が基準を超えたら終了コード 1。最後の行に、測った値と基準を 1 行で書く
 
@@ -265,7 +271,7 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 | Docker | Docker Desktop（005 から使う） | 同じ |
 | Supabase の CLI | 005 で npm の依存として入る | 同じ |
 
-その後、リポジトリで `npm run setup`（scripts/setup.mjs）を流す。中身：`npm ci`、`npm ci --prefix .claude/aidd`、`rustup show`（rust-toolchain.toml の版と部品を入れる）、cargo-nextest、cargo-llvm-cov、cargo-audit を入れる（`cargo install --locked`。版は scripts/setup.mjs に書く）、`npx playwright install chromium webkit`（.browsers/ に入れる）、`cargo fetch`。
+その後、リポジトリで `npm run setup`（scripts/setup.mjs）を流す。中身：`npm ci`、`npm ci --prefix .claude/aidd`、`rustup show`（rust-toolchain.toml の版と部品を入れる）、cargo-nextest、cargo-llvm-cov、cargo-audit を入れる（`cargo install --locked`。版は scripts/setup.mjs に書く）、`npm run browsers`（.browsers/ に Chromium と WebKit を入れる）、`cargo fetch`。
 
 - コマンドは、Windows の cmd.exe と Mac の sh のどちらで流しても同じに動く形にする（toolchain.yaml のコマンドはすべて `npm run <名前>`。環境変数を渡すときは、`VAR=値 コマンド` と書かず、node のスクリプトか CLI の引数で渡す）
 - 改行は .gitattributes で LF に揃える
@@ -275,10 +281,11 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 
 - ファイル：.github/workflows/ci.yml
 - きっかけ：pull_request（向け先が main と `aidd/**`。types は opened、synchronize、reopened、ready_for_review）と、main への push。下書きの PR では流さない（ジョブに `if: github.event_name == 'push' || github.event.pull_request.draft == false`）。コミットの文に `[skip ci]` のある push では流れない（GitHub の決まり）
+- 道具の決まり：検証のコマンドが要る道具（Chromium と WebKit、cargo-nextest、cargo-llvm-cov、cargo-audit、rust-toolchain.toml の部品）は、手元では `npm run setup`、CI では各ジョブの準備の段で入れる。CI のどのジョブも、そのジョブで流すコマンドが要る道具をすべて入れる。ブラウザは、手元でも CI でも `npm run browsers`（scripts/browsers.mjs。.browsers/ に Chromium と WebKit を入れる）で入れる。基盤の検査（test-foundation）は見本の単体、API、Rust、e2e を流すので、すべての道具と試す場のビルドが要る
 - 機械：GitHub の Mac（macos-latest）と Windows（windows-latest）。NFR-platforms のとおり、すべてのテストを両方で流す。Playwright の公式のコンテナのイメージは Linux だけなので使わない（コンテナを使う理由の、OS のパッケージを入れる段で止まることは、Mac と Windows の機械では起きない。ブラウザだけを .browsers/ に入れる）
 - ジョブ
-  - checks（matrix：macos-latest、windows-latest）：`npm ci`、`npm ci --prefix .claude/aidd`、lint、typecheck、build、coverage（unit、api、rust のテストを流す回。別に流さない）、test-foundation、start-check、audit。`node .claude/aidd/bin/traceability-check.mjs --stage baseline` は windows-latest のときだけ 1 回流す
-  - e2e（matrix：macos-latest、windows-latest × shard 1/2、2/2）：`npm ci`、ブラウザを入れる、`npm run test-e2e -- --shard=<n>/2`。スクリーンショットは撮るだけで比較しない
+  - checks（matrix：macos-latest、windows-latest）：`npm ci`、`npm ci --prefix .claude/aidd`、cargo の道具を入れる、`npm run browsers`（.browsers/ のキャッシュ付き）、lint、typecheck、build、coverage（unit、api、rust のテストを流す回。別に流さない）、test-foundation、start-check、audit。`node .claude/aidd/bin/traceability-check.mjs --stage baseline` は windows-latest のときだけ 1 回流す
+  - e2e（matrix：macos-latest、windows-latest × shard 1/2、2/2）：`npm ci`、`npm run browsers`（.browsers/ のキャッシュ付き）、`npm run test-e2e -- --shard=<n>/2`。スクリーンショットは撮るだけで比較しない
 - 時間の上限：checks は `timeout-minutes: 30`（キャッシュの無い初めての Rust のビルドが 15 分を超えることがあるため）、e2e は `timeout-minutes: 20`
 - キャッシュ：actions/setup-node の `cache: npm`、Swatinem/rust-cache（OS ごと）、.browsers/（キーは OS と package-lock.json の Playwright の版）。cargo-nextest などの道具は taiki-e/install-action で入れる（ビルドしないので速い）
 - PLAYWRIGHT_BROWSERS_PATH に `${{ github.workspace }}/.browsers` を渡す
@@ -289,7 +296,7 @@ design.yaml の breakpoint にも同じ名前と大きさを書く。CSS の変�
 ## リリースとデプロイ
 
 - main へのマージでは、CI のほかに何も動かない。サーバーにもアプリの配布にも何も起きない
-- アプリ：版の印（`v` で始まるタグ。例 `v0.1.0`）を付けて GitHub に送ったときだけ、.github/workflows/release.yml が Mac（macos-latest。.dmg）と Windows（windows-latest。.msi と .exe）のアプリを tauri-apps/tauri-action でビルドし、GitHub の下書きのリリースに置く。版の番号は、タグの版を tauri.conf.json と Cargo.toml の版に揃えてから付ける
+- アプリ：版の印（`v` で始まるタグ。例 `v0.1.0`）を付けて GitHub に送ったときだけ、.github/workflows/release.yml が Mac（macos-latest。.dmg。`--target universal-apple-darwin` で、Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリにする。そのために rustup で aarch64-apple-darwin と x86_64-apple-darwin を入れる）と Windows（windows-latest。.msi と .exe）のアプリを tauri-apps/tauri-action でビルドし、GitHub の下書きのリリースに置く。版の番号は、タグの版を tauri.conf.json と Cargo.toml の版に揃えてから付ける
 - 署名はしない（Mac は初めて開くときに右クリックの「開く」が要り、Windows は SmartScreen の知らせが出る）。署名と公証をするかは 008 で決める
 - 新しい版は、自分で下書きのリリースから入れ直す。自動のアップデートは、一般に配るとき（later の public-distribution）に足す（001 の問い Q-002 の答え）
 - サーバーのデプロイ：後で決める（008-start-using。本番の Supabase のプロジェクトの作り方、表の移し替えを本番に当てるコマンド、切り戻しの方法）。決めるきっかけは、自分がコマンドを打つか印を付けたときだけにし、main へのマージでは動かさない（001 の壁打ち）

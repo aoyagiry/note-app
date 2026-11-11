@@ -59,6 +59,16 @@ acceptance:
     when: e2e の feature でビルドした試す場で、想定外の失敗を返すコマンド（__test_fail）を HTTP で呼ぶ
     then: 500 と本文 {"kind":"internal","reason":"internal"} だけが返り、失敗の詳細は試す場の記録にだけ書かれる
     checked_by: test
+  - id: AC-errors-3
+    aspect: errors
+    when: e2e の feature でビルドした Tauri のアプリの汎用のコマンド invoke_command を、Tauri の試しの仕組み（tauri::test の mock runtime）で、名前 __test_panic と __test_fail、それに引数を持つふつうのコマンド（now）で呼ぶ
+    then: __test_panic と __test_fail は、試す場と同じ {"kind":"internal","reason":"internal"} だけが返り、panic の文もファイルの場所も返らない。now は、試す場で同じ引数で呼んだときと同じ形の結果が返る
+    checked_by: test
+  - id: AC-structure-4
+    aspect: structure
+    when: 画面の bridge を、Tauri の中の形（@tauri-apps/api/mocks の mockIPC）と、ブラウザの形（試す場への HTTP）で、同じ名前と同じ引数で呼ぶ
+    then: Tauri の中の形では invoke_command に名前と引数が変えられずにそのまま渡り、ブラウザの形では POST /api/invoke/<名前> に同じ引数が本文で渡る。どちらでも、返った失敗の形がそのまま画面に渡る。Tauri のアプリが登録するコマンドは invoke_command だけ
+    checked_by: test
   - id: AC-structure-1
     aspect: structure
     when: リポジトリのファイルと設定を見る
@@ -76,8 +86,8 @@ acceptance:
     checked_by: test
   - id: AC-dev-env-1
     aspect: dev-env
-    when: 準備のコマンド（npm run setup）を流した後の環境を見る
-    then: .browsers/ に Chromium と WebKit があり、cargo nextest、cargo llvm-cov、cargo audit が動き、Node.js の版が .node-version のメジャー版と同じ
+    when: 道具をそろえた環境（手元は準備のコマンド npm run setup の後、CI はジョブの準備の段の後）を見る
+    then: .browsers/ に Chromium と WebKit があり、cargo nextest、cargo llvm-cov、cargo audit が動き、rust-toolchain.toml の部品（clippy、rustfmt、llvm-tools-preview）が入り、Node.js の版が .node-version のメジャー版と同じ
     checked_by: test
   - id: AC-dev-env-2
     aspect: dev-env
@@ -107,5 +117,5 @@ acceptance:
   - id: AC-deploy-1
     aspect: deploy
     when: 版の印（例 v0.0.1）を付けて GitHub に送る
-    then: Mac（.dmg）と Windows（.msi と .exe）のアプリがビルドされ、GitHub の下書きのリリースに置かれる。それぞれを Mac と Windows に入れて開くと、アプリの土台の窓が開く（署名をしないので、Mac では初めて開くときに右クリックの「開く」が要る）
+    then: Mac（.dmg。Apple Silicon と Intel のどちらの Mac でも動く 1 つのアプリ）と Windows（.msi と .exe）のアプリがビルドされ、GitHub の下書きのリリースに置かれる。それぞれを Mac と Windows に入れて開くと、アプリの土台の窓が開く（署名をしないので、Mac では初めて開くときに右クリックの「開く」が要る）
     checked_by: human

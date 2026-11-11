@@ -21,3 +21,5 @@ log:
   - { at: 2026-11-11T04:45:48Z, stage: hearing, note: 完了 2026-11-11T04:45:38Z 状態：完了 _tech の下書き（tech.yaml、architecture.md、toolchain.yaml、write-scopes.json、acceptance.yaml）、Q-003（CI の機械）、ticket-plan の 002 と 008 の行 }
   - { at: 2026-11-11T04:46:16Z, stage: spec-review, note: 起動 2026-11-11T04:46:16Z reviewer spec-review cycle 1 head-before c4e6106375021b9687d1fa7549f6b941709db37e }
   - { at: 2026-11-11T04:50:02Z, stage: spec-review, note: 完了 2026-11-11T04:49:51Z 状態：完了 指摘 8 件（SR-001〜SR-008）を reviews/spec/01-c1.yaml に書いた }
+  - { at: 2026-11-11T04:50:07Z, stage: hearing, note: 再開 2026-11-11T04:50:07Z specification foundation-hearing 仕様のレビュー 1 回目の指摘を直す head-before 1c728f8337114f5915eb83875df974cd954906a0 }
+  - { at: 2026-11-11T04:54:44Z, stage: hearing, note: 完了 2026-11-11T04:54:34Z 状態：完了 SR-001〜SR-008 を直した。Q-004（画面の作り方）を足し、Q-003 の文を直した }
