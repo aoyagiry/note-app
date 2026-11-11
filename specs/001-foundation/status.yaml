@@ -53,3 +53,5 @@ log:
   - { at: 2026-11-11T07:00:09Z, stage: spec-review, note: 完了 2026-11-11T06:59:56Z 状態：完了 指摘 0 件。SR-015 は解消 }
   - { at: 2026-11-11T07:19:46Z, stage: design-system, note: 起動 2026-11-11T07:19:46Z designer design-system 読み直す回（相談の終わり） head-before 74f508f435772eb4a145b31660265fb91c9b487a }
   - { at: 2026-11-11T07:20:39Z, stage: design-system, note: 完了 2026-11-11T07:22:00Z 状態：完了 人の直しは見つからず、何も変えていない }
+  - { at: 2026-11-11T07:22:07Z, stage: planning, note: 起動 2026-11-11T07:22:07Z planner implementation-planning head-before b5578bdc4f3323260e652c7f2a5edf4ae9eae6c6 }
+  - { at: 2026-11-11T07:33:38Z, stage: planning, note: 完了 2026-11-11T07:33:27Z 状態：完了 implementation-plan.md と details.yaml（PD-001〜PD-022）を書いた。Rust の道具がこの機械に無いので、作る役の前に人の準備が要る }
