@@ -1,0 +1,183 @@
+@import url("https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&family=Fredoka:wght@500;600&display=swap");
+
+:root {
+  /* 色：明るい地（砂色の紙と、時刻の空と野原の場面。素焼きの橙を一点、済んだことには若葉の緑。ここは朝） */
+  --color-surface-base: #f1ece2;
+  --color-surface-raised: #fffdf8;
+  --color-surface-sunken: #ebe5d8;
+  --color-surface-overlay: rgba(60, 50, 40, 0.14);
+  --color-sky-top: #d6e5eb;
+  --color-sky-bottom: #f6e9d6;
+  --color-sun: #f4c48c;
+  --color-sun-glow: #f8dcbb;
+  --color-cloud: #fffaf2;
+  --color-hill-far: #d8ddc6;
+  --color-hill-near: #c3d0b2;
+  --color-text-primary: #2b2824;
+  --color-text-secondary: #6b645a;
+  --color-text-muted: #988f83;
+  --color-text-on-sky: #5b5348;
+  --color-border-subtle: #e8e1d5;
+  --color-border-strong: #d5ccbd;
+  --color-edge: #dbd1c1;
+  --color-accent-default: #cf6440;
+  --color-accent-hover: #b8522f;
+  --color-accent-subtle: #f9e2d5;
+  --color-accent-edge: #a54a2a;
+  --color-accent-on: #ffffff;
+  --color-leaf-default: #6d9264;
+  --color-leaf-subtle: #e2ecd9;
+  --color-highlight: #fadf9f;
+  --color-danger: #c4483a;
+  --color-success: #6d9264;
+  --color-focus: #cf6440;
+  /* ページの印（葉の形。地になじむ淡さ） */
+  --color-mark-1: #e6a383;
+  --color-mark-2: #a6c294;
+  --color-mark-3: #9bbbcd;
+  --color-mark-4: #c6abd0;
+
+  /* 文字（見出しは活版のようなかなの Kiwi Maru、本文は丸ゴシック、数字は丸い Fredoka） */
+  --type-family-display: "Kiwi Maru", "Hiragino Maru Gothic ProN", "Yu Gothic UI", serif;
+  --type-family-text: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-numeric: "Fredoka", "Zen Maru Gothic", sans-serif;
+  --type-size-xs: 0.75rem;
+  --type-size-sm: 0.8125rem;
+  --type-size-md: 0.9375rem;
+  --type-size-lg: 1.0625rem;
+  --type-size-xl: 1.375rem;
+  --type-size-2xl: 1.875rem;
+  --type-size-display: 3rem;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-bold: 700;
+  --type-leading-tight: 1.35;
+  --type-leading-snug: 1.7;
+  --type-leading-body: 1.85;
+  --type-leading-display: 1;
+  --type-tracking-wide: 0.04em;
+
+  /* 間隔 */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+  --spacing-9: 48px;
+  --spacing-10: 64px;
+
+  /* 角の丸み（紙は手で切ったように 4 つの角が少しずつ違う） */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-paper: 26px 20px 28px 22px;
+  --radius-leaf: 0 100% 0 100%;
+  --radius-full: 999px;
+
+  /* 大きさ */
+  --size-sidebar: 252px;
+  --size-icon-sm: 16px;
+  --size-mark: 9px;
+  --size-check: 20px;
+  --size-burst: 3px;
+  --size-thumb-inset: 3px;
+  --size-measure: 42em;
+  --size-dialog: 600px;
+  --size-dialog-top: 12vh;
+  --size-sun: 18vmin;
+  --size-cloud: 22vmax;
+  --size-hills: 26vh;
+
+  /* 線 */
+  --border-width-focus: 2px;
+  --border-width-control: 2px;
+  --border-width-strike: 2px;
+
+  /* 動き（押すとむにっと潰れて戻る。チェックで小さな粒がはじける。雲はとてもゆっくり流れる。明るさを替えると空がゆっくり移る） */
+  --motion-duration-instant: 90ms;
+  --motion-duration-fast: 160ms;
+  --motion-duration-base: 240ms;
+  --motion-duration-draw: 320ms;
+  --motion-duration-burst: 420ms;
+  --motion-duration-scene: 600ms;
+  --motion-duration-ambient: 90s;
+  --motion-duration-twinkle: 6s;
+  --motion-delay-status: 400ms;
+  --motion-stagger: 30ms;
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-easing-spring: cubic-bezier(0.34, 1.7, 0.64, 1);
+  --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance-enter: 10px;
+  --motion-distance-press: 2px;
+  --motion-distance-burst: 14px;
+  --motion-distance-drift: 18vmax;
+  --motion-scale-press: 0.97;
+  --motion-scale-squish-x: 1.05;
+  --motion-scale-squish-y: 0.9;
+  --motion-scale-pop: 0.8;
+  --motion-scale-enter: 0.99;
+  --motion-scale-mark: 1.3;
+  --motion-tilt-sticker: -3deg;
+  --motion-tilt-enter: -1.5deg;
+  --motion-tilt-wiggle: -14deg;
+
+  /* 影 */
+  --shadow-raised: 0 1px 2px rgba(60, 50, 40, 0.06), 0 10px 28px -14px rgba(60, 50, 40, 0.24);
+  --shadow-overlay: 0 2px 6px rgba(60, 50, 40, 0.06), 0 28px 56px -18px rgba(60, 50, 40, 0.32);
+  --shadow-edge: 0 var(--motion-distance-press) 0 var(--color-edge);
+  --shadow-edge-accent: 0 var(--motion-distance-press) 0 var(--color-accent-edge);
+
+  /* 効果 */
+  --effect-blur-cloud: 30px;
+  --effect-blur-sun: 40px;
+  --effect-blur-panel: 20px;
+  --effect-blur-scrim: 5px;
+  --effect-panel-mix: 62%;
+  --effect-opacity-cloud: 0.75;
+  --effect-opacity-stars: 0;
+}
+
+[data-theme="dark"] {
+  /* 色：暗い地（同じ朝の野原を、明けきらない暗さで。星はかすかに残る） */
+  --color-surface-base: #1a1916;
+  --color-surface-raised: #25221e;
+  --color-surface-sunken: #161512;
+  --color-surface-overlay: rgba(0, 0, 0, 0.45);
+  --color-sky-top: #161c24;
+  --color-sky-bottom: #2c241e;
+  --color-sun: #b9804f;
+  --color-sun-glow: #4a3222;
+  --color-cloud: #3a352f;
+  --color-hill-far: #252a21;
+  --color-hill-near: #1d2219;
+  --color-text-primary: #f0ebe2;
+  --color-text-secondary: #b3aa9e;
+  --color-text-muted: #7f776c;
+  --color-text-on-sky: #c8bfb2;
+  --color-border-subtle: #322e29;
+  --color-border-strong: #4a443c;
+  --color-edge: #0e0d0b;
+  --color-accent-default: #ef8b63;
+  --color-accent-hover: #f6a383;
+  --color-accent-subtle: #3b261d;
+  --color-accent-edge: #a8573a;
+  --color-accent-on: #1a1916;
+  --color-leaf-default: #9bbd8f;
+  --color-leaf-subtle: #263022;
+  --color-highlight: #5a4520;
+  --color-danger: #ef8a7a;
+  --color-success: #9bbd8f;
+  --color-focus: #ef8b63;
+  --color-mark-1: #b8765b;
+  --color-mark-2: #7e9a6d;
+  --color-mark-3: #6e8ea2;
+  --color-mark-4: #967ea2;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px -14px rgba(0, 0, 0, 0.65);
+  --shadow-overlay: 0 2px 6px rgba(0, 0, 0, 0.3), 0 28px 56px -18px rgba(0, 0, 0, 0.8);
+  --effect-opacity-cloud: 0.6;
+  --effect-opacity-stars: 0.55;
+  color-scheme: dark;
+}

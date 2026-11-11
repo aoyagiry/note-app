@@ -36,6 +36,7 @@
   --type-weight-medium: 500;
   --type-weight-bold: 700;
   --type-leading-tight: 1.4;
+  --type-leading-snug: 1.7;
   --type-leading-body: 1.85;
   --type-tracking-wide: 0.03em;
 
@@ -57,20 +58,46 @@
   --radius-lg: 20px;
   --radius-full: 999px;
 
+  /* 大きさ */
+  --size-sidebar: 252px;
+  --size-icon-sm: 16px;
+  --size-check: 18px;
+  --size-thumb-inset: 3px;
+  --size-measure: 42em;
+  --size-dialog: 600px;
+  --size-dialog-top: 12vh;
+  --size-glow: 60vmax;
+
+  /* 線 */
+  --border-width-focus: 2px;
+  --border-width-control: 2px;
+
   /* 動き（押すと少し沈み、離すと小さく弾む。背景はゆっくり漂う） */
   --motion-duration-instant: 90ms;
   --motion-duration-fast: 180ms;
   --motion-duration-base: 260ms;
   --motion-duration-ambient: 28s;
+  --motion-delay-status: 400ms;
+  --motion-stagger: 30ms;
   --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-easing-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
   --motion-distance-enter: 10px;
+  --motion-distance-drift: 6vmax;
   --motion-scale-press: 0.97;
+  --motion-scale-pop: 0.85;
+  --motion-scale-enter: 0.995;
 
   /* 影（浮いた面に、やわらかく） */
   --shadow-raised: 0 1px 2px rgba(60, 50, 40, 0.06), 0 8px 24px -12px rgba(60, 50, 40, 0.18);
   --shadow-overlay: 0 2px 6px rgba(60, 50, 40, 0.06), 0 24px 48px -16px rgba(60, 50, 40, 0.3);
+
+  /* 効果（ぼかし） */
+  --effect-blur-ambient: 80px;
+  --effect-blur-panel: 16px;
+  --effect-blur-scrim: 6px;
+  --effect-opacity-ambient: 0.9;
+  --effect-panel-mix: 72%;
 }
 
 [data-theme="dark"] {

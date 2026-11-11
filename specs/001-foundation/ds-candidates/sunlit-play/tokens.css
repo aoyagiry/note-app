@@ -1,0 +1,155 @@
+@import url("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Nunito:wght@500;700;800&display=swap");
+
+:root {
+  /* 色：明るい地（砂色の地に白い紙。素焼きの橙を一点。空のにじみは時刻で色が変わる。ここは朝） */
+  --color-surface-base: #f0ebe2;
+  --color-surface-raised: #fffdf9;
+  --color-surface-sunken: #e7e1d5;
+  --color-surface-overlay: rgba(60, 50, 40, 0.16);
+  --color-sky-1: #f7d6c2;
+  --color-sky-2: #f3e6bd;
+  --color-sky-3: #d8e3e8;
+  --color-sun: #f2b27c;
+  --color-text-primary: #2a2724;
+  --color-text-secondary: #6c655c;
+  --color-text-muted: #9a9286;
+  --color-border-subtle: #e8e2d7;
+  --color-border-strong: #d6cdbf;
+  --color-edge: #ddd4c5;
+  --color-accent-default: #d0643e;
+  --color-accent-hover: #b9532f;
+  --color-accent-subtle: #fae3d6;
+  --color-accent-edge: #a94b2a;
+  --color-accent-on: #ffffff;
+  --color-highlight: #fbdf9c;
+  --color-danger: #c4483a;
+  --color-success: #6a9270;
+  --color-focus: #d0643e;
+  /* ページの印（上の段のページに 1 つずつ。地になじむ淡さ） */
+  --color-mark-1: #e7a585;
+  --color-mark-2: #a8c398;
+  --color-mark-3: #9dbccf;
+  --color-mark-4: #c6add2;
+
+  /* 文字 */
+  --type-family-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-text: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  --type-family-numeric: "Nunito", "Zen Maru Gothic", sans-serif;
+  --type-size-xs: 0.75rem;
+  --type-size-sm: 0.8125rem;
+  --type-size-md: 0.9375rem;
+  --type-size-lg: 1.0625rem;
+  --type-size-xl: 1.375rem;
+  --type-size-2xl: 2rem;
+  --type-weight-regular: 400;
+  --type-weight-medium: 500;
+  --type-weight-bold: 700;
+  --type-weight-heavy: 900;
+  --type-leading-tight: 1.35;
+  --type-leading-snug: 1.7;
+  --type-leading-body: 1.85;
+  --type-tracking-wide: 0.03em;
+
+  /* 間隔 */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+  --spacing-9: 48px;
+  --spacing-10: 64px;
+
+  /* 角の丸み */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-full: 999px;
+
+  /* 大きさ */
+  --size-sidebar: 252px;
+  --size-icon-sm: 16px;
+  --size-mark: 8px;
+  --size-sun: 10px;
+  --size-check: 20px;
+  --size-thumb-inset: 3px;
+  --size-measure: 42em;
+  --size-dialog: 600px;
+  --size-dialog-top: 12vh;
+  --size-glow: 56vmax;
+
+  /* 線 */
+  --border-width-focus: 2px;
+  --border-width-control: 2px;
+  --border-width-strike: 2px;
+
+  /* 動き（押すと厚みの分だけ沈み、離すと弾む。チェックと印は線を引くように描く。空はゆっくり漂う） */
+  --motion-duration-instant: 90ms;
+  --motion-duration-fast: 160ms;
+  --motion-duration-base: 240ms;
+  --motion-duration-draw: 320ms;
+  --motion-duration-ambient: 32s;
+  --motion-delay-status: 400ms;
+  --motion-stagger: 30ms;
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance-enter: 8px;
+  --motion-distance-press: 2px;
+  --motion-distance-drift: 7vmax;
+  --motion-scale-press: 0.97;
+  --motion-scale-pop: 0.8;
+  --motion-scale-enter: 0.99;
+  --motion-scale-mark: 1.4;
+  --motion-ring: 8px;
+
+  /* 影（浮いた面と、押せる物の厚み） */
+  --shadow-raised: 0 1px 2px rgba(60, 50, 40, 0.06), 0 8px 24px -12px rgba(60, 50, 40, 0.2);
+  --shadow-overlay: 0 2px 6px rgba(60, 50, 40, 0.06), 0 24px 48px -16px rgba(60, 50, 40, 0.3);
+  --shadow-edge: 0 var(--motion-distance-press) 0 var(--color-edge);
+  --shadow-edge-accent: 0 var(--motion-distance-press) 0 var(--color-accent-edge);
+
+  /* 効果（ぼかし） */
+  --effect-blur-ambient: 90px;
+  --effect-blur-panel: 18px;
+  --effect-blur-scrim: 6px;
+  --effect-opacity-ambient: 0.85;
+  --effect-panel-mix: 70%;
+}
+
+[data-theme="dark"] {
+  /* 色：暗い地（焦げ茶の地に灯りの橙。空のにじみは同じ時刻を夜の色で） */
+  --color-surface-base: #1b1917;
+  --color-surface-raised: #26231f;
+  --color-surface-sunken: #151412;
+  --color-surface-overlay: rgba(0, 0, 0, 0.45);
+  --color-sky-1: #3b2a22;
+  --color-sky-2: #352f1f;
+  --color-sky-3: #1f2a31;
+  --color-sun: #c98a57;
+  --color-text-primary: #f0ebe3;
+  --color-text-secondary: #b4ab9f;
+  --color-text-muted: #80786d;
+  --color-border-subtle: #322e29;
+  --color-border-strong: #4a443c;
+  --color-edge: #0f0e0c;
+  --color-accent-default: #ef8b63;
+  --color-accent-hover: #f6a383;
+  --color-accent-subtle: #3b261d;
+  --color-accent-edge: #a8573a;
+  --color-accent-on: #1b1917;
+  --color-highlight: #5a4520;
+  --color-danger: #ef8a7a;
+  --color-success: #9dbf9f;
+  --color-focus: #ef8b63;
+  --color-mark-1: #b8775c;
+  --color-mark-2: #7f9a70;
+  --color-mark-3: #6f8fa3;
+  --color-mark-4: #977fa3;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 48px -16px rgba(0, 0, 0, 0.75);
+  --effect-opacity-ambient: 0.9;
+  color-scheme: dark;
+}
